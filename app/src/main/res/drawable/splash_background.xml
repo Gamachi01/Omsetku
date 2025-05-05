@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Warna latar belakang splash screen -->
+    <item android:drawable="@color/HijauMuda" />
+
+    <!-- Logo aplikasi di tengah -->
+    <item>
+        <bitmap
+            android:gravity="center"
+            android:src="@drawable/logo" /> <!-- Pastikan logo ada di res/drawable -->
+    </item>
+
+</layer-list>
