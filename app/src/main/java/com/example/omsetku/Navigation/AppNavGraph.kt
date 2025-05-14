@@ -9,7 +9,10 @@ import com.example.omsetku.ui.screen.*
 
 @Composable
 fun AppNavGraph(navController: NavHostController) {
-    NavHost(navController = navController, startDestination = Routes.HOME) {
+    NavHost(navController = navController, startDestination = Routes.LOGIN) {
+        composable(Routes.LOGIN) {
+            LoginScreen()
+        }
         composable(Routes.HOME) {
             HomeScreen(navController)
         }
@@ -27,6 +30,9 @@ fun AppNavGraph(navController: NavHostController) {
         }
         composable(Routes.REPORT) {
             ReportScreen(navController)
+        }
+        composable(Routes.TRANSACTION_DETAIL) {
+            TransactionDetailScreen(navController)
         }
     }
 }
