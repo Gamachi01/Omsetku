@@ -1,6 +1,8 @@
 package com.example.omsetku.ui.screen
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -118,20 +120,25 @@ fun HppScreen(navController: NavController) {
             
             Spacer(modifier = Modifier.height(16.dp))
             
-            Button(
-                onClick = { /* TODO: Implementasi perhitungan HPP */ },
+            // Tombol Hitung
+            Surface(
                 modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF5ED0C5)
-                ),
-                shape = RoundedCornerShape(8.dp)
+                shape = RoundedCornerShape(8.dp),
+                color = Color(0xFF5ED0C5)
             ) {
-                Text(
-                    "Hitung",
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(vertical = 8.dp)
-                )
+                Box(
+                    modifier = Modifier
+                        .clickable { /* TODO: Implementasi perhitungan HPP */ }
+                        .padding(vertical = 12.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        "Hitung",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
+                    )
+                }
             }
         }
     }
@@ -144,29 +151,27 @@ fun TabButton(
     modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
-    Box(
+    val shape = if (text == "Stok") 
+        RoundedCornerShape(topStart = 8.dp, bottomStart = 8.dp) 
+    else 
+        RoundedCornerShape(topEnd = 8.dp, bottomEnd = 8.dp)
+    
+    Surface(
         modifier = modifier
             .fillMaxHeight()
-            .clip(
-                if (text == "Stok") RoundedCornerShape(topStart = 8.dp, bottomStart = 8.dp)
-                else RoundedCornerShape(topEnd = 8.dp, bottomEnd = 8.dp)
-            )
-            .ButtonDefaults.indicatorColor(
-                if (isSelected) Color(0xFF5ED0C5) else Color.White
-            )
-            .ButtonDefaults.elevatedButtonColors()
+            .clickable(onClick = onClick),
+        shape = shape,
+        color = if (isSelected) Color(0xFF5ED0C5) else Color.White
     ) {
-        Button(
-            onClick = onClick,
+        Box(
             modifier = Modifier.fillMaxSize(),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = if (isSelected) Color(0xFF5ED0C5) else Color.White,
-                contentColor = if (isSelected) Color.White else Color.Black
-            ),
-            shape = RoundedCornerShape(0.dp),
-            elevation = null
+            contentAlignment = Alignment.Center
         ) {
-            Text(text = text)
+            Text(
+                text = text,
+                color = if (isSelected) Color.White else Color.Black,
+                fontWeight = FontWeight.Medium
+            )
         }
     }
 }
@@ -334,24 +339,33 @@ fun HppStokContent() {
         }
         
         // Tombol Tambah Biaya Operasional
-        OutlinedButton(
-            onClick = {
-                biayaOperasionalList = biayaOperasionalList + 1
-            },
+        Surface(
             modifier = Modifier.fillMaxWidth(),
-            border = BorderStroke(1.dp, Color.Gray),
             shape = RoundedCornerShape(8.dp),
-            colors = ButtonDefaults.outlinedButtonColors(
-                contentColor = Color.Black
-            )
+            color = Color.White,
+            border = BorderStroke(1.dp, Color.Gray)
         ) {
-            Icon(
-                imageVector = Icons.Default.Add,
-                contentDescription = "Add",
-                modifier = Modifier.size(18.dp)
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text("Tambah Biaya Operasional")
+            Row(
+                modifier = Modifier
+                    .clickable { 
+                        biayaOperasionalList = biayaOperasionalList + 1
+                    }
+                    .padding(vertical = 12.dp),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = "Add",
+                    modifier = Modifier.size(18.dp),
+                    tint = Color.Black
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    "Tambah Biaya Operasional",
+                    color = Color.Black
+                )
+            }
         }
         
         Spacer(modifier = Modifier.height(16.dp))
@@ -546,24 +560,33 @@ fun HppBahanBakuContent() {
         Spacer(modifier = Modifier.height(8.dp))
         
         // Tombol Tambah Bahan Baku
-        OutlinedButton(
-            onClick = {
-                bahanBakuList = bahanBakuList + 1
-            },
+        Surface(
             modifier = Modifier.fillMaxWidth(),
-            border = BorderStroke(1.dp, Color.Gray),
             shape = RoundedCornerShape(8.dp),
-            colors = ButtonDefaults.outlinedButtonColors(
-                contentColor = Color.Black
-            )
+            color = Color.White,
+            border = BorderStroke(1.dp, Color.Gray)
         ) {
-            Icon(
-                imageVector = Icons.Default.Add,
-                contentDescription = "Add",
-                modifier = Modifier.size(18.dp)
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text("Tambah Bahan Baku")
+            Row(
+                modifier = Modifier
+                    .clickable { 
+                        bahanBakuList = bahanBakuList + 1
+                    }
+                    .padding(vertical = 12.dp),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = "Add",
+                    modifier = Modifier.size(18.dp),
+                    tint = Color.Black
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    "Tambah Bahan Baku",
+                    color = Color.Black
+                )
+            }
         }
         
         Spacer(modifier = Modifier.height(16.dp))
@@ -634,24 +657,33 @@ fun HppBahanBakuContent() {
         }
         
         // Tombol Tambah Biaya Operasional
-        OutlinedButton(
-            onClick = {
-                biayaOperasionalList = biayaOperasionalList + 1
-            },
+        Surface(
             modifier = Modifier.fillMaxWidth(),
-            border = BorderStroke(1.dp, Color.Gray),
             shape = RoundedCornerShape(8.dp),
-            colors = ButtonDefaults.outlinedButtonColors(
-                contentColor = Color.Black
-            )
+            color = Color.White,
+            border = BorderStroke(1.dp, Color.Gray)
         ) {
-            Icon(
-                imageVector = Icons.Default.Add,
-                contentDescription = "Add",
-                modifier = Modifier.size(18.dp)
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text("Tambah Biaya Operasional")
+            Row(
+                modifier = Modifier
+                    .clickable { 
+                        biayaOperasionalList = biayaOperasionalList + 1
+                    }
+                    .padding(vertical = 12.dp),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = "Add",
+                    modifier = Modifier.size(18.dp),
+                    tint = Color.Black
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    "Tambah Biaya Operasional",
+                    color = Color.Black
+                )
+            }
         }
         
         Spacer(modifier = Modifier.height(16.dp))
