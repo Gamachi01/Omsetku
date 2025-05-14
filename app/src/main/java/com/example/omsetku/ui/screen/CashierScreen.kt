@@ -38,6 +38,7 @@ data class ProductItem(
     var quantity: Int = 0
 )
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CashierScreen(navController: NavController) {
     var selectedItem by remember { mutableStateOf("Cashier") }
