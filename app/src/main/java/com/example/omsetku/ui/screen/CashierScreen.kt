@@ -30,6 +30,9 @@ import com.example.omsetku.Navigation.Routes
 import com.example.omsetku.R
 import com.example.omsetku.ui.components.BottomNavBar
 import com.example.omsetku.ui.components.Poppins
+import com.example.omsetku.ui.theme.PrimaryVariant
+import com.example.omsetku.ui.theme.PrimaryLight
+import com.example.omsetku.ui.theme.Background
 
 data class ProductItem(
     val id: Int,
@@ -82,22 +85,23 @@ fun CashierScreen(navController: NavController) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
+                .background(Background)
                 .padding(bottom = paddingValues.calculateBottomPadding())
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(horizontal = 16.dp, vertical = 16.dp)
+                    .padding(horizontal = 20.dp, vertical = 24.dp)
             ) {
                 Text(
                     text = "Kasir",
-                    fontSize = 24.sp,
+                    fontSize = 28.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.Black,
                     fontFamily = Poppins
                 )
                 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(24.dp))
                 
                 // Search Bar
                 OutlinedTextField(
@@ -115,44 +119,46 @@ fun CashierScreen(navController: NavController) {
                         Icon(
                             imageVector = Icons.Default.Search,
                             contentDescription = "Search",
-                            tint = Color(0xFF5ED0C5)
+                            tint = PrimaryVariant
                         )
                     },
-                    shape = RoundedCornerShape(8.dp),
+                    shape = RoundedCornerShape(12.dp),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = Color(0xFF5ED0C5),
+                        focusedBorderColor = PrimaryVariant,
                         unfocusedBorderColor = Color.LightGray,
-                        cursorColor = Color(0xFF5ED0C5)
+                        cursorColor = PrimaryVariant,
+                        containerColor = Color.White
                     ),
                     singleLine = true
                 )
                 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(24.dp))
                 
                 // Action Buttons
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     // Tambah Produk Button
                     ElevatedButton(
                         onClick = { /* TODO: Tambah produk */ },
                         modifier = Modifier
                             .weight(1f)
-                            .height(48.dp),
+                            .height(52.dp),
                         colors = ButtonDefaults.elevatedButtonColors(
                             containerColor = Color.White,
-                            contentColor = Color(0xFF5ED0C5)
+                            contentColor = PrimaryVariant
                         ),
-                        shape = RoundedCornerShape(8.dp),
+                        shape = RoundedCornerShape(12.dp),
                         elevation = ButtonDefaults.elevatedButtonElevation(
-                            defaultElevation = 2.dp
+                            defaultElevation = 2.dp,
+                            pressedElevation = 4.dp
                         )
                     ) {
                         Icon(
                             imageVector = Icons.Default.Add,
                             contentDescription = "Tambah Produk",
-                            tint = Color(0xFF5ED0C5)
+                            tint = PrimaryVariant
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
@@ -168,20 +174,21 @@ fun CashierScreen(navController: NavController) {
                         onClick = { /* TODO: Atur produk */ },
                         modifier = Modifier
                             .weight(1f)
-                            .height(48.dp),
+                            .height(52.dp),
                         colors = ButtonDefaults.elevatedButtonColors(
                             containerColor = Color.White,
-                            contentColor = Color(0xFF5ED0C5)
+                            contentColor = PrimaryVariant
                         ),
-                        shape = RoundedCornerShape(8.dp),
+                        shape = RoundedCornerShape(12.dp),
                         elevation = ButtonDefaults.elevatedButtonElevation(
-                            defaultElevation = 2.dp
+                            defaultElevation = 2.dp,
+                            pressedElevation = 4.dp
                         )
                     ) {
                         Icon(
                             imageVector = Icons.Default.Edit,
                             contentDescription = "Atur Produk",
-                            tint = Color(0xFF5ED0C5)
+                            tint = PrimaryVariant
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
@@ -193,48 +200,36 @@ fun CashierScreen(navController: NavController) {
                     }
                 }
                 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(24.dp))
                 
                 // Product Grid
                 LazyVerticalGrid(
                     columns = GridCells.Fixed(2),
-                    modifier = Modifier.weight(1f),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
-                    contentPadding = PaddingValues(bottom = if(hasSelectedItems) 80.dp else 16.dp)
+                    contentPadding = PaddingValues(bottom = 80.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     items(productList) { product ->
-                        ProductCard(
-                            product = product,
-                            onIncrement = { 
-                                productList = productList.map { 
-                                    if (it.id == product.id) it.copy(quantity = it.quantity + 1)
-                                    else it
-                                }
-                            },
-                            onDecrement = {
-                                if (product.quantity > 0) {
-                                    productList = productList.map { 
-                                        if (it.id == product.id) it.copy(quantity = it.quantity - 1)
-                                        else it
-                                    }
-                                }
+                        ProductCard(product = product, onQuantityChanged = { newQuantity ->
+                            productList = productList.map {
+                                if (it.id == product.id) it.copy(quantity = newQuantity) else it
                             }
-                        )
+                        })
                     }
                 }
             }
             
-            // Bottom Transaction Button
+            // Checkout Button
             if (hasSelectedItems) {
                 Surface(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(16.dp)
-                        .align(Alignment.BottomCenter),
-                    color = Color(0xFF5ED0C5),
-                    shape = RoundedCornerShape(30.dp),
-                    shadowElevation = 4.dp
+                        .align(Alignment.BottomCenter)
+                        .padding(horizontal = 20.dp, vertical = 16.dp)
+                        .padding(bottom = paddingValues.calculateBottomPadding()),
+                    shape = RoundedCornerShape(16.dp),
+                    color = PrimaryVariant,
+                    shadowElevation = 8.dp
                 ) {
                     Row(
                         modifier = Modifier
@@ -243,38 +238,34 @@ fun CashierScreen(navController: NavController) {
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(
-                            "Proses Transaksi",
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Bold,
-                            fontFamily = Poppins,
-                            color = Color.White
-                        )
-
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically
+                        Column {
+                            Text(
+                                text = "$totalItems produk",
+                                fontSize = 12.sp,
+                                color = Color.White.copy(alpha = 0.8f),
+                                fontFamily = Poppins
+                            )
+                            Text(
+                                text = "Rp %,d".format(productList.sumOf { it.price * it.quantity }).replace(',', '.'),
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.White,
+                                fontFamily = Poppins
+                            )
+                        }
+                        
+                        Button(
+                            onClick = { /* TODO: Process checkout */ },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color.White
+                            ),
+                            shape = RoundedCornerShape(12.dp)
                         ) {
-                            Surface(
-                                shape = CircleShape,
-                                color = Color.White
-                            ) {
-                                Text(
-                                    "$totalItems",
-                                    fontSize = 14.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = Color(0xFF5ED0C5),
-                                    fontFamily = Poppins,
-                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
-                                )
-                            }
-                            
-                            Spacer(modifier = Modifier.width(8.dp))
-                            
-                            Icon(
-                                painter = painterResource(id = R.drawable.arrow_down),
-                                contentDescription = "Arrow",
-                                modifier = Modifier.size(16.dp),
-                                tint = Color.White
+                            Text(
+                                "Checkout",
+                                color = PrimaryVariant,
+                                fontWeight = FontWeight.Bold,
+                                fontFamily = Poppins
                             )
                         }
                     }
@@ -287,27 +278,24 @@ fun CashierScreen(navController: NavController) {
 @Composable
 fun ProductCard(
     product: ProductItem,
-    onIncrement: () -> Unit,
-    onDecrement: () -> Unit
+    onQuantityChanged: (Int) -> Unit
 ) {
     Card(
         modifier = Modifier
             .fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp),
+        shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White)
     ) {
         Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.padding(12.dp)
         ) {
-            // Product Image
             Box(
                 modifier = Modifier
-                    .size(100.dp)
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(Color(0xFFF0F0F0)),
-                contentAlignment = Alignment.Center
+                    .fillMaxWidth()
+                    .height(120.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(PrimaryLight)
             ) {
                 Image(
                     painter = painterResource(id = product.imageRes),
@@ -315,56 +303,58 @@ fun ProductCard(
                     contentScale = ContentScale.Fit,
                     modifier = Modifier
                         .size(80.dp)
-                        .padding(8.dp)
+                        .align(Alignment.Center)
                 )
             }
             
             Spacer(modifier = Modifier.height(12.dp))
             
-            // Product Name
             Text(
                 text = product.name,
-                fontWeight = FontWeight.Medium,
                 fontSize = 14.sp,
-                color = Color.Black,
+                fontWeight = FontWeight.Bold,
                 fontFamily = Poppins
             )
             
-            // Product Price
+            Spacer(modifier = Modifier.height(4.dp))
+            
             Text(
-                text = "Rp ${product.price / 1000}k",
-                fontWeight = FontWeight.Bold,
-                fontSize = 16.sp,
-                color = Color(0xFF5ED0C5),
+                text = "Rp %,d".format(product.price).replace(',', '.'),
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Medium,
+                color = PrimaryVariant,
                 fontFamily = Poppins
             )
             
             Spacer(modifier = Modifier.height(12.dp))
             
-            // Quantity Controls
+            // Quantity controls
             Row(
-                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier.fillMaxWidth()
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Surface(
-                    shape = CircleShape,
-                    color = if (product.quantity > 0) Color(0xFFE8F7F5) else Color(0xFFF0F0F0),
-                    modifier = Modifier.size(32.dp)
+                // Decrease button
+                IconButton(
+                    onClick = { 
+                        if (product.quantity > 0) {
+                            onQuantityChanged(product.quantity - 1)
+                        }
+                    },
+                    modifier = Modifier
+                        .size(32.dp)
+                        .clip(CircleShape)
+                        .background(if (product.quantity > 0) PrimaryLight else Color.LightGray)
                 ) {
-                    Box(
-                        contentAlignment = Alignment.Center,
-                        modifier = Modifier.clickable { onDecrement() }
-                    ) {
-                        Text(
-                            text = "-",
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = if (product.quantity > 0) Color(0xFF5ED0C5) else Color.Gray
-                        )
-                    }
+                    Text(
+                        text = "-",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = if (product.quantity > 0) PrimaryVariant else Color.Gray
+                    )
                 }
                 
+                // Quantity
                 Text(
                     text = "${product.quantity}",
                     fontSize = 16.sp,
@@ -372,22 +362,20 @@ fun ProductCard(
                     fontFamily = Poppins
                 )
                 
-                Surface(
-                    shape = CircleShape,
-                    color = Color(0xFFE8F7F5),
-                    modifier = Modifier.size(32.dp)
+                // Increase button
+                IconButton(
+                    onClick = { onQuantityChanged(product.quantity + 1) },
+                    modifier = Modifier
+                        .size(32.dp)
+                        .clip(CircleShape)
+                        .background(PrimaryLight)
                 ) {
-                    Box(
-                        contentAlignment = Alignment.Center,
-                        modifier = Modifier.clickable { onIncrement() }
-                    ) {
-                        Text(
-                            text = "+",
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color(0xFF5ED0C5)
-                        )
-                    }
+                    Text(
+                        text = "+",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = PrimaryVariant
+                    )
                 }
             }
         }

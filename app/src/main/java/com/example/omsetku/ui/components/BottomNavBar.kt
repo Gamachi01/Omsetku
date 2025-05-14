@@ -17,6 +17,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.omsetku.R
 import com.example.omsetku.ui.components.Poppins
+import com.example.omsetku.ui.theme.PrimaryVariant
+import com.example.omsetku.ui.theme.PrimaryLight
 
 @Composable
 fun BottomNavBar(
@@ -35,26 +37,28 @@ fun BottomNavBar(
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .height(64.dp),
-        shadowElevation = 8.dp,
-        color = Color.White
+            .height(70.dp),
+        shadowElevation = 16.dp,
+        color = Color.White,
+        tonalElevation = 8.dp,
+        shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 8.dp, vertical = 4.dp),
+                .padding(horizontal = 12.dp, vertical = 8.dp),
             horizontalArrangement = Arrangement.SpaceAround,
             verticalAlignment = Alignment.CenterVertically
         ) {
             items.forEachIndexed { index, item ->
                 val isSelected = selectedItem == item
-                val activeColor = Color(0xFF5ED0C5)
-                val inactiveColor = Color(0xFF9E9E9E)
+                val activeColor = PrimaryVariant
+                val inactiveColor = Color(0xFFAAAAAA)
 
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier
-                        .clip(RoundedCornerShape(8.dp))
+                        .clip(RoundedCornerShape(12.dp))
                         .clickable { onItemSelected(item) }
                         .padding(4.dp),
                     verticalArrangement = Arrangement.Center
@@ -62,10 +66,10 @@ fun BottomNavBar(
                     if (isSelected) {
                         Box(
                             modifier = Modifier
-                                .size(40.dp)
-                                .clip(RoundedCornerShape(8.dp))
-                                .background(activeColor.copy(alpha = 0.1f))
-                                .padding(8.dp),
+                                .size(44.dp)
+                                .clip(RoundedCornerShape(12.dp))
+                                .background(PrimaryLight)
+                                .padding(10.dp),
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(
@@ -76,23 +80,29 @@ fun BottomNavBar(
                             )
                         }
                     } else {
-                        Icon(
-                            painter = painterResource(id = icons[index]),
-                            contentDescription = item,
-                            tint = inactiveColor,
+                        Box(
                             modifier = Modifier
-                                .size(24.dp)
-                                .padding(top = 8.dp)
-                        )
+                                .size(44.dp)
+                                .padding(10.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                painter = painterResource(id = icons[index]),
+                                contentDescription = item,
+                                tint = inactiveColor,
+                                modifier = Modifier.size(24.dp)
+                            )
+                        }
                     }
+                    
+                    Spacer(modifier = Modifier.height(2.dp))
                     
                     Text(
                         text = item,
                         fontSize = 11.sp,
                         color = if (isSelected) activeColor else inactiveColor,
                         fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                        fontFamily = Poppins,
-                        modifier = Modifier.padding(top = 4.dp)
+                        fontFamily = Poppins
                     )
                 }
             }

@@ -24,6 +24,11 @@ import com.example.omsetku.ui.components.BottomNavBar
 import com.example.omsetku.ui.components.TransactionList
 import com.example.omsetku.ui.components.Poppins
 import com.example.omsetku.data.Transaction
+import com.example.omsetku.ui.theme.PrimaryColor
+import com.example.omsetku.ui.theme.PrimaryLight
+import com.example.omsetku.ui.theme.PrimaryVariant
+import com.example.omsetku.ui.theme.IncomeColor
+import com.example.omsetku.ui.theme.ExpenseColor
 
 @Composable
 fun HomeScreen(navController: NavController) {
@@ -87,8 +92,8 @@ fun HomeScreen(navController: NavController) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 16.dp)
-                .padding(top = 16.dp, bottom = 8.dp)
+                .padding(horizontal = 20.dp)
+                .padding(top = 24.dp, bottom = 8.dp)
                 .padding(paddingValues)
         ) {
             Row(
@@ -98,29 +103,29 @@ fun HomeScreen(navController: NavController) {
             ) {
                 Text(
                     text = "Omsetku",
-                    fontSize = 28.sp,
+                    fontSize = 30.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF5ED0C5),
+                    color = PrimaryVariant,
                     fontFamily = Poppins
                 )
                 
                 Box(
                     modifier = Modifier
-                        .size(40.dp)
+                        .size(44.dp)
                         .clip(CircleShape)
-                        .background(Color(0xFFE8F7F5))
+                        .background(PrimaryLight)
                         .clickable { navController.navigate(Routes.PROFILE) },
                     contentAlignment = Alignment.Center
                 ) {
                     Image(
                         painter = painterResource(id = R.drawable.profile_icon),
                         contentDescription = "Profile Icon",
-                        modifier = Modifier.size(24.dp)
+                        modifier = Modifier.size(28.dp)
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(32.dp))
 
             var incomeAmount by remember { mutableStateOf(2500000) }
             var expenseAmount by remember { mutableStateOf(1200000) }
@@ -129,38 +134,38 @@ fun HomeScreen(navController: NavController) {
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 24.dp),
-                shape = RoundedCornerShape(16.dp),
-                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-                colors = CardDefaults.cardColors(containerColor = Color(0xFFE8F7F5))
+                    .padding(bottom = 32.dp),
+                shape = RoundedCornerShape(20.dp),
+                elevation = CardDefaults.cardElevation(defaultElevation = 3.dp),
+                colors = CardDefaults.cardColors(containerColor = PrimaryLight)
             ) {
                 Column(
-                    modifier = Modifier.padding(16.dp),
+                    modifier = Modifier.padding(24.dp),
                     horizontalAlignment = Alignment.Start
                 ) {
                     Text(
                         text = "Saldo Saat Ini",
-                        fontSize = 14.sp,
+                        fontSize = 15.sp,
                         fontWeight = FontWeight.Medium,
                         color = Color.DarkGray,
                         fontFamily = Poppins
                     )
                     
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(10.dp))
                     
                     Text(
                         text = "Rp %,d".format(incomeAmount - expenseAmount).replace(',', '.'),
-                        fontSize = 28.sp,
+                        fontSize = 30.sp,
                         fontWeight = FontWeight.ExtraBold,
-                        color = Color(0xFF2F7E68),
+                        color = PrimaryColor,
                         fontFamily = Poppins
                     )
                     
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(20.dp))
                     
                     Divider(color = Color.LightGray, thickness = 1.dp)
                     
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(20.dp))
                     
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -169,16 +174,18 @@ fun HomeScreen(navController: NavController) {
                         Column {
                             Text(
                                 text = "Pemasukan",
-                                fontSize = 12.sp,
+                                fontSize = 13.sp,
                                 color = Color.DarkGray,
                                 fontFamily = Poppins
                             )
                             
+                            Spacer(modifier = Modifier.height(4.dp))
+                            
                             Text(
                                 text = "Rp %,d".format(incomeAmount).replace(',', '.'),
-                                fontSize = 16.sp,
+                                fontSize = 18.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = Color(0xFF08C39F),
+                                color = IncomeColor,
                                 fontFamily = Poppins
                             )
                         }
@@ -186,16 +193,18 @@ fun HomeScreen(navController: NavController) {
                         Column(horizontalAlignment = Alignment.End) {
                             Text(
                                 text = "Pengeluaran",
-                                fontSize = 12.sp,
+                                fontSize = 13.sp,
                                 color = Color.DarkGray,
                                 fontFamily = Poppins
                             )
                             
+                            Spacer(modifier = Modifier.height(4.dp))
+                            
                             Text(
                                 text = "Rp %,d".format(expenseAmount).replace(',', '.'),
-                                fontSize = 16.sp,
+                                fontSize = 18.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = Color(0xFFE74C3C),
+                                color = ExpenseColor,
                                 fontFamily = Poppins
                             )
                         }
@@ -206,7 +215,7 @@ fun HomeScreen(navController: NavController) {
             // Transaksi Terbaru
             Text(
                 text = "Transaksi Terbaru",
-                fontSize = 18.sp,
+                fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.Black,
                 fontFamily = Poppins,
@@ -231,19 +240,19 @@ fun BalanceCard(
             .width(170.dp)
             .height(80.dp)
             .clickable { onClick() },
-        shape = RoundedCornerShape(12.dp),
+        shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = color.copy(alpha = 0.1f)),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Row(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(12.dp),
+                .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Box(
                 modifier = Modifier
-                    .size(36.dp)
+                    .size(40.dp)
                     .clip(CircleShape)
                     .background(color.copy(alpha = 0.2f)),
                 contentAlignment = Alignment.Center
@@ -251,11 +260,11 @@ fun BalanceCard(
                 Image(
                     painter = painterResource(id = iconRes),
                     contentDescription = null,
-                    modifier = Modifier.size(20.dp)
+                    modifier = Modifier.size(24.dp)
                 )
             }
             
-            Spacer(modifier = Modifier.width(12.dp))
+            Spacer(modifier = Modifier.width(16.dp))
             
             Column {
                 Text(

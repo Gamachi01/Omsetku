@@ -7,6 +7,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -23,6 +25,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.omsetku.R
+import com.example.omsetku.ui.components.Poppins
+import com.example.omsetku.ui.theme.PrimaryVariant
 
 @Composable
 fun LoginScreen() {
@@ -31,34 +35,41 @@ fun LoginScreen() {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
+            .padding(24.dp)
     ) {
-
         Image(
             painter = painterResource(id = if (isLogin) R.drawable.loginillustrations else R.drawable.register_illustations),
             contentDescription = "Auth Illustration",
             modifier = Modifier
-                .height(if (isLogin) 300.dp else 220.dp)
+                .height(if (isLogin) 280.dp else 220.dp)
                 .fillMaxWidth()
+                .padding(vertical = 16.dp)
         )
+
+        Spacer(modifier = Modifier.height(16.dp))
 
         Text(
-            text = if (isLogin) "Welcome Back!" else "Let’s Get Started!",
-            fontSize = 24.sp,
-            fontWeight = FontWeight.Bold
-
+            text = if (isLogin) "Welcome Back!" else "Let's Get Started!",
+            fontSize = 28.sp,
+            fontWeight = FontWeight.Bold,
+            fontFamily = Poppins,
+            color = Color.Black
         )
+        
+        Spacer(modifier = Modifier.height(8.dp))
+        
         Text(
             text = if (isLogin) "Please enter your Login details below" else "Please enter your Sign Up details below",
-            fontSize = 14.sp,
-            color = Color.Gray
+            fontSize = 15.sp,
+            color = Color.Gray,
+            fontFamily = Poppins
         )
 
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(modifier = Modifier.height(32.dp))
 
         AuthForm(isLogin)
 
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(modifier = Modifier.height(24.dp))
 
         // Divider dengan teks di tengah
         Row(
@@ -68,17 +79,21 @@ fun LoginScreen() {
                 .padding(vertical = 16.dp)
         ) {
             Divider(
-                color = Color(0xFF999999),
+                color = Color(0xFFDDDDDD),
                 thickness = 1.dp,
                 modifier = Modifier.weight(1f)
             )
             Text(
                 text = " Atau login dengan ",
-                style = TextStyle(color = Color(0xFF999999)),
-                modifier = Modifier.padding(horizontal = 8.dp)
+                style = TextStyle(
+                    color = Color(0xFF999999),
+                    fontFamily = Poppins,
+                    fontSize = 14.sp
+                ),
+                modifier = Modifier.padding(horizontal = 12.dp)
             )
             Divider(
-                color = Color(0xFF999999),
+                color = Color(0xFFDDDDDD),
                 thickness = 1.dp,
                 modifier = Modifier.weight(1f)
             )
@@ -86,8 +101,10 @@ fun LoginScreen() {
 
         // Tombol login Facebook dan Google
         Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterHorizontally)
         ) {
             SocialLoginButton(
                 icon = painterResource(id = R.drawable.facebook_icon),
@@ -104,85 +121,142 @@ fun LoginScreen() {
             }
         }
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.weight(1f))
 
-        Column (modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally){
-            Row {
-                Text(text = if (isLogin) "Belum memiliki akun? " else "Sudah punya akun? ")
-                Text(
-                    text = if (isLogin) "Sign up" else "Login",
-                    style = TextStyle(
-                        color = Color(0xFF08C39F),
-                        fontWeight = FontWeight.Bold
-                    ),
-                    modifier = Modifier.clickable { isLogin = !isLogin }
-                )
-            }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 24.dp),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = if (isLogin) "Belum memiliki akun? " else "Sudah punya akun? ",
+                fontSize = 15.sp,
+                fontFamily = Poppins,
+                color = Color.Gray
+            )
+            Text(
+                text = if (isLogin) "Sign up" else "Login",
+                style = TextStyle(
+                    color = PrimaryVariant,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 15.sp,
+                    fontFamily = Poppins
+                ),
+                modifier = Modifier.clickable { isLogin = !isLogin }
+            )
         }
-
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AuthForm(isLogin: Boolean) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
+    var confirmPasswordVisible by remember { mutableStateOf(false) }
 
     OutlinedTextField(
         value = email,
         onValueChange = { email = it },
-        label = { Text("Email") },
-        placeholder = { Text("example@gmail.com") },
+        label = { Text("Email", fontFamily = Poppins) },
+        placeholder = { Text("example@gmail.com", fontFamily = Poppins) },
         leadingIcon = { Icon(imageVector = Icons.Default.Email, contentDescription = "Email Icon") },
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp),
+        shape = RoundedCornerShape(12.dp),
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedBorderColor = PrimaryVariant,
+            unfocusedBorderColor = Color.LightGray,
+            cursorColor = PrimaryVariant
+        ),
+        textStyle = TextStyle(fontFamily = Poppins)
     )
 
-    Spacer(modifier = Modifier.height(10.dp))
+    Spacer(modifier = Modifier.height(12.dp))
 
     OutlinedTextField(
         value = password,
         onValueChange = { password = it },
-        label = { Text("Password") },
-        placeholder = { Text("Enter your password") },
+        label = { Text("Password", fontFamily = Poppins) },
+        placeholder = { Text("Enter your password", fontFamily = Poppins) },
         leadingIcon = { Icon(imageVector = Icons.Default.Lock, contentDescription = "Lock Icon") },
         visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
         trailingIcon = {
             IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                Text(if (passwordVisible) "Hide" else "Show")
+                Icon(
+                    imageVector = if (passwordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
+                    contentDescription = if (passwordVisible) "Hide Password" else "Show Password",
+                    tint = PrimaryVariant
+                )
             }
         },
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp),
+        shape = RoundedCornerShape(12.dp),
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedBorderColor = PrimaryVariant,
+            unfocusedBorderColor = Color.LightGray,
+            cursorColor = PrimaryVariant
+        ),
+        textStyle = TextStyle(fontFamily = Poppins)
     )
 
     if (!isLogin) {
-        Spacer(modifier = Modifier.height(10.dp))
+        Spacer(modifier = Modifier.height(12.dp))
+        
         OutlinedTextField(
             value = confirmPassword,
             onValueChange = { confirmPassword = it },
-            label = { Text("Confirm Password") },
-            placeholder = { Text("Confirm your password") },
+            label = { Text("Confirm Password", fontFamily = Poppins) },
+            placeholder = { Text("Confirm your password", fontFamily = Poppins) },
             leadingIcon = { Icon(imageVector = Icons.Default.Lock, contentDescription = "Lock Icon") },
-            visualTransformation = PasswordVisualTransformation(),
-            modifier = Modifier.fillMaxWidth()
+            visualTransformation = if (confirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+            trailingIcon = {
+                IconButton(onClick = { confirmPasswordVisible = !confirmPasswordVisible }) {
+                    Icon(
+                        imageVector = if (confirmPasswordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
+                        contentDescription = if (confirmPasswordVisible) "Hide Password" else "Show Password",
+                        tint = PrimaryVariant
+                    )
+                }
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp),
+            shape = RoundedCornerShape(12.dp),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = PrimaryVariant,
+                unfocusedBorderColor = Color.LightGray,
+                cursorColor = PrimaryVariant
+            ),
+            textStyle = TextStyle(fontFamily = Poppins)
         )
     }
 
-    Spacer(modifier = Modifier.height(20.dp))
+    Spacer(modifier = Modifier.height(24.dp))
 
     Button(
         onClick = { /* Handle login/signup logic */ },
         modifier = Modifier
             .fillMaxWidth()
-            .height(35.dp),
-        shape = RoundedCornerShape(8.dp),
-        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF08C39F))
+            .height(56.dp),
+        shape = RoundedCornerShape(12.dp),
+        colors = ButtonDefaults.buttonColors(containerColor = PrimaryVariant),
+        elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp)
     ) {
-        Text(text = if (isLogin) "Login" else "Sign Up", color = Color.White, fontSize = 16.sp)
+        Text(
+            text = if (isLogin) "Login" else "Sign Up", 
+            color = Color.White, 
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Bold,
+            fontFamily = Poppins
+        )
     }
 }
 
@@ -193,26 +267,31 @@ fun SocialLoginButton(
     onClick: () -> Unit
 ) {
     Surface(
-        shape = RoundedCornerShape(8.dp),
+        shape = RoundedCornerShape(12.dp),
         shadowElevation = 2.dp,
-        color = Color(0xFFF0F0F0),
+        color = Color(0xFFF8F8F8),
         modifier = Modifier
-            .width(150.dp)
-            .height(50.dp)
+            .width(160.dp)
+            .height(56.dp)
             .clickable(onClick = onClick)
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center,
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp)
         ) {
             Image(
                 painter = icon,
                 contentDescription = "$text Icon",
                 modifier = Modifier.size(24.dp)
             )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(text = text, color = Color.Black)
+            Spacer(modifier = Modifier.width(12.dp))
+            Text(
+                text = text, 
+                color = Color.Black,
+                fontSize = 15.sp,
+                fontFamily = Poppins
+            )
         }
     }
 }
