@@ -6,12 +6,12 @@ plugins {
 
 android {
     namespace = "com.example.omsetku"
-    compileSdk = 35
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "com.example.omsetku"
         minSdk = 24
-        targetSdk = 35
+        targetSdk = 34
         versionCode = 1
         versionName = "1.0"
 
@@ -50,11 +50,11 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
 
-    implementation("androidx.navigation:navigation-compose:2.8.8")
-    implementation("androidx.constraintlayout:constraintlayout:2.2.1")
-    implementation("androidx.constraintlayout:constraintlayout-compose-android:1.1.1")
-    implementation("androidx.appcompat:appcompat:1.7.0")
-    implementation("com.google.android.material:material:1.12.0")
+    implementation("androidx.navigation:navigation-compose:2.7.6")
+    implementation("androidx.constraintlayout:constraintlayout:2.1.4")
+    implementation("androidx.constraintlayout:constraintlayout-compose:1.0.1")
+    implementation("androidx.appcompat:appcompat:1.6.1")
+    implementation("com.google.android.material:material:1.11.0")
     implementation("androidx.core:core-splashscreen:1.0.1")
 
 

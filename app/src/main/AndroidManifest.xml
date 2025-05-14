@@ -13,7 +13,7 @@
         android:usesCleartextTraffic="true">
 
         <activity
-            android:name=".MainActivity"
+            android:name=".SplashScreenActivity"
             android:exported="true"
             android:theme="@style/Theme.Omsetku">
             <intent-filter>
@@ -21,6 +21,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:theme="@style/Theme.Omsetku">
+        </activity>
+        
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
