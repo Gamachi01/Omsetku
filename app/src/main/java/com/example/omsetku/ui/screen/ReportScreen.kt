@@ -110,7 +110,7 @@ fun ReportScreen(navController: NavController) {
                     border = BorderStroke(1.dp, Color.LightGray)
                 ) {
                     Icon(
-                        painter = painterResource(id = R.drawable.filter),
+                        painter = painterResource(id = R.drawable.baseline_filter_alt_24),
                         contentDescription = "Filter",
                         tint = PrimaryVariant,
                         modifier = Modifier.size(16.dp)
@@ -136,7 +136,7 @@ fun ReportScreen(navController: NavController) {
                     )
                 ) {
                     Icon(
-                        painter = painterResource(id = R.drawable.download),
+                        painter = painterResource(id = R.drawable.baseline_download_24),
                         contentDescription = "Download",
                         tint = Color.White,
                         modifier = Modifier.size(16.dp)

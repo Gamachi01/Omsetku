@@ -317,7 +317,7 @@ fun SuccessDialog(onDismiss: () -> Unit) {
                     color = Color(0xFF62DCC8)
                 ) {
                     Icon(
-                        painter = painterResource(id = R.drawable.check),
+                        painter = painterResource(id = R.drawable.baseline_check_24),
                         contentDescription = "Success",
                         tint = Color.White,
                         modifier = Modifier

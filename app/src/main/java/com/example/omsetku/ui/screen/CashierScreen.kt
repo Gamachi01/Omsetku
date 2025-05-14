@@ -3,6 +3,7 @@ package com.example.omsetku.ui.screen
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -388,7 +389,7 @@ fun ProductDialog(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Icon(
-                            painter = painterResource(id = R.drawable.arrow_upward),
+                            painter = painterResource(id = R.drawable.arrow_up),
                             contentDescription = "Upload",
                             tint = Color(0xFF62DCC8),
                             modifier = Modifier.size(36.dp)
@@ -620,16 +621,3 @@ fun ProductCard(
         }
     }
 }
-
-@Composable
-fun androidx.compose.foundation.layout.Box.border(
-    width: Dp,
-    color: Color,
-    shape: RoundedCornerShape
-) = this.then(
-    Modifier.border(
-        width = width,
-        color = color,
-        shape = shape
-    )
-)
