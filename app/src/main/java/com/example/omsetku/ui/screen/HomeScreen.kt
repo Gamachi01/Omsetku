@@ -24,7 +24,7 @@ import com.example.omsetku.data.Transaction
 
 @Composable
 fun HomeScreen(navController: NavController) {
-    var selectedItem by remember { mutableStateOf("Beranda") }
+    var selectedItem by remember { mutableStateOf("Home") }
 
     // data dummy
     val transactions = remember {
@@ -71,11 +71,11 @@ fun HomeScreen(navController: NavController) {
                 onItemSelected = { item ->
                     selectedItem = item
                     when (item) {
-                        "Home" -> navController.navigate(Routes.HOME)
-                        "Cashier" -> {  }
+                        "Home" -> { /* Sudah di layar Home */ }
+                        "Cashier" -> navController.navigate(Routes.CASHIER)
                         "Transaction" -> navController.navigate(Routes.TRANSACTION)
-                        "HPP" -> { /* TODO */ }
-                        "Report" -> { /* TODO */ }
+                        "HPP" -> navController.navigate(Routes.HPP)
+                        "Report" -> navController.navigate(Routes.REPORT)
                     }
                 }
             )

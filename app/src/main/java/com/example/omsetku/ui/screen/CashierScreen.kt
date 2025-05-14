@@ -15,55 +15,89 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.example.omsetku.R
+import com.example.omsetku.ui.components.BottomNavBar
 
 @Composable
-fun CashierScreen() {
+fun CashierScreen(navController: NavController) {
     var showAddProductDialog by remember { mutableStateOf(false) }
     var showManageProductDialog by remember { mutableStateOf(false) }
+    var selectedItem by remember { mutableStateOf("Cashier") }
 
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Spacer(modifier = Modifier.height(16.dp))
-
-        OutlinedTextField(
-            value = "",
-            onValueChange = {},
-            placeholder = { Text("Search Product") },
-            modifier = Modifier.fillMaxWidth(0.9f)
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Row(
-            horizontalArrangement = Arrangement.SpaceEvenly,
-            modifier = Modifier.fillMaxWidth()
+    Scaffold(
+        bottomBar = {
+            BottomNavBar(
+                selectedItem = selectedItem,
+                onItemSelected = { item ->
+                    selectedItem = item
+                    when (item) {
+                        "Home" -> navController.navigate("home")
+                        "Cashier" -> { /* Sudah di layar Cashier */ }
+                        "Transaction" -> navController.navigate("transaction")
+                        "HPP" -> navController.navigate("hpp")
+                        "Report" -> navController.navigate("report")
+                    }
+                }
+            )
+        }
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp)
+                .padding(paddingValues),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Button(onClick = { showAddProductDialog = true }) {
-                Icon(Icons.Default.Add, contentDescription = "Add Product")
-                Spacer(modifier = Modifier.width(4.dp))
-                Text("Add Product")
+            Spacer(modifier = Modifier.height(16.dp))
+
+            OutlinedTextField(
+                value = "",
+                onValueChange = {},
+                placeholder = { Text("Search Product") },
+                modifier = Modifier.fillMaxWidth(0.9f)
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Row(
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Button(
+                    onClick = { showAddProductDialog = true },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFF2F7E68)
+                    )
+                ) {
+                    Icon(Icons.Default.Add, contentDescription = "Add Product")
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text("Add Product")
+                }
+                Button(
+                    onClick = { showManageProductDialog = true },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFF2F7E68)
+                    )
+                ) {
+                    Icon(Icons.Default.Edit, contentDescription = "Manage Product")
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text("Manage Product")
+                }
             }
-            Button(onClick = { showManageProductDialog = true }) {
-                Icon(Icons.Default.Edit, contentDescription = "Manage Product")
-                Spacer(modifier = Modifier.width(4.dp))
-                Text("Manage Product")
-            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Text("Oops! No Product Yet.", fontSize = 16.sp, color = Color.Gray)
+            Text("Add product items first to start taking orders.", fontSize = 14.sp, color = Color.Gray)
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Text("Oops! No Product Yet.", fontSize = 16.sp, color = Color.Gray)
-        Text("Add product items first to start taking orders.", fontSize = 14.sp, color = Color.Gray)
-    }
-
-    if (showAddProductDialog) {
-        AddProductDialog(onDismiss = { showAddProductDialog = false })
-    }
-    if (showManageProductDialog) {
-        ManageProductDialog(onDismiss = { showManageProductDialog = false })
+        if (showAddProductDialog) {
+            AddProductDialog(onDismiss = { showAddProductDialog = false })
+        }
+        if (showManageProductDialog) {
+            ManageProductDialog(onDismiss = { showManageProductDialog = false })
+        }
     }
 }
 

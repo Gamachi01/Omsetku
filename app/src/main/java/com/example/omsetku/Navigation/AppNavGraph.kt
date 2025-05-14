@@ -5,9 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.example.omsetku.ui.screen.HomeScreen
-import com.example.omsetku.ui.screen.ProfileScreen
-import com.example.omsetku.ui.screen.TransactionScreen
+import com.example.omsetku.ui.screen.*
 
 @Composable
 fun AppNavGraph(navController: NavHostController) {
@@ -20,6 +18,15 @@ fun AppNavGraph(navController: NavHostController) {
         }
         composable(Routes.TRANSACTION) {
             TransactionScreen(navController)
+        }
+        composable(Routes.CASHIER) {
+            CashierScreen(navController)
+        }
+        composable(Routes.HPP) {
+            HppScreen(navController)
+        }
+        composable(Routes.REPORT) {
+            ReportScreen(navController)
         }
     }
 }

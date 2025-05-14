@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.omsetku.R
+import com.example.omsetku.Navigation.Routes
 
 @Composable
 fun ProfileScreen(navController: NavController) {
@@ -24,7 +25,7 @@ fun ProfileScreen(navController: NavController) {
             .fillMaxSize()
             .padding(16.dp)
     ) {
-        IconButton(onClick = { navController.popBackStack() }) {
+        IconButton(onClick = { navController.navigate(Routes.HOME) }) {
             Image(
                 painter = painterResource(id = R.drawable.back_icon),
                 contentDescription = "Back",
@@ -83,7 +84,7 @@ fun ProfileScreen(navController: NavController) {
 
         MenuSection(title = "Lainnya", items = listOf(
             MenuItem("Pusat Bantuan", R.drawable.help_icon),
-            MenuItem("Log Out", R.drawable.logout_icon)
+            MenuItem("Log Out", R.drawable.logout_icon, onClick = { navController.navigate(Routes.HOME) })
         ))
     }
 }
@@ -97,12 +98,12 @@ fun MenuSection(title: String, items: List<MenuItem>) {
         modifier = Modifier.padding(vertical = 8.dp)
     )
     items.forEach {
-        ProfileMenuItem(title = it.title, icon = it.iconRes)
+        ProfileMenuItem(title = it.title, icon = it.iconRes, onClick = it.onClick)
     }
 }
 
 @Composable
-fun ProfileMenuItem(title: String, icon: Int) {
+fun ProfileMenuItem(title: String, icon: Int, onClick: () -> Unit = {}) {
     var isSelected by remember { mutableStateOf(false) }
 
     Surface(
@@ -115,7 +116,10 @@ fun ProfileMenuItem(title: String, icon: Int) {
     ) {
         Row(
             modifier = Modifier
-                .clickable { isSelected = !isSelected }
+                .clickable { 
+                    isSelected = !isSelected
+                    onClick()
+                }
                 .padding(horizontal = 12.dp, vertical = 10.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
@@ -138,6 +142,7 @@ fun ProfileMenuItem(title: String, icon: Int) {
                         .size(20.dp)
                         .clickable {
                             isSelected = !isSelected
+                            onClick()
                         }
                 )
             }
@@ -147,5 +152,6 @@ fun ProfileMenuItem(title: String, icon: Int) {
 
 data class MenuItem(
     val title: String,
-    val iconRes: Int
+    val iconRes: Int,
+    val onClick: () -> Unit = {}
 )

@@ -25,7 +25,7 @@ enum class TransactionType {
 
 @Composable
 fun TransactionScreen(navController: NavController) {
-    var selectedItem by remember { mutableStateOf(Routes.TRANSACTION) }
+    var selectedItem by remember { mutableStateOf("Transaction") }
     var selectedType by remember { mutableStateOf(TransactionType.INCOME) }
     var tanggal by remember { mutableStateOf("") }
     var nominal by remember { mutableStateOf("") }
@@ -37,9 +37,12 @@ fun TransactionScreen(navController: NavController) {
                 selectedItem = selectedItem,
                 onItemSelected = { item ->
                     selectedItem = item
-                    navController.navigate(item) {
-                        popUpTo(Routes.HOME) { inclusive = false }
-                        launchSingleTop = true
+                    when (item) {
+                        "Home" -> navController.navigate(Routes.HOME)
+                        "Cashier" -> navController.navigate(Routes.CASHIER)
+                        "Transaction" -> { /* Sudah di layar Transaction */ }
+                        "HPP" -> navController.navigate(Routes.HPP)
+                        "Report" -> navController.navigate(Routes.REPORT)
                     }
                 }
             )
