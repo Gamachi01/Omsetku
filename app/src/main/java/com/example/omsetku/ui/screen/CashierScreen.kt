@@ -12,7 +12,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -300,11 +299,11 @@ fun ProductCard(
                         ),
                         shape = RoundedCornerShape(4.dp)
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.Remove,
-                            contentDescription = "Kurangi",
-                            tint = Color.White,
-                            modifier = Modifier.size(16.dp)
+                        Text(
+                            text = "-",
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White
                         )
                     }
                     
