@@ -7,24 +7,24 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CalendarToday
-import androidx.compose.material.icons.filled.Download
-import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.omsetku.Navigation.Routes
+import com.example.omsetku.R
 import com.example.omsetku.ui.components.BottomNavBar
 import com.example.omsetku.ui.components.Poppins
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ReportScreen(navController: NavController) {
     var selectedItem by remember { mutableStateOf("Report") }
@@ -72,7 +72,7 @@ fun ReportScreen(navController: NavController) {
                 modifier = Modifier.align(Alignment.CenterHorizontally)
             ) {
                 Icon(
-                    imageVector = Icons.Default.CalendarToday,
+                    painter = painterResource(id = R.drawable.transactioncalender),
                     contentDescription = "Tanggal",
                     modifier = Modifier.size(20.dp),
                     tint = Color.Black
@@ -106,10 +106,9 @@ fun ReportScreen(navController: NavController) {
                     ),
                     border = BorderStroke(1.dp, Color(0xFF5ED0C5))
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.FilterList,
-                        contentDescription = "Filter",
-                        tint = Color(0xFF5ED0C5)
+                    Text(
+                        text = "⚙️",
+                        fontSize = 16.sp
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
@@ -130,9 +129,9 @@ fun ReportScreen(navController: NavController) {
                         containerColor = Color(0xFF5ED0C5)
                     )
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.Download,
-                        contentDescription = "Download"
+                    Text(
+                        text = "⬇️",
+                        fontSize = 16.sp
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
