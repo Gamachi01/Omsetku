@@ -2,7 +2,6 @@ package com.example.omsetku.ui.screen
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -57,10 +56,11 @@ fun HppScreen(navController: NavController) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp)
+                .padding(horizontal = 16.dp)
+                .padding(top = 16.dp, bottom = 8.dp)
                 .padding(paddingValues)
                 .verticalScroll(scrollState),
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.Start
         ) {
             Text(
                 text = "Hitung HPP",
@@ -68,14 +68,14 @@ fun HppScreen(navController: NavController) {
                 fontWeight = FontWeight.Bold,
                 color = Color.Black,
                 fontFamily = Poppins,
-                modifier = Modifier.padding(bottom = 16.dp)
+                modifier = Modifier.padding(bottom = 20.dp)
             )
             
             // Tab Selection
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(50.dp)
+                    .height(40.dp)
                     .clip(RoundedCornerShape(8.dp))
             ) {
                 HppTabButton(
@@ -83,40 +83,48 @@ fun HppScreen(navController: NavController) {
                     isSelected = selectedTab == HppTab.STOK,
                     modifier = Modifier.weight(1f),
                     onClick = { selectedTab = HppTab.STOK },
-                    shape = RoundedCornerShape(topStart = 6.dp, bottomStart = 6.dp)
+                    shape = RoundedCornerShape(topStart = 8.dp, bottomStart = 8.dp)
                 )
                 HppTabButton(
                     text = "Bahan Baku",
                     isSelected = selectedTab == HppTab.BAHAN_BAKU,
                     modifier = Modifier.weight(1f),
                     onClick = { selectedTab = HppTab.BAHAN_BAKU },
-                    shape = RoundedCornerShape(topEnd = 6.dp, bottomEnd = 6.dp)
+                    shape = RoundedCornerShape(topEnd = 8.dp, bottomEnd = 8.dp)
                 )
             }
             
-            Spacer(modifier = Modifier.height(8.dp))
-            
-            // Info Text
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(vertical = 8.dp)
+            // Info Box
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 16.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = Color(0xFFF5F5F5)
+                ),
+                shape = RoundedCornerShape(8.dp)
             ) {
-                Icon(
-                    imageVector = Icons.Default.Info,
-                    contentDescription = "Info",
-                    tint = Color.Gray,
-                    modifier = Modifier.size(20.dp)
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = if (selectedTab == HppTab.STOK) 
-                            "Hitung HPP dari stok produk yang terjual." 
-                          else 
-                            "Hitung HPP dari bahan resep dan jumlah pemakaian.",
-                    fontSize = 12.sp,
-                    color = Color.Gray,
-                    fontFamily = Poppins
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(12.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Info,
+                        contentDescription = "Info",
+                        tint = Color.Gray,
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = if (selectedTab == HppTab.STOK) 
+                                "Hitung HPP dari stok produk yang terjual." 
+                              else 
+                                "Hitung HPP dari bahan resep dan jumlah pemakaian.",
+                        fontSize = 12.sp,
+                        color = Color.Gray,
+                        fontFamily = Poppins
+                    )
+                }
             }
             
             if (selectedTab == HppTab.STOK) {
@@ -125,14 +133,14 @@ fun HppScreen(navController: NavController) {
                 HppBahanBakuContent()
             }
             
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(24.dp))
             
             // Tombol Hitung
             Button(
                 onClick = { /* TODO: Implementasi perhitungan HPP */ },
                 modifier = Modifier
-                    .width(353.dp)
-                    .height(40.dp),
+                    .fillMaxWidth()
+                    .height(48.dp),
                 shape = RoundedCornerShape(8.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF5ED0C5))
             ) {
@@ -143,6 +151,8 @@ fun HppScreen(navController: NavController) {
                     fontFamily = Poppins
                 )
             }
+            
+            Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }
@@ -161,13 +171,13 @@ fun HppTabButton(
     Button(
         onClick = onClick,
         modifier = modifier
-            .height(32.dp),
+            .height(40.dp),
         contentPadding = PaddingValues(vertical = 0.dp),
         shape = shape,
         border = BorderStroke(1.dp, selectedColor),
         colors = ButtonDefaults.buttonColors(
             containerColor = if (isSelected) selectedColor else unselectedColor,
-            contentColor = Color.Black
+            contentColor = if (isSelected) Color.White else Color.Black
         )
     ) {
         Text(
@@ -182,7 +192,7 @@ fun HppTabButton(
 @Composable
 fun HppStokContent() {
     Column(modifier = Modifier.fillMaxWidth()) {
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(8.dp))
         
         HppLabeledFieldBox(label = "Pilih Produk") {
             OutlinedTextField(
@@ -198,16 +208,18 @@ fun HppStokContent() {
                         modifier = Modifier.size(24.dp)
                     )
                 },
-                shape = RoundedCornerShape(8.dp)
+                shape = RoundedCornerShape(8.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    unfocusedBorderColor = Color.LightGray,
+                    focusedBorderColor = Color(0xFF5ED0C5)
+                )
             )
         }
-        
-        Spacer(modifier = Modifier.height(16.dp))
         
         // Persediaan Awal dan Akhir
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 HppLabeledFieldBox(label = "Persediaan Awal") {
@@ -216,13 +228,15 @@ fun HppStokContent() {
                         onValueChange = {},
                         modifier = Modifier.fillMaxWidth(),
                         textStyle = TextStyle(fontSize = 14.sp, color = Color.Black, fontFamily = Poppins),
-                        placeholder = { Text("Rp", fontSize = 14.sp, fontFamily = Poppins) },
-                        shape = RoundedCornerShape(8.dp)
+                        placeholder = { Text("Rp", fontSize = 14.sp, fontFamily = Poppins, color = Color.Gray) },
+                        shape = RoundedCornerShape(8.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            unfocusedBorderColor = Color.LightGray,
+                            focusedBorderColor = Color(0xFF5ED0C5)
+                        )
                     )
                 }
             }
-            
-            Spacer(modifier = Modifier.width(16.dp))
             
             Column(modifier = Modifier.weight(1f)) {
                 HppLabeledFieldBox(label = "Persediaan Akhir") {
@@ -231,8 +245,12 @@ fun HppStokContent() {
                         onValueChange = {},
                         modifier = Modifier.fillMaxWidth(),
                         textStyle = TextStyle(fontSize = 14.sp, color = Color.Black, fontFamily = Poppins),
-                        placeholder = { Text("Rp", fontSize = 14.sp, fontFamily = Poppins) },
-                        shape = RoundedCornerShape(8.dp)
+                        placeholder = { Text("Rp", fontSize = 14.sp, fontFamily = Poppins, color = Color.Gray) },
+                        shape = RoundedCornerShape(8.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            unfocusedBorderColor = Color.LightGray,
+                            focusedBorderColor = Color(0xFF5ED0C5)
+                        )
                     )
                 }
             }
@@ -244,77 +262,93 @@ fun HppStokContent() {
                 onValueChange = {},
                 modifier = Modifier.fillMaxWidth(),
                 textStyle = TextStyle(fontSize = 14.sp, color = Color.Black, fontFamily = Poppins),
-                placeholder = { Text("Rp", fontSize = 14.sp, fontFamily = Poppins) },
-                shape = RoundedCornerShape(8.dp)
+                placeholder = { Text("Rp", fontSize = 14.sp, fontFamily = Poppins, color = Color.Gray) },
+                shape = RoundedCornerShape(8.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    unfocusedBorderColor = Color.LightGray,
+                    focusedBorderColor = Color(0xFF5ED0C5)
+                )
             )
         }
         
         // Biaya Operasional
         var biayaOperasionalList by remember { mutableStateOf(listOf(1, 2)) }
         
+        Text(
+            text = "Biaya Operasional",
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Medium,
+            fontFamily = Poppins,
+            modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
+        )
+        
         biayaOperasionalList.forEachIndexed { index, _ ->
             Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 8.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    HppLabeledFieldBox(label = "Biaya Operasional") {
-                        OutlinedTextField(
-                            value = "",
-                            onValueChange = {},
-                            modifier = Modifier.fillMaxWidth(),
-                            textStyle = TextStyle(fontSize = 14.sp, color = Color.Black, fontFamily = Poppins),
-                            shape = RoundedCornerShape(8.dp)
-                        )
-                    }
-                }
+                OutlinedTextField(
+                    value = "",
+                    onValueChange = {},
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(56.dp),
+                    textStyle = TextStyle(fontSize = 14.sp, color = Color.Black, fontFamily = Poppins),
+                    placeholder = { Text("Nama biaya", fontSize = 14.sp, fontFamily = Poppins, color = Color.Gray) },
+                    shape = RoundedCornerShape(8.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        unfocusedBorderColor = Color.LightGray,
+                        focusedBorderColor = Color(0xFF5ED0C5)
+                    )
+                )
                 
-                Spacer(modifier = Modifier.width(16.dp))
-                
-                Column(modifier = Modifier.weight(1f)) {
-                    HppLabeledFieldBox(label = "Nominal") {
-                        OutlinedTextField(
-                            value = "",
-                            onValueChange = {},
-                            modifier = Modifier.fillMaxWidth(),
-                            textStyle = TextStyle(fontSize = 14.sp, color = Color.Black, fontFamily = Poppins),
-                            placeholder = { Text("Rp", fontSize = 14.sp, fontFamily = Poppins) },
-                            shape = RoundedCornerShape(8.dp),
-                            trailingIcon = if (index > 0) {
-                                {
-                                    IconButton(onClick = {
-                                        biayaOperasionalList = biayaOperasionalList.toMutableList().apply {
-                                            removeAt(index)
-                                        }
-                                    }) {
-                                        Icon(
-                                            imageVector = Icons.Default.Close,
-                                            contentDescription = "Remove",
-                                            tint = Color.Red
-                                        )
-                                    }
+                OutlinedTextField(
+                    value = "",
+                    onValueChange = {},
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(56.dp),
+                    textStyle = TextStyle(fontSize = 14.sp, color = Color.Black, fontFamily = Poppins),
+                    placeholder = { Text("Rp", fontSize = 14.sp, fontFamily = Poppins, color = Color.Gray) },
+                    shape = RoundedCornerShape(8.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        unfocusedBorderColor = Color.LightGray,
+                        focusedBorderColor = Color(0xFF5ED0C5)
+                    ),
+                    trailingIcon = if (index > 0) {
+                        {
+                            IconButton(onClick = {
+                                biayaOperasionalList = biayaOperasionalList.toMutableList().apply {
+                                    removeAt(index)
                                 }
-                            } else null
-                        )
-                    }
-                }
+                            }) {
+                                Icon(
+                                    imageVector = Icons.Default.Close,
+                                    contentDescription = "Remove",
+                                    tint = Color.Red
+                                )
+                            }
+                        }
+                    } else null
+                )
             }
         }
         
         // Tombol Tambah Biaya Operasional
-        Button(
+        OutlinedButton(
             onClick = {
                 biayaOperasionalList = biayaOperasionalList + 1
             },
             modifier = Modifier
-                .width(353.dp)
+                .fillMaxWidth()
                 .padding(vertical = 8.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color.White,
-                contentColor = Color.Black
+            colors = ButtonDefaults.outlinedButtonColors(
+                contentColor = Color(0xFF5ED0C5)
             ),
-            border = BorderStroke(1.dp, Color.Gray),
+            border = BorderStroke(1.dp, Color(0xFF5ED0C5)),
             shape = RoundedCornerShape(8.dp)
         ) {
             Icon(
@@ -330,13 +364,19 @@ fun HppStokContent() {
             )
         }
         
+        Spacer(modifier = Modifier.height(16.dp))
+        
         HppLabeledFieldBox(label = "Estimasi Jumlah Produk Terjual per Bulan") {
             OutlinedTextField(
                 value = "",
                 onValueChange = {},
                 modifier = Modifier.fillMaxWidth(),
                 textStyle = TextStyle(fontSize = 14.sp, color = Color.Black, fontFamily = Poppins),
-                shape = RoundedCornerShape(8.dp)
+                shape = RoundedCornerShape(8.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    unfocusedBorderColor = Color.LightGray,
+                    focusedBorderColor = Color(0xFF5ED0C5)
+                )
             )
         }
     }
@@ -345,7 +385,7 @@ fun HppStokContent() {
 @Composable
 fun HppBahanBakuContent() {
     Column(modifier = Modifier.fillMaxWidth()) {
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(8.dp))
         
         HppLabeledFieldBox(label = "Pilih Produk") {
             OutlinedTextField(
@@ -361,7 +401,11 @@ fun HppBahanBakuContent() {
                         modifier = Modifier.size(24.dp)
                     )
                 },
-                shape = RoundedCornerShape(8.dp)
+                shape = RoundedCornerShape(8.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    unfocusedBorderColor = Color.LightGray,
+                    focusedBorderColor = Color(0xFF5ED0C5)
+                )
             )
         }
         
@@ -370,20 +414,30 @@ fun HppBahanBakuContent() {
         // Bahan Baku List
         var bahanBakuList by remember { mutableStateOf(listOf(1, 2)) }
         
+        Text(
+            text = "Bahan Baku",
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Medium,
+            fontFamily = Poppins,
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+        
         bahanBakuList.forEachIndexed { index, bahan ->
             Card(
                 modifier = Modifier
-                    .width(353.dp)
-                    .padding(vertical = 8.dp),
-                shape = RoundedCornerShape(8.dp),
+                    .fillMaxWidth()
+                    .padding(bottom = 12.dp),
+                shape = RoundedCornerShape(12.dp),
                 colors = CardDefaults.cardColors(
-                    containerColor = Color(0xFFEBFBF9)
+                    containerColor = Color(0xFFF2FBFA)
                 ),
                 border = BorderStroke(1.dp, Color(0xFF5ED0C5))
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Row(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 12.dp),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -401,7 +455,8 @@ fun HppBahanBakuContent() {
                                     bahanBakuList = bahanBakuList.toMutableList().apply {
                                         removeAt(index)
                                     }
-                                }
+                                },
+                                modifier = Modifier.size(32.dp)
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.Close,
@@ -412,12 +467,10 @@ fun HppBahanBakuContent() {
                         }
                     }
                     
-                    Spacer(modifier = Modifier.height(8.dp))
-                    
                     // Nama Bahan dan Harga per Satuan
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
@@ -434,11 +487,15 @@ fun HppBahanBakuContent() {
                                 onValueChange = {},
                                 modifier = Modifier.fillMaxWidth(),
                                 textStyle = TextStyle(fontSize = 14.sp, color = Color.Black, fontFamily = Poppins),
-                                shape = RoundedCornerShape(8.dp)
+                                shape = RoundedCornerShape(8.dp),
+                                colors = OutlinedTextFieldDefaults.colors(
+                                    unfocusedBorderColor = Color.LightGray,
+                                    focusedBorderColor = Color(0xFF5ED0C5),
+                                    unfocusedContainerColor = Color.White,
+                                    focusedContainerColor = Color.White
+                                )
                             )
                         }
-                        
-                        Spacer(modifier = Modifier.width(16.dp))
                         
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
@@ -455,8 +512,14 @@ fun HppBahanBakuContent() {
                                 onValueChange = {},
                                 modifier = Modifier.fillMaxWidth(),
                                 textStyle = TextStyle(fontSize = 14.sp, color = Color.Black, fontFamily = Poppins),
-                                placeholder = { Text("Rp", fontSize = 14.sp, fontFamily = Poppins) },
-                                shape = RoundedCornerShape(8.dp)
+                                placeholder = { Text("Rp", fontSize = 14.sp, fontFamily = Poppins, color = Color.Gray) },
+                                shape = RoundedCornerShape(8.dp),
+                                colors = OutlinedTextFieldDefaults.colors(
+                                    unfocusedBorderColor = Color.LightGray,
+                                    focusedBorderColor = Color(0xFF5ED0C5),
+                                    unfocusedContainerColor = Color.White,
+                                    focusedContainerColor = Color.White
+                                )
                             )
                         }
                     }
@@ -466,7 +529,7 @@ fun HppBahanBakuContent() {
                     // Jumlah Digunakan dan Total Harga
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
@@ -483,11 +546,15 @@ fun HppBahanBakuContent() {
                                 onValueChange = {},
                                 modifier = Modifier.fillMaxWidth(),
                                 textStyle = TextStyle(fontSize = 14.sp, color = Color.Black, fontFamily = Poppins),
-                                shape = RoundedCornerShape(8.dp)
+                                shape = RoundedCornerShape(8.dp),
+                                colors = OutlinedTextFieldDefaults.colors(
+                                    unfocusedBorderColor = Color.LightGray,
+                                    focusedBorderColor = Color(0xFF5ED0C5),
+                                    unfocusedContainerColor = Color.White,
+                                    focusedContainerColor = Color.White
+                                )
                             )
                         }
-                        
-                        Spacer(modifier = Modifier.width(16.dp))
                         
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
@@ -504,8 +571,14 @@ fun HppBahanBakuContent() {
                                 onValueChange = {},
                                 modifier = Modifier.fillMaxWidth(),
                                 textStyle = TextStyle(fontSize = 14.sp, color = Color.Black, fontFamily = Poppins),
-                                placeholder = { Text("Rp", fontSize = 14.sp, fontFamily = Poppins) },
-                                shape = RoundedCornerShape(8.dp)
+                                placeholder = { Text("Rp", fontSize = 14.sp, fontFamily = Poppins, color = Color.Gray) },
+                                shape = RoundedCornerShape(8.dp),
+                                colors = OutlinedTextFieldDefaults.colors(
+                                    unfocusedBorderColor = Color.LightGray,
+                                    focusedBorderColor = Color(0xFF5ED0C5),
+                                    unfocusedContainerColor = Color.White,
+                                    focusedContainerColor = Color.White
+                                )
                             )
                         }
                     }
@@ -513,21 +586,18 @@ fun HppBahanBakuContent() {
             }
         }
         
-        Spacer(modifier = Modifier.height(8.dp))
-        
         // Tombol Tambah Bahan Baku
-        Button(
+        OutlinedButton(
             onClick = {
                 bahanBakuList = bahanBakuList + 1
             },
             modifier = Modifier
-                .width(353.dp)
+                .fillMaxWidth()
                 .padding(vertical = 8.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color.White,
-                contentColor = Color.Black
+            colors = ButtonDefaults.outlinedButtonColors(
+                contentColor = Color(0xFF5ED0C5)
             ),
-            border = BorderStroke(1.dp, Color.Gray),
+            border = BorderStroke(1.dp, Color(0xFF5ED0C5)),
             shape = RoundedCornerShape(8.dp)
         ) {
             Icon(
@@ -548,69 +618,81 @@ fun HppBahanBakuContent() {
         // Biaya Operasional
         var biayaOperasionalList by remember { mutableStateOf(listOf(1, 2)) }
         
+        Text(
+            text = "Biaya Operasional",
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Medium,
+            fontFamily = Poppins,
+            modifier = Modifier.padding(top = 8.dp, bottom = 8.dp)
+        )
+        
         biayaOperasionalList.forEachIndexed { index, _ ->
             Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 8.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    HppLabeledFieldBox(label = "Biaya Operasional") {
-                        OutlinedTextField(
-                            value = "",
-                            onValueChange = {},
-                            modifier = Modifier.fillMaxWidth(),
-                            textStyle = TextStyle(fontSize = 14.sp, color = Color.Black, fontFamily = Poppins),
-                            shape = RoundedCornerShape(8.dp)
-                        )
-                    }
-                }
+                OutlinedTextField(
+                    value = "",
+                    onValueChange = {},
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(56.dp),
+                    textStyle = TextStyle(fontSize = 14.sp, color = Color.Black, fontFamily = Poppins),
+                    placeholder = { Text("Nama biaya", fontSize = 14.sp, fontFamily = Poppins, color = Color.Gray) },
+                    shape = RoundedCornerShape(8.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        unfocusedBorderColor = Color.LightGray,
+                        focusedBorderColor = Color(0xFF5ED0C5)
+                    )
+                )
                 
-                Spacer(modifier = Modifier.width(16.dp))
-                
-                Column(modifier = Modifier.weight(1f)) {
-                    HppLabeledFieldBox(label = "Nominal") {
-                        OutlinedTextField(
-                            value = "",
-                            onValueChange = {},
-                            modifier = Modifier.fillMaxWidth(),
-                            textStyle = TextStyle(fontSize = 14.sp, color = Color.Black, fontFamily = Poppins),
-                            placeholder = { Text("Rp", fontSize = 14.sp, fontFamily = Poppins) },
-                            shape = RoundedCornerShape(8.dp),
-                            trailingIcon = if (index > 0) {
-                                {
-                                    IconButton(onClick = {
-                                        biayaOperasionalList = biayaOperasionalList.toMutableList().apply {
-                                            removeAt(index)
-                                        }
-                                    }) {
-                                        Icon(
-                                            imageVector = Icons.Default.Close,
-                                            contentDescription = "Remove",
-                                            tint = Color.Red
-                                        )
-                                    }
+                OutlinedTextField(
+                    value = "",
+                    onValueChange = {},
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(56.dp),
+                    textStyle = TextStyle(fontSize = 14.sp, color = Color.Black, fontFamily = Poppins),
+                    placeholder = { Text("Rp", fontSize = 14.sp, fontFamily = Poppins, color = Color.Gray) },
+                    shape = RoundedCornerShape(8.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        unfocusedBorderColor = Color.LightGray,
+                        focusedBorderColor = Color(0xFF5ED0C5)
+                    ),
+                    trailingIcon = if (index > 0) {
+                        {
+                            IconButton(onClick = {
+                                biayaOperasionalList = biayaOperasionalList.toMutableList().apply {
+                                    removeAt(index)
                                 }
-                            } else null
-                        )
-                    }
-                }
+                            }) {
+                                Icon(
+                                    imageVector = Icons.Default.Close,
+                                    contentDescription = "Remove",
+                                    tint = Color.Red
+                                )
+                            }
+                        }
+                    } else null
+                )
             }
         }
         
         // Tombol Tambah Biaya Operasional
-        Button(
+        OutlinedButton(
             onClick = {
                 biayaOperasionalList = biayaOperasionalList + 1
             },
             modifier = Modifier
-                .width(353.dp)
+                .fillMaxWidth()
                 .padding(vertical = 8.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color.White,
-                contentColor = Color.Black
+            colors = ButtonDefaults.outlinedButtonColors(
+                contentColor = Color(0xFF5ED0C5)
             ),
-            border = BorderStroke(1.dp, Color.Gray),
+            border = BorderStroke(1.dp, Color(0xFF5ED0C5)),
             shape = RoundedCornerShape(8.dp)
         ) {
             Icon(
@@ -626,13 +708,19 @@ fun HppBahanBakuContent() {
             )
         }
         
+        Spacer(modifier = Modifier.height(16.dp))
+        
         HppLabeledFieldBox(label = "Estimasi terjual dalam bulanan") {
             OutlinedTextField(
                 value = "",
                 onValueChange = {},
                 modifier = Modifier.fillMaxWidth(),
                 textStyle = TextStyle(fontSize = 14.sp, color = Color.Black, fontFamily = Poppins),
-                shape = RoundedCornerShape(8.dp)
+                shape = RoundedCornerShape(8.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    unfocusedBorderColor = Color.LightGray,
+                    focusedBorderColor = Color(0xFF5ED0C5)
+                )
             )
         }
     }
@@ -646,21 +734,16 @@ fun HppLabeledFieldBox(
 ) {
     Column(
         modifier = modifier
+            .fillMaxWidth()
             .padding(vertical = 8.dp)
-            .width(353.dp)
     ) {
         Text(
             text = label,
-            fontSize = 12.sp,
-            fontFamily = Poppins
+            fontSize = 14.sp,
+            fontFamily = Poppins,
+            fontWeight = FontWeight.Medium
         )
-        Spacer(modifier = Modifier.height(4.dp))
-        Box(
-            modifier = Modifier
-                .width(353.dp)
-                .heightIn(min = 56.dp),
-        ) {
-            content()
-        }
+        Spacer(modifier = Modifier.height(8.dp))
+        content()
     }
 } 
