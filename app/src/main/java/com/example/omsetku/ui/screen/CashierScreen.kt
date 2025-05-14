@@ -126,8 +126,7 @@ fun CashierScreen(navController: NavController) {
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = PrimaryVariant,
                         unfocusedBorderColor = Color.LightGray,
-                        cursorColor = PrimaryVariant,
-                        containerColor = Color.White
+                        cursorColor = PrimaryVariant
                     ),
                     singleLine = true
                 )

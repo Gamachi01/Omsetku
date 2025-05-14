@@ -7,8 +7,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.Visibility
-import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -188,10 +186,12 @@ fun AuthForm(isLogin: Boolean) {
         visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
         trailingIcon = {
             IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                Icon(
-                    imageVector = if (passwordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
-                    contentDescription = if (passwordVisible) "Hide Password" else "Show Password",
-                    tint = PrimaryVariant
+                Text(
+                    text = if (passwordVisible) "Hide" else "Show",
+                    color = PrimaryVariant,
+                    fontFamily = Poppins,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Medium
                 )
             }
         },
@@ -219,10 +219,12 @@ fun AuthForm(isLogin: Boolean) {
             visualTransformation = if (confirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
             trailingIcon = {
                 IconButton(onClick = { confirmPasswordVisible = !confirmPasswordVisible }) {
-                    Icon(
-                        imageVector = if (confirmPasswordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
-                        contentDescription = if (confirmPasswordVisible) "Hide Password" else "Show Password",
-                        tint = PrimaryVariant
+                    Text(
+                        text = if (confirmPasswordVisible) "Hide" else "Show",
+                        color = PrimaryVariant,
+                        fontFamily = Poppins,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Medium
                     )
                 }
             },
