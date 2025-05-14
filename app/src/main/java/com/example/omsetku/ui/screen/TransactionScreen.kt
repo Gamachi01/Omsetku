@@ -23,6 +23,7 @@ enum class TransactionType {
     INCOME, EXPENSE
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TransactionScreen(navController: NavController) {
     var selectedItem by remember { mutableStateOf("Transaction") }
@@ -51,7 +52,8 @@ fun TransactionScreen(navController: NavController) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp)
+                .padding(horizontal = 16.dp)
+                .padding(top = 16.dp, bottom = 8.dp)
                 .padding(paddingValues)
         ) {
             Text(
@@ -62,7 +64,7 @@ fun TransactionScreen(navController: NavController) {
                 fontFamily = Poppins
             )
 
-            Spacer(modifier = Modifier.height(25.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -72,31 +74,37 @@ fun TransactionScreen(navController: NavController) {
                     text = "Pemasukan",
                     isSelected = selectedType == TransactionType.INCOME,
                     onClick = { selectedType = TransactionType.INCOME },
-                    shape = RoundedCornerShape(topStart = 6.dp, bottomStart = 6.dp)
+                    shape = RoundedCornerShape(topStart = 8.dp, bottomStart = 8.dp)
                 )
                 TransactionButton(
                     text = "Pengeluaran",
                     isSelected = selectedType == TransactionType.EXPENSE,
                     onClick = { selectedType = TransactionType.EXPENSE },
-                    shape = RoundedCornerShape(topEnd = 6.dp, bottomEnd = 6.dp)
+                    shape = RoundedCornerShape(topEnd = 8.dp, bottomEnd = 8.dp)
                 )
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
             LabeledFieldBox(label = "Tanggal Transaksi") {
                 OutlinedTextField(
                     value = tanggal,
                     onValueChange = { tanggal = it },
-                    textStyle = TextStyle(fontSize = 14.sp, color = Color.Black),
+                    textStyle = TextStyle(fontSize = 14.sp, color = Color.Black, fontFamily = Poppins),
                     modifier = Modifier.fillMaxWidth(),
                     trailingIcon = {
                         Icon(
                             painter = painterResource(id = R.drawable.transactioncalender),
                             contentDescription = "Kalender",
-                            modifier = Modifier.size(24.dp)
+                            modifier = Modifier.size(24.dp),
+                            tint = Color(0xFF5ED0C5)
                         )
-                    }
+                    },
+                    shape = RoundedCornerShape(8.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        unfocusedBorderColor = Color.LightGray,
+                        focusedBorderColor = Color(0xFF5ED0C5)
+                    )
                 )
             }
 
@@ -104,9 +112,21 @@ fun TransactionScreen(navController: NavController) {
                 OutlinedTextField(
                     value = nominal,
                     onValueChange = { nominal = it },
-                    textStyle = TextStyle(fontSize = 14.sp, color = Color.Black),
+                    textStyle = TextStyle(fontSize = 14.sp, color = Color.Black, fontFamily = Poppins),
                     modifier = Modifier.fillMaxWidth(),
-                    placeholder = { Text("Rp", fontSize = 14.sp) }
+                    placeholder = { 
+                        Text(
+                            "Rp", 
+                            fontSize = 14.sp, 
+                            fontFamily = Poppins,
+                            color = Color.Gray
+                        ) 
+                    },
+                    shape = RoundedCornerShape(8.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        unfocusedBorderColor = Color.LightGray,
+                        focusedBorderColor = Color(0xFF5ED0C5)
+                    )
                 )
             }
 
@@ -115,8 +135,15 @@ fun TransactionScreen(navController: NavController) {
                     value = if (selectedType == TransactionType.INCOME) "Pemasukan" else "Pengeluaran",
                     onValueChange = {},
                     enabled = false,
-                    textStyle = TextStyle(fontSize = 14.sp, color = Color.Black),
-                    modifier = Modifier.fillMaxWidth()
+                    textStyle = TextStyle(fontSize = 14.sp, color = Color.Black, fontFamily = Poppins),
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(8.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        unfocusedBorderColor = Color.LightGray,
+                        focusedBorderColor = Color(0xFF5ED0C5),
+                        disabledBorderColor = Color.LightGray,
+                        disabledTextColor = Color.Black
+                    )
                 )
             }
 
@@ -124,8 +151,21 @@ fun TransactionScreen(navController: NavController) {
                 OutlinedTextField(
                     value = deskripsi,
                     onValueChange = { deskripsi = it },
-                    textStyle = TextStyle(fontSize = 14.sp, color = Color.Black),
-                    modifier = Modifier.fillMaxWidth()
+                    textStyle = TextStyle(fontSize = 14.sp, color = Color.Black, fontFamily = Poppins),
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(8.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        unfocusedBorderColor = Color.LightGray,
+                        focusedBorderColor = Color(0xFF5ED0C5)
+                    ),
+                    placeholder = { 
+                        Text(
+                            "Masukkan deskripsi transaksi...", 
+                            fontSize = 14.sp, 
+                            fontFamily = Poppins,
+                            color = Color.Gray
+                        ) 
+                    }
                 )
             }
 
@@ -135,11 +175,16 @@ fun TransactionScreen(navController: NavController) {
                 onClick = { /* Simpan data */ },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(40.dp),
+                    .height(48.dp),
                 shape = RoundedCornerShape(8.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF5ED0C5))
             ) {
-                Text("Simpan", fontWeight = FontWeight.Bold, fontFamily = Poppins)
+                Text(
+                    "Simpan", 
+                    fontWeight = FontWeight.Bold, 
+                    fontFamily = Poppins,
+                    fontSize = 16.sp
+                )
             }
         }
     }
@@ -159,14 +204,14 @@ fun TransactionButton(
     Button(
         onClick = onClick,
         modifier = Modifier
-            .height(32.dp)
+            .height(40.dp)
             .width(176.dp),
         contentPadding = PaddingValues(vertical = 0.dp),
         shape = shape,
         border = BorderStroke(1.dp, selectedColor),
         colors = ButtonDefaults.buttonColors(
             containerColor = if (isSelected) selectedColor else unselectedColor,
-            contentColor = Color.Black
+            contentColor = if (isSelected) Color.White else Color.Black
         )
     ) {
         Text(
@@ -186,22 +231,17 @@ fun LabeledFieldBox(
 ) {
     Column(
         modifier = modifier
+            .fillMaxWidth()
             .padding(vertical = 8.dp)
-            .width(353.dp)
     ) {
         Text(
             text = label,
-            fontSize = 12.sp,
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Medium,
             fontFamily = Poppins
         )
-        Spacer(modifier = Modifier.height(4.dp))
-        Box(
-            modifier = Modifier
-                .width(353.dp)
-                .heightIn(min = 56.dp),
-        ) {
-            content()
-        }
+        Spacer(modifier = Modifier.height(8.dp))
+        content()
     }
 }
 

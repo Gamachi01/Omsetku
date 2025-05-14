@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -86,25 +87,42 @@ fun CashierScreen(navController: NavController) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(16.dp)
+                    .padding(horizontal = 16.dp, vertical = 16.dp)
             ) {
+                Text(
+                    text = "Kasir",
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black,
+                    fontFamily = Poppins
+                )
+                
+                Spacer(modifier = Modifier.height(16.dp))
+                
                 // Search Bar
                 OutlinedTextField(
                     value = searchQuery,
                     onValueChange = { searchQuery = it },
-                    placeholder = { Text("Cari Produk", fontFamily = Poppins) },
+                    placeholder = { 
+                        Text(
+                            "Cari Produk", 
+                            fontFamily = Poppins,
+                            color = Color.Gray
+                        ) 
+                    },
                     modifier = Modifier.fillMaxWidth(),
                     leadingIcon = {
                         Icon(
                             imageVector = Icons.Default.Search,
                             contentDescription = "Search",
-                            tint = Color.Gray
+                            tint = Color(0xFF5ED0C5)
                         )
                     },
                     shape = RoundedCornerShape(8.dp),
-                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                    colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = Color(0xFF5ED0C5),
-                        unfocusedBorderColor = Color.LightGray
+                        unfocusedBorderColor = Color.LightGray,
+                        cursorColor = Color(0xFF5ED0C5)
                     ),
                     singleLine = true
                 )
@@ -114,23 +132,29 @@ fun CashierScreen(navController: NavController) {
                 // Action Buttons
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     // Tambah Produk Button
-                    Button(
+                    ElevatedButton(
                         onClick = { /* TODO: Tambah produk */ },
-                        modifier = Modifier.weight(1f),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFF5ED0C5)
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(48.dp),
+                        colors = ButtonDefaults.elevatedButtonColors(
+                            containerColor = Color.White,
+                            contentColor = Color(0xFF5ED0C5)
                         ),
-                        shape = RoundedCornerShape(8.dp)
+                        shape = RoundedCornerShape(8.dp),
+                        elevation = ButtonDefaults.elevatedButtonElevation(
+                            defaultElevation = 2.dp
+                        )
                     ) {
                         Icon(
                             imageVector = Icons.Default.Add,
                             contentDescription = "Tambah Produk",
-                            tint = Color.White
+                            tint = Color(0xFF5ED0C5)
                         )
-                        Spacer(modifier = Modifier.width(4.dp))
+                        Spacer(modifier = Modifier.width(8.dp))
                         Text(
                             "Tambah Produk",
                             fontSize = 14.sp,
@@ -140,20 +164,26 @@ fun CashierScreen(navController: NavController) {
                     }
                     
                     // Atur Produk Button
-                    Button(
+                    ElevatedButton(
                         onClick = { /* TODO: Atur produk */ },
-                        modifier = Modifier.weight(1f),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFF5ED0C5)
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(48.dp),
+                        colors = ButtonDefaults.elevatedButtonColors(
+                            containerColor = Color.White,
+                            contentColor = Color(0xFF5ED0C5)
                         ),
-                        shape = RoundedCornerShape(8.dp)
+                        shape = RoundedCornerShape(8.dp),
+                        elevation = ButtonDefaults.elevatedButtonElevation(
+                            defaultElevation = 2.dp
+                        )
                     ) {
                         Icon(
                             imageVector = Icons.Default.Edit,
                             contentDescription = "Atur Produk",
-                            tint = Color.White
+                            tint = Color(0xFF5ED0C5)
                         )
-                        Spacer(modifier = Modifier.width(4.dp))
+                        Spacer(modifier = Modifier.width(8.dp))
                         Text(
                             "Atur Produk",
                             fontSize = 14.sp,
@@ -169,8 +199,9 @@ fun CashierScreen(navController: NavController) {
                 LazyVerticalGrid(
                     columns = GridCells.Fixed(2),
                     modifier = Modifier.weight(1f),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    contentPadding = PaddingValues(bottom = if(hasSelectedItems) 80.dp else 16.dp)
                 ) {
                     items(productList) { product ->
                         ProductCard(
@@ -196,36 +227,57 @@ fun CashierScreen(navController: NavController) {
             
             // Bottom Transaction Button
             if (hasSelectedItems) {
-                Button(
-                    onClick = { /* TODO: Proses transaksi */ },
+                Surface(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 24.dp, vertical = 16.dp)
+                        .padding(16.dp)
                         .align(Alignment.BottomCenter),
+                    color = Color(0xFF5ED0C5),
                     shape = RoundedCornerShape(30.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF5ED0C5)
-                    )
+                    shadowElevation = 4.dp
                 ) {
-                    Text(
-                        "Proses Transaksi",
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold,
-                        fontFamily = Poppins,
-                        modifier = Modifier.padding(vertical = 8.dp)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        "$totalItems item",
-                        fontSize = 16.sp,
-                        fontFamily = Poppins
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Icon(
-                        painter = painterResource(id = R.drawable.arrow_down),
-                        contentDescription = "Arrow",
-                        modifier = Modifier.size(16.dp)
-                    )
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 24.dp, vertical = 16.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            "Proses Transaksi",
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold,
+                            fontFamily = Poppins,
+                            color = Color.White
+                        )
+
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Surface(
+                                shape = CircleShape,
+                                color = Color.White
+                            ) {
+                                Text(
+                                    "$totalItems",
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color(0xFF5ED0C5),
+                                    fontFamily = Poppins,
+                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                                )
+                            }
+                            
+                            Spacer(modifier = Modifier.width(8.dp))
+                            
+                            Icon(
+                                painter = painterResource(id = R.drawable.arrow_down),
+                                contentDescription = "Arrow",
+                                modifier = Modifier.size(16.dp),
+                                tint = Color.White
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -240,97 +292,100 @@ fun ProductCard(
 ) {
     Card(
         modifier = Modifier
-            .fillMaxWidth()
-            .wrapContentHeight(),
+            .fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White)
     ) {
         Column(
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.padding(12.dp)
         ) {
             // Product Image
-            Image(
-                painter = painterResource(id = product.imageRes),
-                contentDescription = product.name,
+            Box(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .height(120.dp)
-                    .clip(RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp)),
-                contentScale = ContentScale.Crop
+                    .size(100.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(Color(0xFFF0F0F0)),
+                contentAlignment = Alignment.Center
+            ) {
+                Image(
+                    painter = painterResource(id = product.imageRes),
+                    contentDescription = product.name,
+                    contentScale = ContentScale.Fit,
+                    modifier = Modifier
+                        .size(80.dp)
+                        .padding(8.dp)
+                )
+            }
+            
+            Spacer(modifier = Modifier.height(12.dp))
+            
+            // Product Name
+            Text(
+                text = product.name,
+                fontWeight = FontWeight.Medium,
+                fontSize = 14.sp,
+                color = Color.Black,
+                fontFamily = Poppins
             )
             
-            // Product Info
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(12.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+            // Product Price
+            Text(
+                text = "Rp ${product.price / 1000}k",
+                fontWeight = FontWeight.Bold,
+                fontSize = 16.sp,
+                color = Color(0xFF5ED0C5),
+                fontFamily = Poppins
+            )
+            
+            Spacer(modifier = Modifier.height(12.dp))
+            
+            // Quantity Controls
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier.fillMaxWidth()
             ) {
-                Text(
-                    text = product.name,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 16.sp,
-                    fontFamily = Poppins
-                )
-                
-                Text(
-                    text = "Rp ${product.price}",
-                    fontWeight = FontWeight.Medium,
-                    fontSize = 14.sp,
-                    fontFamily = Poppins,
-                    color = Color.Black
-                )
-                
-                Spacer(modifier = Modifier.height(8.dp))
-                
-                // Quantity Controls
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceEvenly,
-                    verticalAlignment = Alignment.CenterVertically
+                Surface(
+                    shape = CircleShape,
+                    color = if (product.quantity > 0) Color(0xFFE8F7F5) else Color(0xFFF0F0F0),
+                    modifier = Modifier.size(32.dp)
                 ) {
-                    // Decrement Button
-                    Button(
-                        onClick = onDecrement,
-                        modifier = Modifier.size(32.dp),
-                        contentPadding = PaddingValues(0.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFF5ED0C5)
-                        ),
-                        shape = RoundedCornerShape(4.dp)
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier.clickable { onDecrement() }
                     ) {
                         Text(
                             text = "-",
-                            fontSize = 16.sp,
+                            fontSize = 18.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color.White
+                            color = if (product.quantity > 0) Color(0xFF5ED0C5) else Color.Gray
                         )
                     }
-                    
-                    // Quantity Display
-                    Text(
-                        text = "${product.quantity}",
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold,
-                        fontFamily = Poppins
-                    )
-                    
-                    // Increment Button
-                    Button(
-                        onClick = onIncrement,
-                        modifier = Modifier.size(32.dp),
-                        contentPadding = PaddingValues(0.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFF5ED0C5)
-                        ),
-                        shape = RoundedCornerShape(4.dp)
+                }
+                
+                Text(
+                    text = "${product.quantity}",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = Poppins
+                )
+                
+                Surface(
+                    shape = CircleShape,
+                    color = Color(0xFFE8F7F5),
+                    modifier = Modifier.size(32.dp)
+                ) {
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier.clickable { onIncrement() }
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.Add,
-                            contentDescription = "Tambah",
-                            tint = Color.White,
-                            modifier = Modifier.size(16.dp)
+                        Text(
+                            text = "+",
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF5ED0C5)
                         )
                     }
                 }

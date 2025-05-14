@@ -50,58 +50,65 @@ fun ReportScreen(navController: NavController) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp)
+                .padding(horizontal = 16.dp)
+                .padding(top = 16.dp, bottom = 8.dp)
                 .padding(paddingValues)
-                .verticalScroll(scrollState),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .verticalScroll(scrollState)
         ) {
             Text(
                 text = "Laporan Keuangan",
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.Black,
-                fontFamily = Poppins,
-                modifier = Modifier.align(Alignment.CenterHorizontally)
+                fontFamily = Poppins
             )
             
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(16.dp))
             
             // Tanggal periode
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.align(Alignment.CenterHorizontally)
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(
+                    containerColor = Color(0xFFF5F5F5)
+                ),
+                shape = RoundedCornerShape(8.dp)
             ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.transactioncalender),
-                    contentDescription = "Tanggal",
-                    modifier = Modifier.size(20.dp),
-                    tint = Color.Black
-                )
-                Spacer(modifier = Modifier.width(4.dp))
-                Text(
-                    text = "01 Maret 2025 - 31 Maret 2025",
-                    fontSize = 14.sp,
-                    fontFamily = Poppins,
-                    color = Color.Black
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(16.dp)
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.transactioncalender),
+                        contentDescription = "Tanggal",
+                        modifier = Modifier.size(24.dp),
+                        tint = Color(0xFF5ED0C5)
+                    )
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Text(
+                        text = "01 Maret 2025 - 31 Maret 2025",
+                        fontSize = 14.sp,
+                        fontFamily = Poppins,
+                        fontWeight = FontWeight.Medium,
+                        color = Color.Black
+                    )
+                }
             }
             
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(24.dp))
             
             // Filter dan Download Button
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 // Tombol Filter
-                Button(
+                OutlinedButton(
                     onClick = { /* TODO: Implementasi filter */ },
                     modifier = Modifier
-                        .width(100.dp)
-                        .height(40.dp),
+                        .weight(0.4f)
+                        .height(48.dp),
                     shape = RoundedCornerShape(8.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.White,
+                    colors = ButtonDefaults.outlinedButtonColors(
                         contentColor = Color(0xFF5ED0C5)
                     ),
                     border = BorderStroke(1.dp, Color(0xFF5ED0C5))
@@ -110,10 +117,11 @@ fun ReportScreen(navController: NavController) {
                         text = "⚙️",
                         fontSize = 16.sp
                     )
-                    Spacer(modifier = Modifier.width(4.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
                     Text(
                         "Filter",
                         fontSize = 14.sp,
+                        fontWeight = FontWeight.Medium,
                         fontFamily = Poppins
                     )
                 }
@@ -122,8 +130,8 @@ fun ReportScreen(navController: NavController) {
                 Button(
                     onClick = { /* TODO: Implementasi download laporan */ },
                     modifier = Modifier
-                        .height(40.dp)
-                        .width(240.dp),
+                        .weight(0.6f)
+                        .height(48.dp),
                     shape = RoundedCornerShape(8.dp),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color(0xFF5ED0C5)
@@ -143,43 +151,52 @@ fun ReportScreen(navController: NavController) {
                 }
             }
             
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(24.dp))
+            
+            Text(
+                text = "Ringkasan",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.Black,
+                fontFamily = Poppins,
+                modifier = Modifier.padding(bottom = 12.dp)
+            )
             
             // Cards untuk Total Pendapatan dan Pengeluaran
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 // Card Total Pendapatan
                 Card(
                     modifier = Modifier
                         .weight(1f)
-                        .height(80.dp)
-                        .padding(end = 8.dp),
-                    shape = RoundedCornerShape(8.dp),
+                        .height(100.dp),
+                    shape = RoundedCornerShape(12.dp),
                     colors = CardDefaults.cardColors(
                         containerColor = Color(0xFFE8F7F5)
                     ),
-                    border = BorderStroke(1.dp, Color(0xFF5ED0C5))
+                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                 ) {
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(12.dp),
+                            .padding(16.dp),
                         verticalArrangement = Arrangement.Center
                     ) {
                         Text(
                             text = "Total Pendapatan",
-                            fontSize = 12.sp,
+                            fontSize = 14.sp,
                             fontFamily = Poppins,
-                            color = Color.Black
+                            color = Color.DarkGray
                         )
+                        Spacer(modifier = Modifier.height(4.dp))
                         Text(
                             text = "Rp 12.000.000",
-                            fontSize = 16.sp,
+                            fontSize = 18.sp,
                             fontWeight = FontWeight.Bold,
                             fontFamily = Poppins,
-                            color = Color(0xFF2F7E68)
+                            color = Color(0xFF08C39F)
                         )
                     }
                 }
@@ -188,29 +205,29 @@ fun ReportScreen(navController: NavController) {
                 Card(
                     modifier = Modifier
                         .weight(1f)
-                        .height(80.dp)
-                        .padding(start = 8.dp),
-                    shape = RoundedCornerShape(8.dp),
+                        .height(100.dp),
+                    shape = RoundedCornerShape(12.dp),
                     colors = CardDefaults.cardColors(
                         containerColor = Color(0xFFFDEDED)
                     ),
-                    border = BorderStroke(1.dp, Color(0xFFE74C3C))
+                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                 ) {
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(12.dp),
+                            .padding(16.dp),
                         verticalArrangement = Arrangement.Center
                     ) {
                         Text(
                             text = "Total Pengeluaran",
-                            fontSize = 12.sp,
+                            fontSize = 14.sp,
                             fontFamily = Poppins,
-                            color = Color.Black
+                            color = Color.DarkGray
                         )
+                        Spacer(modifier = Modifier.height(4.dp))
                         Text(
                             text = "Rp 7.700.000",
-                            fontSize = 16.sp,
+                            fontSize = 18.sp,
                             fontWeight = FontWeight.Bold,
                             fontFamily = Poppins,
                             color = Color(0xFFE74C3C)
@@ -225,28 +242,29 @@ fun ReportScreen(navController: NavController) {
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(80.dp),
-                shape = RoundedCornerShape(8.dp),
+                    .padding(bottom = 16.dp),
+                shape = RoundedCornerShape(12.dp),
                 colors = CardDefaults.cardColors(
                     containerColor = Color(0xFFE8F7F5)
                 ),
-                border = BorderStroke(1.dp, Color(0xFF5ED0C5))
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
             ) {
                 Column(
                     modifier = Modifier
-                        .fillMaxSize()
-                        .padding(12.dp),
-                    verticalArrangement = Arrangement.Center
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 20.dp),
+                    horizontalAlignment = Alignment.Start
                 ) {
                     Text(
                         text = "Laba Bersih",
-                        fontSize = 12.sp,
+                        fontSize = 14.sp,
                         fontFamily = Poppins,
-                        color = Color.Black
+                        color = Color.DarkGray
                     )
+                    Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = "Rp 500.000",
-                        fontSize = 16.sp,
+                        text = "Rp 4.300.000",
+                        fontSize = 22.sp,
                         fontWeight = FontWeight.Bold,
                         fontFamily = Poppins,
                         color = Color(0xFF2F7E68)
@@ -256,139 +274,146 @@ fun ReportScreen(navController: NavController) {
             
             Spacer(modifier = Modifier.height(24.dp))
             
-            // Tabel Header
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(Color(0xFFF5F5F5))
-                    .padding(vertical = 8.dp, horizontal = 16.dp)
-            ) {
-                Text(
-                    text = "Deskripsi",
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Bold,
-                    fontFamily = Poppins,
-                    modifier = Modifier.weight(2f)
-                )
-                Text(
-                    text = "Saldo",
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Bold,
-                    fontFamily = Poppins,
-                    textAlign = TextAlign.End,
-                    modifier = Modifier.weight(1f)
+            Text(
+                text = "Rincian Transaksi",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.Black,
+                fontFamily = Poppins,
+                modifier = Modifier.padding(bottom = 12.dp)
+            )
+            
+            // Transaksi Harian Cards
+            for (i in 1..5) {
+                TransactionDayCard(
+                    date = "30 Maret 2025",
+                    income = 1200000,
+                    expense = 500000,
+                    modifier = Modifier.padding(bottom = 12.dp)
                 )
             }
-            
-            // Pendapatan
-            TableSectionHeader(text = "Pendapatan")
-            TableItem(description = "Kopi", amount = "Rp 4.000.000")
-            TableItem(description = "Jus Jeruk", amount = "Rp 5.500.000")
-            TableItem(description = "Roti Tawar", amount = "Rp 2.500.000")
-            
-            // Total Pendapatan
-            TableSectionTotal(label = "Total Pendapatan", amount = "Rp 12.000.000")
-            
-            // Harga Pokok Penjualan
-            TableSectionHeader(text = "Harga Pokok Penjualan")
-            TableItem(description = "Kopi", amount = "Rp 1.200.000")
-            TableItem(description = "Jus Jeruk", amount = "Rp 2.100.000")
-            TableItem(description = "Roti Tawar", amount = "Rp 1.200.000")
-            
-            // Total HPP
-            TableSectionTotal(label = "Total Harga Pokok Penjualan", amount = "Rp 4.500.000")
-            
-            // Laba Kotor
-            TableSectionTotal(label = "Laba Kotor", amount = "Rp 7.500.000", isHighlighted = true)
-            
-            // Biaya Operasional
-            TableSectionHeader(text = "Biaya Operasional")
-            TableItem(description = "Sewa", amount = "Rp 2.000.000")
-            TableItem(description = "Gaji Karyawan", amount = "Rp 4.500.000")
-            TableItem(description = "Listrik & Air", amount = "Rp 500.000")
-            
-            // Total Biaya Operasional
-            TableSectionTotal(label = "Total Biaya Operasional", amount = "Rp 7.000.000")
-            
-            // Laba Bersih & Pajak
-            TableSectionTotal(label = "Laba Bersih", amount = "Rp 500.000", isHighlighted = true)
-            TableItem(description = "Pajak Penghasilan UMKM (0,5%)", amount = "Rp 2.500")
-            TableSectionTotal(label = "Laba Bersih setelah Pajak", amount = "Rp 497.500", isHighlighted = true)
-            
-            Spacer(modifier = Modifier.height(80.dp)) // Untuk memberikan space di bagian bawah
         }
     }
 }
 
 @Composable
-fun TableSectionHeader(text: String) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(Color(0xFFEEEEEE))
-            .padding(vertical = 12.dp, horizontal = 16.dp)
+fun TransactionDayCard(
+    date: String,
+    income: Int,
+    expense: Int,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
     ) {
-        Text(
-            text = text,
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Bold,
-            fontFamily = Poppins,
-            color = Color.Black
-        )
-    }
-}
-
-@Composable
-fun TableItem(description: String, amount: String) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 10.dp, horizontal = 16.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            text = description,
-            fontSize = 14.sp,
-            fontFamily = Poppins,
-            color = Color.Black,
-            modifier = Modifier.weight(2f)
-        )
-        Text(
-            text = amount,
-            fontSize = 14.sp,
-            fontFamily = Poppins,
-            color = Color.Black,
-            textAlign = TextAlign.End,
-            modifier = Modifier.weight(1f)
-        )
-    }
-}
-
-@Composable
-fun TableSectionTotal(label: String, amount: String, isHighlighted: Boolean = false) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(if (isHighlighted) Color(0xFFEEEEEE) else Color.White)
-            .padding(vertical = 10.dp, horizontal = 16.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            text = label,
-            fontSize = 14.sp,
-            fontWeight = FontWeight.Bold,
-            fontFamily = Poppins,
-            color = Color.Black,
-            modifier = Modifier.weight(2f)
-        )
-        Text(
-            text = amount,
-            fontSize = 14.sp,
-            fontWeight = FontWeight.Bold,
-            fontFamily = Poppins,
-            color = if (isHighlighted) Color(0xFF2F7E68) else Color.Black,
-            textAlign = TextAlign.End,
-            modifier = Modifier.weight(1f)
-        )
+        Column(
+            modifier = Modifier.padding(16.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = date,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium,
+                    fontFamily = Poppins,
+                    color = Color.Black
+                )
+                
+                Text(
+                    text = "Rp ${(income - expense) / 1000}k",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = Poppins,
+                    color = if (income > expense) Color(0xFF08C39F) else Color(0xFFE74C3C)
+                )
+            }
+            
+            Spacer(modifier = Modifier.height(12.dp))
+            
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                // Income Mini Card
+                Surface(
+                    modifier = Modifier
+                        .weight(1f)
+                        .clip(RoundedCornerShape(8.dp)),
+                    color = Color(0xFFF5F5F5)
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Surface(
+                            modifier = Modifier.size(8.dp),
+                            shape = RoundedCornerShape(4.dp),
+                            color = Color(0xFF08C39F)
+                        ) { }
+                        
+                        Spacer(modifier = Modifier.width(8.dp))
+                        
+                        Column {
+                            Text(
+                                text = "Masuk",
+                                fontSize = 12.sp,
+                                fontFamily = Poppins,
+                                color = Color.DarkGray
+                            )
+                            Text(
+                                text = "Rp ${income / 1000}k",
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Bold,
+                                fontFamily = Poppins,
+                                color = Color(0xFF08C39F)
+                            )
+                        }
+                    }
+                }
+                
+                // Expense Mini Card
+                Surface(
+                    modifier = Modifier
+                        .weight(1f)
+                        .clip(RoundedCornerShape(8.dp)),
+                    color = Color(0xFFF5F5F5)
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Surface(
+                            modifier = Modifier.size(8.dp),
+                            shape = RoundedCornerShape(4.dp),
+                            color = Color(0xFFE74C3C)
+                        ) { }
+                        
+                        Spacer(modifier = Modifier.width(8.dp))
+                        
+                        Column {
+                            Text(
+                                text = "Keluar",
+                                fontSize = 12.sp,
+                                fontFamily = Poppins,
+                                color = Color.DarkGray
+                            )
+                            Text(
+                                text = "Rp ${expense / 1000}k",
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Bold,
+                                fontFamily = Poppins,
+                                color = Color(0xFFE74C3C)
+                            )
+                        }
+                    }
+                }
+            }
+        }
     }
 } 
