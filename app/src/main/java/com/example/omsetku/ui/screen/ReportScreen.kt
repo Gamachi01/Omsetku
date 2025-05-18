@@ -23,11 +23,6 @@ import com.example.omsetku.R
 import com.example.omsetku.ui.components.BottomNavBar
 import com.example.omsetku.ui.components.Poppins
 import com.example.omsetku.ui.theme.PrimaryVariant
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.FilterList
-import androidx.compose.material.icons.filled.GetApp
-import androidx.compose.material.icons.outlined.FilterAlt
-import androidx.compose.material.icons.outlined.Download
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -79,13 +74,6 @@ fun ReportScreen(navController: NavController) {
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.transactioncalender),
-                    contentDescription = "Tanggal",
-                    modifier = Modifier.size(18.dp),
-                    tint = Color.DarkGray
-                )
-                Spacer(modifier = Modifier.width(8.dp))
                 Text(
                     text = "01 Maret 2025 - 31 Maret 2025",
                     fontSize = 14.sp,
