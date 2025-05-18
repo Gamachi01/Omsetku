@@ -8,6 +8,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -317,8 +318,8 @@ fun SuccessDialog(onDismiss: () -> Unit) {
                     color = Color(0xFF62DCC8)
                 ) {
                     Icon(
-                        painter = painterResource(id = R.drawable.baseline_check_24),
-                        contentDescription = "Success",
+                        imageVector = Icons.Default.Check,
+                        contentDescription = "Check",
                         tint = Color.White,
                         modifier = Modifier
                             .padding(20.dp)

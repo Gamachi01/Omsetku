@@ -23,6 +23,9 @@ import com.example.omsetku.R
 import com.example.omsetku.ui.components.BottomNavBar
 import com.example.omsetku.ui.components.Poppins
 import com.example.omsetku.ui.theme.PrimaryVariant
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.FilterAlt
+import androidx.compose.material.icons.filled.Download
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -110,9 +113,9 @@ fun ReportScreen(navController: NavController) {
                     border = BorderStroke(1.dp, Color.LightGray)
                 ) {
                     Icon(
-                        painter = painterResource(id = R.drawable.baseline_filter_alt_24),
+                        imageVector = Icons.Default.FilterAlt,
                         contentDescription = "Filter",
-                        tint = PrimaryVariant,
+                        tint = Color.White,
                         modifier = Modifier.size(16.dp)
                     )
                     Spacer(modifier = Modifier.width(4.dp))
@@ -136,7 +139,7 @@ fun ReportScreen(navController: NavController) {
                     )
                 ) {
                     Icon(
-                        painter = painterResource(id = R.drawable.baseline_download_24),
+                        imageVector = Icons.Default.Download,
                         contentDescription = "Download",
                         tint = Color.White,
                         modifier = Modifier.size(16.dp)
