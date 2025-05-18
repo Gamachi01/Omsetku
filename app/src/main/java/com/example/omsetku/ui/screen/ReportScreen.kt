@@ -24,8 +24,8 @@ import com.example.omsetku.ui.components.BottomNavBar
 import com.example.omsetku.ui.components.Poppins
 import com.example.omsetku.ui.theme.PrimaryVariant
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.FilterAlt
-import androidx.compose.material.icons.filled.Download
+import androidx.compose.material.icons.filled.FilterList
+import androidx.compose.material.icons.filled.GetApp
 import androidx.compose.material.icons.outlined.FilterAlt
 import androidx.compose.material.icons.outlined.Download
 
@@ -115,7 +115,7 @@ fun ReportScreen(navController: NavController) {
                     border = BorderStroke(1.dp, Color.LightGray)
                 ) {
                     Icon(
-                        imageVector = Icons.Outlined.FilterAlt,
+                        imageVector = Icons.Default.FilterList,
                         contentDescription = "Filter",
                         tint = Color.White,
                         modifier = Modifier.size(16.dp)
@@ -141,7 +141,7 @@ fun ReportScreen(navController: NavController) {
                     )
                 ) {
                     Icon(
-                        imageVector = Icons.Outlined.Download,
+                        imageVector = Icons.Default.GetApp,
                         contentDescription = "Download",
                         tint = Color.White,
                         modifier = Modifier.size(16.dp)
