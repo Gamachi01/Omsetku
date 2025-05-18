@@ -114,13 +114,6 @@ fun ReportScreen(navController: NavController) {
                     ),
                     border = BorderStroke(1.dp, Color.LightGray)
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.FilterList,
-                        contentDescription = "Filter",
-                        tint = Color.White,
-                        modifier = Modifier.size(16.dp)
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
                     Text(
                         "Filter",
                         fontSize = 13.sp,
@@ -140,13 +133,6 @@ fun ReportScreen(navController: NavController) {
                         containerColor = PrimaryVariant
                     )
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.GetApp,
-                        contentDescription = "Download",
-                        tint = Color.White,
-                        modifier = Modifier.size(16.dp)
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
                     Text(
                         "Download Laporan",
                         fontSize = 13.sp,
