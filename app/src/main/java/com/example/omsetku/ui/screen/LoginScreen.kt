@@ -5,6 +5,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -81,6 +84,13 @@ fun LoginScreen(navController: NavController = rememberNavController()) {
             value = email,
             onValueChange = { email = it },
             placeholder = { Text("contoh@gmail.com", fontFamily = Poppins, color = Color.LightGray) },
+            leadingIcon = { 
+                Icon(
+                    imageVector = Icons.Default.Email,
+                    contentDescription = "Email Icon",
+                    tint = Color.Gray
+                ) 
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 16.dp),
@@ -107,6 +117,13 @@ fun LoginScreen(navController: NavController = rememberNavController()) {
             value = password,
             onValueChange = { password = it },
             placeholder = { Text("masukkan password", fontFamily = Poppins, color = Color.LightGray) },
+            leadingIcon = { 
+                Icon(
+                    imageVector = Icons.Default.Lock,
+                    contentDescription = "Password Icon",
+                    tint = Color.Gray
+                ) 
+            },
             visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
             modifier = Modifier
                 .fillMaxWidth()

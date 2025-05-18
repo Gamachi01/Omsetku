@@ -74,6 +74,13 @@ fun ReportScreen(navController: NavController) {
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.transactioncalender),
+                    contentDescription = "Tanggal",
+                    modifier = Modifier.size(18.dp),
+                    tint = Color.DarkGray
+                )
+                Spacer(modifier = Modifier.width(8.dp))
                 Text(
                     text = "01 Maret 2025 - 31 Maret 2025",
                     fontSize = 14.sp,
