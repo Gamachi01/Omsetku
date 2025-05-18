@@ -26,6 +26,8 @@ import com.example.omsetku.ui.theme.PrimaryVariant
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FilterAlt
 import androidx.compose.material.icons.filled.Download
+import androidx.compose.material.icons.outlined.FilterAlt
+import androidx.compose.material.icons.outlined.Download
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -113,7 +115,7 @@ fun ReportScreen(navController: NavController) {
                     border = BorderStroke(1.dp, Color.LightGray)
                 ) {
                     Icon(
-                        imageVector = Icons.Default.FilterAlt,
+                        imageVector = Icons.Outlined.FilterAlt,
                         contentDescription = "Filter",
                         tint = Color.White,
                         modifier = Modifier.size(16.dp)
@@ -139,7 +141,7 @@ fun ReportScreen(navController: NavController) {
                     )
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Download,
+                        imageVector = Icons.Outlined.Download,
                         contentDescription = "Download",
                         tint = Color.White,
                         modifier = Modifier.size(16.dp)
