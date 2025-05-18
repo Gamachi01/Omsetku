@@ -28,6 +28,8 @@ import com.example.omsetku.Navigation.Routes
 import com.example.omsetku.R
 import com.example.omsetku.ui.components.Poppins
 import com.example.omsetku.ui.theme.PrimaryVariant
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -40,6 +42,7 @@ fun LoginScreen(navController: NavController = rememberNavController()) {
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White)
+            .verticalScroll(rememberScrollState())
             .padding(24.dp)
     ) {
         // Login Illustration

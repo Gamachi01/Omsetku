@@ -15,6 +15,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -30,9 +31,11 @@ import com.example.omsetku.ui.theme.PrimaryVariant
 import com.example.omsetku.ui.theme.IncomeColor
 import com.example.omsetku.ui.theme.ExpenseColor
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(navController: NavController) {
     var selectedItem by remember { mutableStateOf("Home") }
+    val scrollState = rememberScrollState()
 
     // data dummy
     val transactions = remember {
@@ -71,6 +74,8 @@ fun HomeScreen(navController: NavController) {
         )
     }
 
+    var incomeAmount by remember { mutableStateOf(2500000) }
+    var expenseAmount by remember { mutableStateOf(1200000) }
 
     Scaffold(
         bottomBar = {
@@ -92,9 +97,9 @@ fun HomeScreen(navController: NavController) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 20.dp)
-                .padding(top = 24.dp, bottom = 8.dp)
+                .background(Color.White)
                 .padding(paddingValues)
+                .verticalScroll(scrollState)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -126,9 +131,6 @@ fun HomeScreen(navController: NavController) {
             }
 
             Spacer(modifier = Modifier.height(32.dp))
-
-            var incomeAmount by remember { mutableStateOf(2500000) }
-            var expenseAmount by remember { mutableStateOf(1200000) }
 
             // Saldo Card
             Card(
@@ -223,6 +225,56 @@ fun HomeScreen(navController: NavController) {
             )
 
             TransactionList(transactions = transactions)
+
+            // Perbaikan ukuran button
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                // Button Tambah Produk
+                Button(
+                    onClick = { /* TODO: Implementasi tambah produk */ },
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(48.dp),
+                    shape = RoundedCornerShape(8.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = PrimaryVariant
+                    )
+                ) {
+                    Text(
+                        text = "Tambah Produk",
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Medium,
+                        fontFamily = Poppins,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+
+                // Button lainnya dengan ukuran yang sama
+                Button(
+                    onClick = { /* TODO: Implementasi lainnya */ },
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(48.dp),
+                    shape = RoundedCornerShape(8.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = PrimaryVariant
+                    )
+                ) {
+                    Text(
+                        text = "Button Lain",
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Medium,
+                        fontFamily = Poppins,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+            }
         }
     }
 }
