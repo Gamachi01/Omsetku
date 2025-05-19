@@ -38,6 +38,7 @@ import com.example.omsetku.ui.components.BottomNavBar
 import com.example.omsetku.ui.components.Poppins
 import com.example.omsetku.ui.theme.PrimaryVariant
 import com.example.omsetku.ui.theme.PrimaryLight
+import androidx.compose.foundation.verticalScroll
 
 data class ProductItem(
     val id: Int,
@@ -53,7 +54,6 @@ fun CashierScreen(
     navController: NavController,
     modifier: Modifier = Modifier
 ) {
-    val scrollState = rememberScrollState()
     var selectedItem by remember { mutableStateOf("Cashier") }
     var searchQuery by remember { mutableStateOf("") }
     var productList by remember { mutableStateOf<List<ProductItem>>(emptyList()) }
@@ -92,8 +92,7 @@ fun CashierScreen(
             modifier = modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(16.dp)
-                .verticalScroll(scrollState),
+                .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             // Button Tambah Produk
@@ -236,7 +235,7 @@ fun CashierScreen(
                 Surface(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .align(Alignment.BottomCenter)
+                        .align(Alignment.Bottom)
                         .padding(horizontal = 16.dp, vertical = 16.dp)
                         .padding(bottom = paddingValues.calculateBottomPadding()),
                     shape = RoundedCornerShape(30.dp),
@@ -289,6 +288,9 @@ fun CashierScreen(
                     }
                 }
             }
+            
+            // Tambahkan Spacer di akhir untuk memastikan konten bisa di-scroll
+            Spacer(modifier = Modifier.height(200.dp))
         }
     }
     
