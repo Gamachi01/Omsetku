@@ -88,144 +88,149 @@ fun CashierScreen(
             )
         }
     ) { paddingValues ->
-        Column(
+        Box(
             modifier = modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Button Tambah Produk
-            Button(
-                onClick = { showAddProductDialog = true },
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .height(48.dp),
-                shape = RoundedCornerShape(8.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = PrimaryVariant
-                )
+                    .fillMaxSize()
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                Text(
-                    text = "Tambah Produk",
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Medium,
-                    fontFamily = Poppins,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
-            
-            // Search Bar
-            OutlinedTextField(
-                value = searchQuery,
-                onValueChange = { searchQuery = it },
-                placeholder = { 
-                    Text(
-                        "Cari Produk", 
-                        fontFamily = Poppins,
-                        color = Color.Gray
-                    ) 
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 16.dp),
-                leadingIcon = {
-                    Icon(
-                        imageVector = Icons.Default.Search,
-                        contentDescription = "Search",
-                        tint = Color.Gray
-                    )
-                },
-                shape = RoundedCornerShape(8.dp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = Color.LightGray,
-                    unfocusedBorderColor = Color.LightGray,
-                    cursorColor = PrimaryVariant
-                ),
-                singleLine = true
-            )
-            
-            // Button Actions
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                OutlinedButton(
-                    onClick = { 
-                        if (productList.isNotEmpty()) {
-                            showEditProductDialog = true
-                        }
-                    },
-                    modifier = Modifier.weight(1f),
-                    colors = ButtonDefaults.outlinedButtonColors(
-                        contentColor = Color(0xFF62DCC8)
-                    ),
-                    border = BorderStroke(1.dp, Color(0xFF62DCC8)),
-                    shape = RoundedCornerShape(8.dp)
-                ) {
-                    Icon(
-                        painter = painterResource(R.drawable.point_of_sale),
-                        contentDescription = "Atur Produk",
-                        tint = Color(0xFF62DCC8),
-                        modifier = Modifier.size(16.dp)
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        text = "Atur Produk",
-                        fontSize = 13.sp,
-                        fontWeight = FontWeight.Medium,
-                        fontFamily = Poppins
-                    )
-                }
-            }
-            
-            Spacer(modifier = Modifier.height(16.dp))
-            
-            if (productList.isEmpty()) {
-                // Empty State
-                Box(
+                // Button Tambah Produk
+                Button(
+                    onClick = { showAddProductDialog = true },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .weight(1f),
-                    contentAlignment = Alignment.Center
+                        .height(48.dp),
+                    shape = RoundedCornerShape(8.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = PrimaryVariant
+                    )
                 ) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
+                    Text(
+                        text = "Tambah Produk",
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Medium,
+                        fontFamily = Poppins,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+                
+                // Search Bar
+                OutlinedTextField(
+                    value = searchQuery,
+                    onValueChange = { searchQuery = it },
+                    placeholder = { 
                         Text(
-                            text = "Oops! Belum ada produk.",
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Bold,
+                            "Cari Produk", 
                             fontFamily = Poppins,
-                            color = Color.Black
+                            color = Color.Gray
+                        ) 
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 16.dp),
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.Default.Search,
+                            contentDescription = "Search",
+                            tint = Color.Gray
                         )
-                        
-                        Spacer(modifier = Modifier.height(4.dp))
-                        
+                    },
+                    shape = RoundedCornerShape(8.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = Color.LightGray,
+                        unfocusedBorderColor = Color.LightGray,
+                        cursorColor = PrimaryVariant
+                    ),
+                    singleLine = true
+                )
+                
+                // Button Actions
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    OutlinedButton(
+                        onClick = { 
+                            if (productList.isNotEmpty()) {
+                                showEditProductDialog = true
+                            }
+                        },
+                        modifier = Modifier.weight(1f),
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            contentColor = Color(0xFF62DCC8)
+                        ),
+                        border = BorderStroke(1.dp, Color(0xFF62DCC8)),
+                        shape = RoundedCornerShape(8.dp)
+                    ) {
+                        Icon(
+                            painter = painterResource(R.drawable.point_of_sale),
+                            contentDescription = "Atur Produk",
+                            tint = Color(0xFF62DCC8),
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
                         Text(
-                            text = "Tambahkan produk terlebih dahulu.",
-                            fontSize = 14.sp,
-                            fontFamily = Poppins,
-                            color = Color.Gray,
-                            textAlign = TextAlign.Center
+                            text = "Atur Produk",
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Medium,
+                            fontFamily = Poppins
                         )
                     }
                 }
-            } else {
-                // Product Grid
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(2),
-                    contentPadding = PaddingValues(bottom = if (hasSelectedItems) 80.dp else 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    items(productList) { product ->
-                        ProductCard(product = product, onQuantityChanged = { newQuantity ->
-                            productList = productList.map {
-                                if (it.id == product.id) it.copy(quantity = newQuantity) else it
-                            }
-                        })
+                
+                Spacer(modifier = Modifier.height(16.dp))
+                
+                if (productList.isEmpty()) {
+                    // Empty State
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(
+                                text = "Oops! Belum ada produk.",
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold,
+                                fontFamily = Poppins,
+                                color = Color.Black
+                            )
+                            
+                            Spacer(modifier = Modifier.height(4.dp))
+                            
+                            Text(
+                                text = "Tambahkan produk terlebih dahulu.",
+                                fontSize = 14.sp,
+                                fontFamily = Poppins,
+                                color = Color.Gray,
+                                textAlign = TextAlign.Center
+                            )
+                        }
+                    }
+                } else {
+                    // Product Grid
+                    LazyVerticalGrid(
+                        columns = GridCells.Fixed(2),
+                        contentPadding = PaddingValues(bottom = if (hasSelectedItems) 80.dp else 16.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        items(productList) { product ->
+                            ProductCard(product = product, onQuantityChanged = { newQuantity ->
+                                productList = productList.map {
+                                    if (it.id == product.id) it.copy(quantity = newQuantity) else it
+                                }
+                            })
+                        }
                     }
                 }
             }
@@ -235,7 +240,7 @@ fun CashierScreen(
                 Surface(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .align(Alignment.Bottom)
+                        .align(Alignment.BottomCenter)
                         .padding(horizontal = 16.dp, vertical = 16.dp)
                         .padding(bottom = paddingValues.calculateBottomPadding()),
                     shape = RoundedCornerShape(30.dp),
@@ -288,9 +293,6 @@ fun CashierScreen(
                     }
                 }
             }
-            
-            // Tambahkan Spacer di akhir untuk memastikan konten bisa di-scroll
-            Spacer(modifier = Modifier.height(200.dp))
         }
     }
     
