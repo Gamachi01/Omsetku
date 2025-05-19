@@ -5,8 +5,10 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -15,6 +17,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -30,10 +33,18 @@ import com.example.omsetku.ui.theme.PrimaryLight
 import com.example.omsetku.ui.theme.PrimaryVariant
 import com.example.omsetku.ui.theme.IncomeColor
 import com.example.omsetku.ui.theme.ExpenseColor
+import com.example.omsetku.ui.components.TransactionItem
+import com.example.omsetku.ui.components.TransactionSummary
+import com.example.omsetku.ui.components.TransactionType
+import java.text.NumberFormat
+import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(navController: NavController) {
+fun HomeScreen(
+    navController: NavController,
+    modifier: Modifier = Modifier
+) {
     var selectedItem by remember { mutableStateOf("Home") }
     val scrollState = rememberScrollState()
 
@@ -78,6 +89,16 @@ fun HomeScreen(navController: NavController) {
     var expenseAmount by remember { mutableStateOf(1200000) }
 
     Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Omsetku") },
+                actions = {
+                    IconButton(onClick = { /* TODO: Implement profile */ }) {
+                        Icon(Icons.Default.Person, contentDescription = "Profile")
+                    }
+                }
+            )
+        },
         bottomBar = {
             BottomNavBar(
                 selectedItem = selectedItem,
@@ -95,11 +116,12 @@ fun HomeScreen(navController: NavController) {
         }
     ) { paddingValues ->
         Column(
-            modifier = Modifier
+            modifier = modifier
                 .fillMaxSize()
-                .background(Color.White)
                 .padding(paddingValues)
-                .verticalScroll(scrollState)
+                .padding(16.dp)
+                .verticalScroll(scrollState),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
