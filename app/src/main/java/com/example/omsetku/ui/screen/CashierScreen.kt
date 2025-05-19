@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -26,6 +27,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -47,7 +49,11 @@ data class ProductItem(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CashierScreen(navController: NavController) {
+fun CashierScreen(
+    navController: NavController,
+    modifier: Modifier = Modifier
+) {
+    val scrollState = rememberScrollState()
     var selectedItem by remember { mutableStateOf("Cashier") }
     var searchQuery by remember { mutableStateOf("") }
     var productList by remember { mutableStateOf<List<ProductItem>>(emptyList()) }
@@ -75,153 +81,152 @@ fun CashierScreen(navController: NavController) {
                     }
                 }
             )
+        },
+        topBar = {
+            TopAppBar(
+                title = { Text("Kasir") }
+            )
         }
     ) { paddingValues ->
-        Box(
-            modifier = Modifier
+        Column(
+            modifier = modifier
                 .fillMaxSize()
-                .background(Color.White)
-                .padding(bottom = paddingValues.calculateBottomPadding())
+                .padding(paddingValues)
+                .padding(16.dp)
+                .verticalScroll(scrollState),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Column(
+            // Button Tambah Produk
+            Button(
+                onClick = { showAddProductDialog = true },
                 modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 16.dp, vertical = 16.dp)
+                    .fillMaxWidth()
+                    .height(48.dp),
+                shape = RoundedCornerShape(8.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = PrimaryVariant
+                )
             ) {
-                // Search Bar
-                OutlinedTextField(
-                    value = searchQuery,
-                    onValueChange = { searchQuery = it },
-                    placeholder = { 
-                        Text(
-                            "Cari Produk", 
-                            fontFamily = Poppins,
-                            color = Color.Gray
-                        ) 
+                Text(
+                    text = "Tambah Produk",
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium,
+                    fontFamily = Poppins,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+            
+            // Search Bar
+            OutlinedTextField(
+                value = searchQuery,
+                onValueChange = { searchQuery = it },
+                placeholder = { 
+                    Text(
+                        "Cari Produk", 
+                        fontFamily = Poppins,
+                        color = Color.Gray
+                    ) 
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp),
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Default.Search,
+                        contentDescription = "Search",
+                        tint = Color.Gray
+                    )
+                },
+                shape = RoundedCornerShape(8.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = Color.LightGray,
+                    unfocusedBorderColor = Color.LightGray,
+                    cursorColor = PrimaryVariant
+                ),
+                singleLine = true
+            )
+            
+            // Button Actions
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                OutlinedButton(
+                    onClick = { 
+                        if (productList.isNotEmpty()) {
+                            showEditProductDialog = true
+                        }
                     },
+                    modifier = Modifier.weight(1f),
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        contentColor = Color(0xFF62DCC8)
+                    ),
+                    border = BorderStroke(1.dp, Color(0xFF62DCC8)),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.point_of_sale),
+                        contentDescription = "Atur Produk",
+                        tint = Color(0xFF62DCC8),
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = "Atur Produk",
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Medium,
+                        fontFamily = Poppins
+                    )
+                }
+            }
+            
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            if (productList.isEmpty()) {
+                // Empty State
+                Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(bottom = 16.dp),
-                    leadingIcon = {
-                        Icon(
-                            imageVector = Icons.Default.Search,
-                            contentDescription = "Search",
-                            tint = Color.Gray
-                        )
-                    },
-                    shape = RoundedCornerShape(8.dp),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = Color.LightGray,
-                        unfocusedBorderColor = Color.LightGray,
-                        cursorColor = PrimaryVariant
-                    ),
-                    singleLine = true
-                )
-                
-                // Button Actions
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        .weight(1f),
+                    contentAlignment = Alignment.Center
                 ) {
-                    Button(
-                        onClick = { showAddProductDialog = true },
-                        modifier = Modifier.weight(1f),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFF62DCC8)
-                        ),
-                        shape = RoundedCornerShape(8.dp)
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.Add,
-                            contentDescription = "Tambah Produk",
-                            tint = Color.White,
-                            modifier = Modifier.size(16.dp)
-                        )
-                        Spacer(modifier = Modifier.width(4.dp))
                         Text(
-                            "Tambah Produk",
-                            fontSize = 13.sp,
-                            fontWeight = FontWeight.Medium,
-                            fontFamily = Poppins
+                            text = "Oops! Belum ada produk.",
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold,
+                            fontFamily = Poppins,
+                            color = Color.Black
                         )
-                    }
-                    
-                    OutlinedButton(
-                        onClick = { 
-                            if (productList.isNotEmpty()) {
-                                showEditProductDialog = true
-                            }
-                        },
-                        modifier = Modifier.weight(1f),
-                        colors = ButtonDefaults.outlinedButtonColors(
-                            contentColor = Color(0xFF62DCC8)
-                        ),
-                        border = BorderStroke(1.dp, Color(0xFF62DCC8)),
-                        shape = RoundedCornerShape(8.dp)
-                    ) {
-                        Icon(
-                            painter = painterResource(R.drawable.point_of_sale),
-                            contentDescription = "Atur Produk",
-                            tint = Color(0xFF62DCC8),
-                            modifier = Modifier.size(16.dp)
-                        )
-                        Spacer(modifier = Modifier.width(4.dp))
+                        
+                        Spacer(modifier = Modifier.height(4.dp))
+                        
                         Text(
-                            "Atur Produk",
-                            fontSize = 13.sp,
-                            fontWeight = FontWeight.Medium,
-                            fontFamily = Poppins
+                            text = "Tambahkan produk terlebih dahulu.",
+                            fontSize = 14.sp,
+                            fontFamily = Poppins,
+                            color = Color.Gray,
+                            textAlign = TextAlign.Center
                         )
                     }
                 }
-                
-                Spacer(modifier = Modifier.height(16.dp))
-                
-                if (productList.isEmpty()) {
-                    // Empty State
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .weight(1f),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Text(
-                                text = "Oops! Belum ada produk.",
-                                fontSize = 16.sp,
-                                fontWeight = FontWeight.Bold,
-                                fontFamily = Poppins,
-                                color = Color.Black
-                            )
-                            
-                            Spacer(modifier = Modifier.height(4.dp))
-                            
-                            Text(
-                                text = "Tambahkan produk terlebih dahulu.",
-                                fontSize = 14.sp,
-                                fontFamily = Poppins,
-                                color = Color.Gray,
-                                textAlign = TextAlign.Center
-                            )
-                        }
-                    }
-                } else {
-                    // Product Grid
-                    LazyVerticalGrid(
-                        columns = GridCells.Fixed(2),
-                        contentPadding = PaddingValues(bottom = if (hasSelectedItems) 80.dp else 16.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        items(productList) { product ->
-                            ProductCard(product = product, onQuantityChanged = { newQuantity ->
-                                productList = productList.map {
-                                    if (it.id == product.id) it.copy(quantity = newQuantity) else it
-                                }
-                            })
-                        }
+            } else {
+                // Product Grid
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(2),
+                    contentPadding = PaddingValues(bottom = if (hasSelectedItems) 80.dp else 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    items(productList) { product ->
+                        ProductCard(product = product, onQuantityChanged = { newQuantity ->
+                            productList = productList.map {
+                                if (it.id == product.id) it.copy(quantity = newQuantity) else it
+                            }
+                        })
                     }
                 }
             }

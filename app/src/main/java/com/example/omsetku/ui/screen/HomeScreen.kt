@@ -246,56 +246,6 @@ fun HomeScreen(
             )
 
             TransactionList(transactions = transactions)
-
-            // Perbaikan ukuran button
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                // Button Tambah Produk
-                Button(
-                    onClick = { /* TODO: Implementasi tambah produk */ },
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(48.dp),
-                    shape = RoundedCornerShape(8.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = PrimaryVariant
-                    )
-                ) {
-                    Text(
-                        text = "Tambah Produk",
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Medium,
-                        fontFamily = Poppins,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                }
-
-                // Button lainnya dengan ukuran yang sama
-                Button(
-                    onClick = { /* TODO: Implementasi lainnya */ },
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(48.dp),
-                    shape = RoundedCornerShape(8.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = PrimaryVariant
-                    )
-                ) {
-                    Text(
-                        text = "Button Lain",
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Medium,
-                        fontFamily = Poppins,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                }
-            }
         }
     }
 }
