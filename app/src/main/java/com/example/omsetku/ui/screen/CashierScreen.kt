@@ -244,12 +244,13 @@ fun CashierScreen(
                         .padding(horizontal = 16.dp, vertical = 16.dp)
                         .padding(bottom = paddingValues.calculateBottomPadding()),
                     shape = RoundedCornerShape(30.dp),
-                    color = PrimaryVariant
+                    color = PrimaryVariant,
+                    shadowElevation = 8.dp
                 ) {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 24.dp, vertical = 14.dp)
+                            .padding(horizontal = 24.dp, vertical = 16.dp)
                             .clickable {
                                 navController.navigate(Routes.TRANSACTION_DETAIL)
                             },
@@ -261,27 +262,32 @@ fun CashierScreen(
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Bold,
                             fontFamily = Poppins,
-                            color = Color.White
+                            color = Color.White,
+                            modifier = Modifier.weight(1f)
                         )
 
                         Row(
-                            verticalAlignment = Alignment.CenterVertically
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             Surface(
                                 shape = CircleShape,
-                                color = Color.White
+                                color = Color.White,
+                                modifier = Modifier.size(32.dp)
                             ) {
-                                Text(
-                                    "$totalItems",
-                                    fontSize = 14.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = PrimaryVariant,
-                                    fontFamily = Poppins,
-                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
-                                )
+                                Box(
+                                    contentAlignment = Alignment.Center,
+                                    modifier = Modifier.fillMaxSize()
+                                ) {
+                                    Text(
+                                        "$totalItems",
+                                        fontSize = 14.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = PrimaryVariant,
+                                        fontFamily = Poppins
+                                    )
+                                }
                             }
-                            
-                            Spacer(modifier = Modifier.width(8.dp))
                             
                             Icon(
                                 painter = painterResource(id = R.drawable.arrow_down),
@@ -499,18 +505,15 @@ fun ProductDialog(
                         ),
                         shape = RoundedCornerShape(8.dp)
                     ) {
-                        Box(
-                            modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                text = "Batal",
-                                fontSize = 14.sp,
-                                fontWeight = FontWeight.Medium,
-                                fontFamily = Poppins,
-                                color = Color.Black
-                            )
-                        }
+                        Text(
+                            text = "Batal",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Medium,
+                            fontFamily = Poppins,
+                            color = Color.Black,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.fillMaxWidth()
+                        )
                     }
                     
                     Button(
@@ -523,18 +526,15 @@ fun ProductDialog(
                         ),
                         shape = RoundedCornerShape(8.dp)
                     ) {
-                        Box(
-                            modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                text = if (isNewProduct) "Tambah Produk" else "Simpan",
-                                fontSize = 14.sp,
-                                fontWeight = FontWeight.Medium,
-                                fontFamily = Poppins,
-                                color = Color.White
-                            )
-                        }
+                        Text(
+                            text = if (isNewProduct) "Tambah Produk" else "Simpan",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Medium,
+                            fontFamily = Poppins,
+                            color = Color.White,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.fillMaxWidth()
+                        )
                     }
                 }
             }
