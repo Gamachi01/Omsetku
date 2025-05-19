@@ -6,6 +6,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -33,9 +35,6 @@ import com.example.omsetku.ui.theme.PrimaryLight
 import com.example.omsetku.ui.theme.PrimaryVariant
 import com.example.omsetku.ui.theme.IncomeColor
 import com.example.omsetku.ui.theme.ExpenseColor
-import com.example.omsetku.ui.components.TransactionItem
-import com.example.omsetku.ui.components.TransactionSummary
-import com.example.omsetku.ui.components.TransactionType
 import java.text.NumberFormat
 import java.util.*
 
