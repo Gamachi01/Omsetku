@@ -18,6 +18,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.navigation.NavController
 import com.example.omsetku.Navigation.Routes
 import com.example.omsetku.ui.components.BottomNavBar
+import androidx.compose.ui.text.TextAlign
 
 enum class TransactionType {
     INCOME, EXPENSE
@@ -61,7 +62,9 @@ fun TransactionScreen(navController: NavController) {
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.Black,
-                fontFamily = Poppins
+                fontFamily = Poppins,
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Center
             )
 
             Spacer(modifier = Modifier.height(20.dp))

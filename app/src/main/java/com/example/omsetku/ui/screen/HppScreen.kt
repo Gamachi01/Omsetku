@@ -130,13 +130,6 @@ fun HppScreen(navController: NavController) {
             
             // Spacer diperkecil agar lebih rapat
             Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = "Pilih Produk",
-                fontSize = 15.sp,
-                fontFamily = Poppins,
-                color = Color.Black,
-                modifier = Modifier.padding(bottom = 4.dp)
-            )
             
             if (selectedTab == HppTab.STOK) {
                 HppStokContent()
