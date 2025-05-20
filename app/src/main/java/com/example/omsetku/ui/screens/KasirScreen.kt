@@ -41,7 +41,7 @@ fun KasirScreen(
             // Image Input
             OutlinedTextField(
                 value = imageValue,
-                onValueChange = { imageValue = it },
+                onValueChange = { newValue -> imageValue = newValue },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 8.dp),
