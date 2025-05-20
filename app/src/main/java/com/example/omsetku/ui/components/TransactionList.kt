@@ -132,7 +132,7 @@ fun TransactionItem(transaction: Transaction) {
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 6.dp),
+            .padding(vertical = 4.dp),
         shape = RoundedCornerShape(12.dp),
         color = if (transaction.type == "Pemasukan") 
                   IncomeColor.copy(alpha = 0.05f) 
@@ -142,14 +142,14 @@ fun TransactionItem(transaction: Transaction) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 12.dp),
+                .padding(horizontal = 12.dp, vertical = 10.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Box(
                     modifier = Modifier
-                        .size(40.dp)
+                        .size(32.dp)
                         .clip(RoundedCornerShape(8.dp))
                         .background(
                             if (transaction.type == "Pemasukan") 
@@ -166,46 +166,39 @@ fun TransactionItem(transaction: Transaction) {
                         ),
                         contentDescription = null,
                         tint = if (transaction.type == "Pemasukan") IncomeColor else ExpenseColor,
-                        modifier = Modifier.size(24.dp)
+                        modifier = Modifier.size(20.dp)
                     )
                 }
-                
-                Spacer(modifier = Modifier.width(16.dp))
-                
+                Spacer(modifier = Modifier.width(12.dp))
                 Column {
                     Text(
                         text = transaction.type,
                         fontWeight = FontWeight.Bold,
-                        fontSize = 15.sp,
+                        fontSize = 14.sp,
                         fontFamily = Poppins
                     )
-                    
-                    Spacer(modifier = Modifier.height(4.dp))
-                    
+                    Spacer(modifier = Modifier.height(2.dp))
                     Text(
                         text = transaction.description,
-                        fontSize = 13.sp,
+                        fontSize = 12.sp,
                         color = Color.Gray,
                         fontFamily = Poppins
                     )
                 }
             }
-
             Column(horizontalAlignment = Alignment.End) {
                 Text(
                     text = (if (transaction.type == "Pemasukan") "+Rp " else "-Rp ") +
                             "%,d".format(transaction.amount).replace(',', '.'),
-                    fontSize = 15.sp,
+                    fontSize = 14.sp,
                     color = if (transaction.type == "Pemasukan") IncomeColor else ExpenseColor,
                     fontWeight = FontWeight.Bold,
                     fontFamily = Poppins
                 )
-                
-                Spacer(modifier = Modifier.height(4.dp))
-                
+                Spacer(modifier = Modifier.height(2.dp))
                 Text(
                     text = transaction.date,
-                    fontSize = 13.sp,
+                    fontSize = 11.sp,
                     color = Color.Gray,
                     fontFamily = Poppins
                 )
