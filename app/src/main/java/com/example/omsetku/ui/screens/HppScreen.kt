@@ -52,4 +52,7 @@ fun HppScreen(
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp)
         ) {
-// ... existing code ... 
+            // Form content here
+        }
+    }
+} 
