@@ -98,7 +98,7 @@ fun HppScreen(navController: NavController) {
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 16.dp),
+                    .padding(vertical = 8.dp),
                 colors = CardDefaults.cardColors(
                     containerColor = Color(0xFFF5F5F5)
                 ),
