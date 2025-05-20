@@ -19,93 +19,51 @@ import com.example.omsetku.R
 import com.example.omsetku.ui.components.Poppins
 import com.example.omsetku.ui.theme.PrimaryVariant
 import com.example.omsetku.ui.theme.PrimaryLight
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.*
+import androidx.compose.ui.graphics.vector.ImageVector
 
 @Composable
 fun BottomNavBar(
     selectedItem: String,
     onItemSelected: (String) -> Unit
 ) {
-    val items = listOf("Home", "Cashier", "Transaction", "HPP", "Report")
-    val icons = listOf(
-        R.drawable.home,
-        R.drawable.point_of_sale,
-        R.drawable.add_circle,
-        R.drawable.calculate,
-        R.drawable.monitoring
-    )
-
-    Surface(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(70.dp),
-        shadowElevation = 16.dp,
-        color = Color.White,
-        tonalElevation = 8.dp,
-        shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)
+    NavigationBar(
+        containerColor = Color.White,
+        modifier = Modifier.height(64.dp)
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 12.dp, vertical = 8.dp),
-            horizontalArrangement = Arrangement.SpaceAround,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            items.forEachIndexed { index, item ->
-                val isSelected = selectedItem == item
-                val activeColor = PrimaryVariant
-                val inactiveColor = Color(0xFFAAAAAA)
+        val items = listOf(
+            BottomNavItem("Home", Icons.Default.Home),
+            BottomNavItem("Cashier", Icons.Default.ShoppingCart),
+            BottomNavItem("Transaction", Icons.Default.Receipt),
+            BottomNavItem("HPP", Icons.Default.Calculate),
+            BottomNavItem("Report", Icons.Default.Assessment)
+        )
 
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(12.dp))
-                        .clickable { onItemSelected(item) }
-                        .padding(4.dp),
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    if (isSelected) {
-                        Box(
-                            modifier = Modifier
-                                .size(44.dp)
-                                .clip(RoundedCornerShape(12.dp))
-                                .background(PrimaryLight)
-                                .padding(10.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(
-                                painter = painterResource(id = icons[index]),
-                                contentDescription = item,
-                                tint = activeColor,
-                                modifier = Modifier.size(24.dp)
-                            )
-                        }
-                    } else {
-                        Box(
-                            modifier = Modifier
-                                .size(44.dp)
-                                .padding(10.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(
-                                painter = painterResource(id = icons[index]),
-                                contentDescription = item,
-                                tint = inactiveColor,
-                                modifier = Modifier.size(24.dp)
-                            )
-                        }
-                    }
-                    
-                    Spacer(modifier = Modifier.height(2.dp))
-                    
+        items.forEach { item ->
+            NavigationBarItem(
+                selected = selectedItem == item.title,
+                onClick = { onItemSelected(item.title) },
+                icon = {
+                    Icon(
+                        imageVector = item.icon,
+                        contentDescription = item.title,
+                        tint = if (selectedItem == item.title) Color(0xFF5ED0C5) else Color.Gray
+                    )
+                },
+                label = {
                     Text(
-                        text = item,
-                        fontSize = 11.sp,
-                        color = if (isSelected) activeColor else inactiveColor,
-                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                        text = item.title,
+                        color = if (selectedItem == item.title) Color(0xFF5ED0C5) else Color.Gray,
                         fontFamily = Poppins
                     )
                 }
-            }
+            )
         }
     }
 }
+
+data class BottomNavItem(
+    val title: String,
+    val icon: ImageVector
+)
