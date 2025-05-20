@@ -8,6 +8,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.omsetku.ui.theme.PrimaryVariant
 
@@ -29,7 +30,7 @@ fun KasirScreen(
                 fontWeight = FontWeight.Bold
             ),
             modifier = Modifier.fillMaxWidth(),
-            textAlign = androidx.compose.ui.text.style.TextAlign.Center
+            textAlign = TextAlign.Center
         )
         
         Spacer(modifier = Modifier.height(16.dp))
@@ -45,7 +46,7 @@ fun KasirScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 8.dp),
-                label = { Text("Tambah Gambar") },
+                label = { Text(text = "Tambah Gambar") },
                 readOnly = true,
                 singleLine = true,
                 shape = MaterialTheme.shapes.medium,
