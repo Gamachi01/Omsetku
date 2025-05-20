@@ -272,7 +272,7 @@ fun HppStokContent() {
         }
         
         // Biaya Operasional
-        var biayaOperasionalList by remember { mutableStateOf(listOf(1, 2)) }
+        var biayaOperasionalList by remember { mutableStateOf(listOf(1)) }
         
         Text(
             text = "Biaya Operasional",
@@ -412,7 +412,7 @@ fun HppBahanBakuContent() {
         Spacer(modifier = Modifier.height(16.dp))
         
         // Bahan Baku List
-        var bahanBakuList by remember { mutableStateOf(listOf(1, 2)) }
+        var bahanBakuList by remember { mutableStateOf(listOf(1)) }
         
         Text(
             text = "Bahan Baku",
@@ -616,7 +616,7 @@ fun HppBahanBakuContent() {
         Spacer(modifier = Modifier.height(16.dp))
         
         // Biaya Operasional
-        var biayaOperasionalList by remember { mutableStateOf(listOf(1, 2)) }
+        var biayaOperasionalList by remember { mutableStateOf(listOf(1)) }
         
         Text(
             text = "Biaya Operasional",
