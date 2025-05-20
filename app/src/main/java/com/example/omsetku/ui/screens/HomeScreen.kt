@@ -7,14 +7,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.example.omsetku.ui.theme.PrimaryVariant
 
 @Composable
 fun HomeScreen(
-    onNavigateToCashier: () -> Unit,
-    onNavigateToTransaction: () -> Unit,
+    onNavigateToKasir: () -> Unit,
+    onNavigateToTransaksi: () -> Unit,
     onNavigateToHpp: () -> Unit,
     onNavigateToReport: () -> Unit
 ) {
@@ -22,22 +20,8 @@ fun HomeScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White)
+            .padding(16.dp)
     ) {
-        // Header
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp)
-                .background(PrimaryVariant),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = "Omsetku",
-                style = MaterialTheme.typography.titleLarge.copy(
-                    color = Color.White,
-                    fontWeight = FontWeight.Bold
-                )
-            )
-        }
+        // Main content here
     }
 } 

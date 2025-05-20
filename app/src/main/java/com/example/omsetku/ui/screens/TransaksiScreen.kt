@@ -12,7 +12,7 @@ import androidx.compose.ui.unit.dp
 import com.example.omsetku.ui.theme.PrimaryVariant
 
 @Composable
-fun HppScreen(
+fun TransaksiScreen(
     onNavigateBack: () -> Unit
 ) {
     Column(
@@ -22,7 +22,7 @@ fun HppScreen(
             .padding(16.dp)
     ) {
         Text(
-            text = "Hitung HPP",
+            text = "Catat Transaksi",
             style = MaterialTheme.typography.headlineMedium.copy(
                 fontWeight = FontWeight.Bold
             ),
@@ -30,21 +30,8 @@ fun HppScreen(
             textAlign = androidx.compose.ui.text.style.TextAlign.Center
         )
         
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(16.dp))
         
-        Text(
-            text = "HPP (Harga Pokok Penjualan) adalah total biaya yang dikeluarkan untuk memproduksi atau memperoleh produk yang dijual. HPP mencakup biaya bahan baku, tenaga kerja langsung, dan overhead produksi.",
-            style = MaterialTheme.typography.bodyMedium,
-            color = Color.Gray
-        )
-        
-        Spacer(modifier = Modifier.height(8.dp))
-        
-        // Form Input
-        Column(
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            // Form content here
-        }
+        // Form content here
     }
 } 
