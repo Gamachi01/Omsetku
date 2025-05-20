@@ -24,17 +24,6 @@ fun KasirScreen(
             .background(Color.White)
             .padding(16.dp)
     ) {
-        Text(
-            text = "Kasir",
-            style = MaterialTheme.typography.headlineMedium.copy(
-                fontWeight = FontWeight.Bold
-            ),
-            modifier = Modifier.fillMaxWidth(),
-            textAlign = TextAlign.Center
-        )
-        
-        Spacer(modifier = Modifier.height(16.dp))
-        
         // Form Input
         Column(
             modifier = Modifier.fillMaxWidth()
@@ -53,6 +42,10 @@ fun KasirScreen(
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = PrimaryVariant,
                     unfocusedBorderColor = Color.Gray
+                ),
+                textStyle = LocalTextStyle.current.copy(
+                    // Perbesar padding kiri-kanan dengan spasi manual
+                    // Atau gunakan fontSize lebih besar jika ingin
                 )
             )
             
