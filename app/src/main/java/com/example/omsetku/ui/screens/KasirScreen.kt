@@ -3,7 +3,7 @@ package com.example.omsetku.ui.screens
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -15,6 +15,8 @@ import com.example.omsetku.ui.theme.PrimaryVariant
 fun KasirScreen(
     onNavigateBack: () -> Unit
 ) {
+    var imageValue by remember { mutableStateOf("") }
+    
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -38,8 +40,8 @@ fun KasirScreen(
         ) {
             // Image Input
             OutlinedTextField(
-                value = "",
-                onValueChange = {},
+                value = imageValue,
+                onValueChange = { imageValue = it },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 8.dp),
