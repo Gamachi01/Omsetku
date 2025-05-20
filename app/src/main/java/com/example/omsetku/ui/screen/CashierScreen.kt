@@ -81,11 +81,6 @@ fun CashierScreen(
                     }
                 }
             )
-        },
-        topBar = {
-            TopAppBar(
-                title = { Text("Kasir") }
-            )
         }
     ) { paddingValues ->
         Box(
