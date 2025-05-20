@@ -99,27 +99,6 @@ fun CashierScreen(
                     .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                // Button Tambah Produk
-                Button(
-                    onClick = { showAddProductDialog = true },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(48.dp),
-                    shape = RoundedCornerShape(8.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = PrimaryVariant
-                    )
-                ) {
-                    Text(
-                        text = "Tambah Produk",
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Medium,
-                        fontFamily = Poppins,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                }
-                
                 // Search Bar
                 OutlinedTextField(
                     value = searchQuery,
@@ -131,9 +110,7 @@ fun CashierScreen(
                             color = Color.Gray
                         ) 
                     },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 16.dp),
+                    modifier = Modifier.fillMaxWidth(),
                     leadingIcon = {
                         Icon(
                             imageVector = Icons.Default.Search,
@@ -155,13 +132,37 @@ fun CashierScreen(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
+                    // Button Tambah Produk
+                    Button(
+                        onClick = { showAddProductDialog = true },
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(48.dp),
+                        shape = RoundedCornerShape(8.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = PrimaryVariant
+                        )
+                    ) {
+                        Text(
+                            text = "Tambah Produk",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Medium,
+                            fontFamily = Poppins,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+                    
+                    // Button Atur Produk
                     OutlinedButton(
                         onClick = { 
                             if (productList.isNotEmpty()) {
                                 showEditProductDialog = true
                             }
                         },
-                        modifier = Modifier.weight(1f),
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(48.dp),
                         colors = ButtonDefaults.outlinedButtonColors(
                             contentColor = Color(0xFF62DCC8)
                         ),
@@ -183,8 +184,6 @@ fun CashierScreen(
                         )
                     }
                 }
-                
-                Spacer(modifier = Modifier.height(16.dp))
                 
                 if (productList.isEmpty()) {
                     // Empty State
