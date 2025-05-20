@@ -19,6 +19,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -68,7 +69,10 @@ fun HppScreen(navController: NavController) {
                 fontWeight = FontWeight.Bold,
                 color = Color.Black,
                 fontFamily = Poppins,
-                modifier = Modifier.padding(bottom = 20.dp)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 16.dp, bottom = 12.dp),
+                textAlign = TextAlign.Center
             )
             
             // Tab Selection
@@ -105,27 +109,34 @@ fun HppScreen(navController: NavController) {
                 shape = RoundedCornerShape(8.dp)
             ) {
                 Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.padding(12.dp)
+                    modifier = Modifier.padding(12.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(
                         imageVector = Icons.Default.Info,
-                        contentDescription = "Info",
+                        contentDescription = null,
                         tint = Color.Gray,
                         modifier = Modifier.size(20.dp)
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = if (selectedTab == HppTab.STOK) 
-                                "Hitung HPP dari stok produk yang terjual." 
-                              else 
-                                "Hitung HPP dari bahan resep dan jumlah pemakaian.",
-                        fontSize = 12.sp,
+                        text = if (selectedTab == HppTab.STOK) "Hitung HPP dari stok produk yang terjual." else "Hitung HPP dari bahan resep dan jumlah pemakaian.",
+                        fontSize = 14.sp,
                         color = Color.Gray,
                         fontFamily = Poppins
                     )
                 }
             }
+            
+            // Spacer diperkecil agar lebih rapat
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = "Pilih Produk",
+                fontSize = 15.sp,
+                fontFamily = Poppins,
+                color = Color.Black,
+                modifier = Modifier.padding(bottom = 4.dp)
+            )
             
             if (selectedTab == HppTab.STOK) {
                 HppStokContent()
