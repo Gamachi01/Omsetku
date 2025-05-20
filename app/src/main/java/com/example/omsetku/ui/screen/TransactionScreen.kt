@@ -18,7 +18,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.navigation.NavController
 import com.example.omsetku.Navigation.Routes
 import com.example.omsetku.ui.components.BottomNavBar
-import androidx.compose.ui.text.TextAlign
+import androidx.compose.ui.text.style.TextAlign
 
 enum class TransactionType {
     INCOME, EXPENSE
