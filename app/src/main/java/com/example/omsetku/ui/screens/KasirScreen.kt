@@ -53,8 +53,7 @@ fun KasirScreen(
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = PrimaryVariant,
                     unfocusedBorderColor = Color.Gray
-                ),
-                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 20.dp)
+                )
             )
             
             // Other form content here
