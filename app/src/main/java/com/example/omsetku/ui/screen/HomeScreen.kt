@@ -88,16 +88,6 @@ fun HomeScreen(
     var expenseAmount by remember { mutableStateOf(1200000) }
 
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Omsetku") },
-                actions = {
-                    IconButton(onClick = { /* TODO: Implement profile */ }) {
-                        Icon(Icons.Default.Person, contentDescription = "Profile")
-                    }
-                }
-            )
-        },
         bottomBar = {
             BottomNavBar(
                 selectedItem = selectedItem,
@@ -122,36 +112,7 @@ fun HomeScreen(
                 .verticalScroll(scrollState),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "Omsetku",
-                    fontSize = 30.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = PrimaryVariant,
-                    fontFamily = Poppins
-                )
-                
-                Box(
-                    modifier = Modifier
-                        .size(44.dp)
-                        .clip(CircleShape)
-                        .background(PrimaryLight)
-                        .clickable { navController.navigate(Routes.PROFILE) },
-                    contentAlignment = Alignment.Center
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.profile_icon),
-                        contentDescription = "Profile Icon",
-                        modifier = Modifier.size(28.dp)
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
             // Saldo Card
             Card(
