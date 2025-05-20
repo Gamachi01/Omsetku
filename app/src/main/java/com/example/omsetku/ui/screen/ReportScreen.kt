@@ -317,20 +317,20 @@ fun TableRow(label: String, value: String, isIndented: Boolean = false) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = if (isIndented) 32.dp else 16.dp, vertical = 8.dp),
+            .padding(horizontal = if (isIndented) 32.dp else 16.dp, vertical = 4.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
             text = label,
-            fontSize = 13.sp,
+            fontSize = 11.sp,
             fontFamily = Poppins,
             color = Color.Black
         )
         
         Text(
             text = value,
-            fontSize = 13.sp,
+            fontSize = 11.sp,
             fontWeight = FontWeight.Medium,
             fontFamily = Poppins,
             color = Color.Black

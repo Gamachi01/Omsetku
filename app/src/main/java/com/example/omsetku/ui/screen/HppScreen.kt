@@ -69,9 +69,7 @@ fun HppScreen(navController: NavController) {
                 fontWeight = FontWeight.Bold,
                 color = Color.Black,
                 fontFamily = Poppins,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 16.dp, bottom = 12.dp),
+                modifier = Modifier.fillMaxWidth().padding(top = 16.dp, bottom = 8.dp),
                 textAlign = TextAlign.Center
             )
             
@@ -129,7 +127,7 @@ fun HppScreen(navController: NavController) {
             }
             
             // Spacer diperkecil agar lebih rapat
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(4.dp))
             
             if (selectedTab == HppTab.STOK) {
                 HppStokContent()
