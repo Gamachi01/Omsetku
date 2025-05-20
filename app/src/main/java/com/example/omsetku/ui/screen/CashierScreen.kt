@@ -391,32 +391,32 @@ fun ProductDialog(
                             shape = RoundedCornerShape(8.dp)
                         )
                         .clip(RoundedCornerShape(8.dp))
-                        .clickable { /* TODO: Handle image upload */ },
+                        .clickable { /* TODO: Handle image upload */ }
+                        .padding(16.dp),
                     contentAlignment = Alignment.Center
                 ) {
                     Column(
-                        horizontalAlignment = Alignment.CenterHorizontally
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center,
+                        modifier = Modifier.fillMaxSize()
                     ) {
                         Icon(
                             painter = painterResource(id = R.drawable.arrow_up),
                             contentDescription = "Upload",
                             tint = Color(0xFF62DCC8),
-                            modifier = Modifier.size(36.dp)
+                            modifier = Modifier.size(32.dp)
                         )
-                        
-                        Spacer(modifier = Modifier.height(8.dp))
-                        
+                        Spacer(modifier = Modifier.height(6.dp))
                         Text(
                             text = "Klik untuk mengupload gambar produk",
-                            fontSize = 14.sp,
+                            fontSize = 12.sp,
                             fontFamily = Poppins,
                             color = Color.Black,
                             textAlign = TextAlign.Center
                         )
-                        
                         Text(
                             text = "Support: JPG, JPEG, PNG",
-                            fontSize = 12.sp,
+                            fontSize = 10.sp,
                             fontFamily = Poppins,
                             color = Color.Gray,
                             textAlign = TextAlign.Center
