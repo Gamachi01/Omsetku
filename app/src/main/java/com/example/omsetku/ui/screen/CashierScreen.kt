@@ -241,8 +241,8 @@ fun CashierScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .align(Alignment.BottomCenter)
-                        .padding(horizontal = 16.dp, vertical = 16.dp)
-                        .padding(bottom = paddingValues.calculateBottomPadding()),
+                        .padding(horizontal = 16.dp)
+                        .padding(bottom = 8.dp),
                     shape = RoundedCornerShape(30.dp),
                     color = PrimaryVariant,
                     shadowElevation = 8.dp
