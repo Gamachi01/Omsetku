@@ -10,8 +10,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.Visibility
-import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -134,7 +132,12 @@ fun SignUpScreen(navController: NavController = rememberNavController()) {
             trailingIcon = {
                 IconButton(onClick = { passwordVisible = !passwordVisible }) {
                     Icon(
-                        imageVector = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                        painter = painterResource(
+                            id = if (passwordVisible) 
+                                    R.drawable.password_icon
+                                else 
+                                    R.drawable.password_icon
+                        ),
                         contentDescription = if (passwordVisible) "Hide Password" else "Show Password",
                         tint = Color.Gray
                     )
@@ -177,7 +180,12 @@ fun SignUpScreen(navController: NavController = rememberNavController()) {
             trailingIcon = {
                 IconButton(onClick = { confirmPasswordVisible = !confirmPasswordVisible }) {
                     Icon(
-                        imageVector = if (confirmPasswordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                        painter = painterResource(
+                            id = if (confirmPasswordVisible) 
+                                    R.drawable.password_icon
+                                else 
+                                    R.drawable.password_icon
+                        ),
                         contentDescription = if (confirmPasswordVisible) "Hide Password" else "Show Password",
                         tint = Color.Gray
                     )
