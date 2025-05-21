@@ -192,8 +192,8 @@ fun EditProfileScreen(navController: NavController) {
             onClick = { navController.navigate(Routes.PROFILE) },
             modifier = Modifier
                 .fillMaxWidth()
-                .height(48.dp)
-                .padding(top = 24.dp),
+                .padding(top = 24.dp)
+                .height(48.dp),
             shape = RoundedCornerShape(8.dp),
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF5ED0C5))
         ) {
