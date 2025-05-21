@@ -675,17 +675,21 @@ fun FilterDialog(
     onPeriodeSelected: (FilterPeriode) -> Unit,
     onApply: () -> Unit
 ) {
+    val scrollState = rememberScrollState()
+    
     Dialog(
         onDismissRequest = onDismiss,
         properties = DialogProperties(usePlatformDefaultWidth = false)
     ) {
         Surface(
             shape = RoundedCornerShape(16.dp),
-            color = Color.White
+            color = Color.White,
+            modifier = Modifier.heightIn(max = 550.dp)
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .verticalScroll(scrollState)
                     .padding(24.dp)
             ) {
                 // Header dengan tombol close (X)
