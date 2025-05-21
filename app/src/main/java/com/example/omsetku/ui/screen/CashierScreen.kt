@@ -73,7 +73,9 @@ fun CashierScreen(
     
     var showAddProductDialog by remember { mutableStateOf(false) }
     var showEditProductDialog by remember { mutableStateOf(false) }
+    var showDeleteConfirmDialog by remember { mutableStateOf(false) }
     var selectedProduct by remember { mutableStateOf<ProductItem?>(null) }
+    var productToDelete by remember { mutableStateOf<ProductItem?>(null) }
     var showSuccessDialog by remember { mutableStateOf(false) }
     var isEditMode by remember { mutableStateOf(false) }
     
@@ -249,7 +251,8 @@ fun CashierScreen(
                                     showEditProductDialog = true
                                 },
                                 onDelete = {
-                                    productList = productList.filter { it.id != product.id }
+                                    productToDelete = product
+                                    showDeleteConfirmDialog = true
                                 }
                             )
                         }
@@ -359,6 +362,22 @@ fun CashierScreen(
                 }
                 showEditProductDialog = false
                 selectedProduct = null
+            }
+        )
+    }
+    
+    // Delete Confirmation Dialog
+    if (showDeleteConfirmDialog && productToDelete != null) {
+        DeleteConfirmationDialog(
+            productName = productToDelete!!.name,
+            onDismiss = { 
+                showDeleteConfirmDialog = false
+                productToDelete = null
+            },
+            onConfirm = {
+                productList = productList.filter { it.id != productToDelete!!.id }
+                showDeleteConfirmDialog = false
+                productToDelete = null
             }
         )
     }
@@ -703,6 +722,110 @@ fun ProductCard(
                                 text = "+",
                                 fontSize = 18.sp,
                                 fontWeight = FontWeight.Bold,
+                                color = Color.White
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun DeleteConfirmationDialog(
+    productName: String,
+    onDismiss: () -> Unit,
+    onConfirm: () -> Unit
+) {
+    Dialog(onDismissRequest = onDismiss) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(Color(0x80000000)),
+            contentAlignment = Alignment.Center
+        ) {
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth(0.9f)
+                    .padding(horizontal = 8.dp),
+                shape = RoundedCornerShape(16.dp),
+                color = Color.White,
+                shadowElevation = 8.dp
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 24.dp, horizontal = 20.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Delete,
+                        contentDescription = "Hapus",
+                        tint = Color(0xFFE74C3C),
+                        modifier = Modifier.size(48.dp)
+                    )
+                    
+                    Spacer(modifier = Modifier.height(16.dp))
+                    
+                    Text(
+                        text = "Hapus Produk?",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        fontFamily = Poppins,
+                        color = Color.Black
+                    )
+                    
+                    Spacer(modifier = Modifier.height(8.dp))
+                    
+                    Text(
+                        text = "Apakah Anda yakin ingin menghapus produk \"$productName\"?",
+                        fontSize = 14.sp,
+                        fontFamily = Poppins,
+                        color = Color.Gray,
+                        textAlign = TextAlign.Center
+                    )
+                    
+                    Spacer(modifier = Modifier.height(24.dp))
+                    
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        Button(
+                            onClick = onDismiss,
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(48.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color.LightGray
+                            ),
+                            shape = RoundedCornerShape(8.dp)
+                        ) {
+                            Text(
+                                text = "Batal",
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Medium,
+                                fontFamily = Poppins,
+                                color = Color.Black
+                            )
+                        }
+                        
+                        Button(
+                            onClick = onConfirm,
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(48.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color(0xFFE74C3C)
+                            ),
+                            shape = RoundedCornerShape(8.dp)
+                        ) {
+                            Text(
+                                text = "Hapus",
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Medium,
+                                fontFamily = Poppins,
                                 color = Color.White
                             )
                         }
