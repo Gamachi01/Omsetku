@@ -110,7 +110,7 @@ fun HomeScreen(
                 .padding(paddingValues)
                 .padding(16.dp)
                 .verticalScroll(scrollState),
-            verticalArrangement = Arrangement.spacedBy(10.dp)
+            verticalArrangement = Arrangement.spacedBy(6.dp)
         ) {
             // Header: Omsetku dan icon profil
             Row(
@@ -140,44 +140,44 @@ fun HomeScreen(
                     )
                 }
             }
-            Spacer(modifier = Modifier.height(6.dp))
+            Spacer(modifier = Modifier.height(4.dp))
 
             // Saldo Card
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 12.dp),
-                shape = RoundedCornerShape(20.dp),
-                elevation = CardDefaults.cardElevation(defaultElevation = 3.dp),
+                    .padding(bottom = 8.dp),
+                shape = RoundedCornerShape(16.dp),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
                 colors = CardDefaults.cardColors(containerColor = PrimaryLight)
             ) {
                 Column(
-                    modifier = Modifier.padding(24.dp),
+                    modifier = Modifier.padding(16.dp),
                     horizontalAlignment = Alignment.Start
                 ) {
                     Text(
                         text = "Saldo Saat Ini",
-                        fontSize = 15.sp,
+                        fontSize = 14.sp,
                         fontWeight = FontWeight.Medium,
                         color = Color.DarkGray,
                         fontFamily = Poppins
                     )
                     
-                    Spacer(modifier = Modifier.height(10.dp))
+                    Spacer(modifier = Modifier.height(6.dp))
                     
                     Text(
                         text = "Rp %,d".format(incomeAmount - expenseAmount).replace(',', '.'),
-                        fontSize = 30.sp,
+                        fontSize = 26.sp,
                         fontWeight = FontWeight.ExtraBold,
                         color = PrimaryColor,
                         fontFamily = Poppins
                     )
                     
-                    Spacer(modifier = Modifier.height(20.dp))
+                    Spacer(modifier = Modifier.height(12.dp))
                     
                     Divider(color = Color.LightGray, thickness = 1.dp)
                     
-                    Spacer(modifier = Modifier.height(20.dp))
+                    Spacer(modifier = Modifier.height(12.dp))
                     
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -186,16 +186,16 @@ fun HomeScreen(
                         Column {
                             Text(
                                 text = "Pemasukan",
-                                fontSize = 13.sp,
+                                fontSize = 12.sp,
                                 color = Color.DarkGray,
                                 fontFamily = Poppins
                             )
                             
-                            Spacer(modifier = Modifier.height(4.dp))
+                            Spacer(modifier = Modifier.height(2.dp))
                             
                             Text(
                                 text = "Rp %,d".format(incomeAmount).replace(',', '.'),
-                                fontSize = 18.sp,
+                                fontSize = 16.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = IncomeColor,
                                 fontFamily = Poppins
@@ -205,16 +205,16 @@ fun HomeScreen(
                         Column(horizontalAlignment = Alignment.End) {
                             Text(
                                 text = "Pengeluaran",
-                                fontSize = 13.sp,
+                                fontSize = 12.sp,
                                 color = Color.DarkGray,
                                 fontFamily = Poppins
                             )
                             
-                            Spacer(modifier = Modifier.height(4.dp))
+                            Spacer(modifier = Modifier.height(2.dp))
                             
                             Text(
                                 text = "Rp %,d".format(expenseAmount).replace(',', '.'),
-                                fontSize = 18.sp,
+                                fontSize = 16.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = ExpenseColor,
                                 fontFamily = Poppins
@@ -231,7 +231,7 @@ fun HomeScreen(
                 fontWeight = FontWeight.Bold,
                 color = Color.Black,
                 fontFamily = Poppins,
-                modifier = Modifier.padding(vertical = 8.dp)
+                modifier = Modifier.padding(vertical = 6.dp)
             )
 
             TransactionList(transactions = transactions)
