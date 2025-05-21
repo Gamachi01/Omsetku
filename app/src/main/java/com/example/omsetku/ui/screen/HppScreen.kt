@@ -70,7 +70,7 @@ fun HppScreen(navController: NavController) {
                 color = Color.Black,
                 fontFamily = Poppins,
                 modifier = Modifier.fillMaxWidth()
-                    .padding(bottom = 8.dp),
+                    .padding(bottom = 16.dp),
                 textAlign = TextAlign.Center
             )
             
