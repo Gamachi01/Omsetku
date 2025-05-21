@@ -19,6 +19,9 @@ fun AppNavGraph(navController: NavHostController) {
         composable(Routes.OTP) {
             OTPScreen(navController)
         }
+        composable(Routes.BUSINESS_SETUP) {
+            BusinessSetupScreen(navController)
+        }
         composable(Routes.HOME) {
             HomeScreen(navController)
         }
