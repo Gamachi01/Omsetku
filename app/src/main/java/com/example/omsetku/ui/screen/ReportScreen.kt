@@ -679,78 +679,271 @@ fun FilterDialog(
     ) {
         Surface(
             shape = RoundedCornerShape(16.dp),
-            color = MaterialTheme.colorScheme.surface
+            color = Color.White
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp)
+                    .padding(24.dp)
             ) {
-                Text(
-                    text = "Pilih Periode",
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.align(Alignment.CenterHorizontally)
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                val periodeOptions = listOf(
-                    FilterPeriode.HARIAN,
-                    FilterPeriode.MINGGUAN,
-                    FilterPeriode.BULANAN,
-                    FilterPeriode.TAHUNAN
-                )
-
-                val selectedOption = remember { mutableStateOf(selectedPeriode) }
-
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp)
+                // Header dengan tombol close (X)
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    periodeOptions.forEach { periode ->
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable {
-                                    selectedOption.value = periode
-                                }
-                                .padding(vertical = 8.dp)
-                        ) {
-                            Text(
-                                text = when (periode) {
-                                    FilterPeriode.HARIAN -> "Harian"
-                                    FilterPeriode.MINGGUAN -> "Mingguan"
-                                    FilterPeriode.BULANAN -> "Bulanan"
-                                    FilterPeriode.TAHUNAN -> "Tahunan"
-                                },
-                                fontSize = 14.sp,
-                                fontWeight = if (selectedOption.value == periode) FontWeight.Bold else FontWeight.Medium,
-                                color = MaterialTheme.colorScheme.onSurface
+                    Icon(
+                        painter = painterResource(id = R.drawable.close),
+                        contentDescription = "Close",
+                        modifier = Modifier
+                            .size(24.dp)
+                            .clickable { onDismiss() },
+                        tint = Color.Black
+                    )
+                    
+                    Text(
+                        text = "Filter",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Black,
+                        fontFamily = Poppins
+                    )
+                    
+                    // Spacer untuk menjaga agar title tetap di tengah
+                    Spacer(modifier = Modifier.width(24.dp))
+                }
+                
+                Spacer(modifier = Modifier.height(24.dp))
+                
+                // Pilih Periode Transaksi
+                Text(
+                    text = "Pilih Periode Transaksi",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = Color.Black,
+                    fontFamily = Poppins
+                )
+                
+                Spacer(modifier = Modifier.height(16.dp))
+                
+                // Radio button options
+                val options = listOf(
+                    FilterPeriode.HARIAN to "Harian",
+                    FilterPeriode.MINGGUAN to "Mingguan",
+                    FilterPeriode.BULANAN to "Bulanan",
+                    FilterPeriode.TAHUNAN to "Tahunan"
+                )
+                
+                var selectedOption by remember { mutableStateOf(selectedPeriode) }
+                
+                // Radio button group
+                options.forEach { (periode, label) ->
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp)
+                            .clickable { selectedOption = periode }
+                    ) {
+                        RadioButton(
+                            selected = selectedOption == periode,
+                            onClick = { selectedOption = periode },
+                            colors = RadioButtonDefaults.colors(
+                                selectedColor = PrimaryVariant,
+                                unselectedColor = Color.Gray
                             )
-                        }
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = label,
+                            fontSize = 14.sp,
+                            fontFamily = Poppins,
+                            color = Color.Black
+                        )
                     }
                 }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
+                
+                Spacer(modifier = Modifier.height(24.dp))
+                
+                // Input fields based on selected period
+                when (selectedOption) {
+                    FilterPeriode.HARIAN -> {
+                        Text(
+                            text = "Pilih Tanggal",
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = Color.Black,
+                            fontFamily = Poppins
+                        )
+                        
+                        Spacer(modifier = Modifier.height(8.dp))
+                        
+                        // Date picker field
+                        OutlinedTextField(
+                            value = "",
+                            onValueChange = { },
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(8.dp),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                unfocusedBorderColor = Color.LightGray,
+                                focusedBorderColor = PrimaryVariant
+                            ),
+                            readOnly = true,
+                            trailingIcon = {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.transactioncalender),
+                                    contentDescription = "Pilih Tanggal",
+                                    tint = Color.Gray
+                                )
+                            }
+                        )
+                    }
+                    FilterPeriode.MINGGUAN -> {
+                        // Tanggal Awal
+                        Text(
+                            text = "Tanggal Awal",
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = Color.Black,
+                            fontFamily = Poppins
+                        )
+                        
+                        Spacer(modifier = Modifier.height(8.dp))
+                        
+                        OutlinedTextField(
+                            value = "",
+                            onValueChange = { },
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(8.dp),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                unfocusedBorderColor = Color.LightGray,
+                                focusedBorderColor = PrimaryVariant
+                            ),
+                            readOnly = true,
+                            trailingIcon = {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.transactioncalender),
+                                    contentDescription = "Pilih Tanggal Awal",
+                                    tint = Color.Gray
+                                )
+                            }
+                        )
+                        
+                        Spacer(modifier = Modifier.height(16.dp))
+                        
+                        // Tanggal Akhir
+                        Text(
+                            text = "Tanggal Akhir",
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = Color.Black,
+                            fontFamily = Poppins
+                        )
+                        
+                        Spacer(modifier = Modifier.height(8.dp))
+                        
+                        OutlinedTextField(
+                            value = "",
+                            onValueChange = { },
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(8.dp),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                unfocusedBorderColor = Color.LightGray,
+                                focusedBorderColor = PrimaryVariant
+                            ),
+                            readOnly = true,
+                            trailingIcon = {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.transactioncalender),
+                                    contentDescription = "Pilih Tanggal Akhir",
+                                    tint = Color.Gray
+                                )
+                            }
+                        )
+                    }
+                    FilterPeriode.BULANAN -> {
+                        Text(
+                            text = "Pilih Bulan",
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = Color.Black,
+                            fontFamily = Poppins
+                        )
+                        
+                        Spacer(modifier = Modifier.height(8.dp))
+                        
+                        OutlinedTextField(
+                            value = "",
+                            onValueChange = { },
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(8.dp),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                unfocusedBorderColor = Color.LightGray,
+                                focusedBorderColor = PrimaryVariant
+                            ),
+                            readOnly = true,
+                            trailingIcon = {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.transactioncalender),
+                                    contentDescription = "Pilih Bulan",
+                                    tint = Color.Gray
+                                )
+                            }
+                        )
+                    }
+                    FilterPeriode.TAHUNAN -> {
+                        Text(
+                            text = "Pilih Tahun",
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = Color.Black,
+                            fontFamily = Poppins
+                        )
+                        
+                        Spacer(modifier = Modifier.height(8.dp))
+                        
+                        OutlinedTextField(
+                            value = "",
+                            onValueChange = { },
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(8.dp),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                unfocusedBorderColor = Color.LightGray,
+                                focusedBorderColor = PrimaryVariant
+                            ),
+                            readOnly = true,
+                            trailingIcon = {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.transactioncalender),
+                                    contentDescription = "Pilih Tahun",
+                                    tint = Color.Gray
+                                )
+                            }
+                        )
+                    }
+                }
+                
+                Spacer(modifier = Modifier.weight(1f))
+                
+                // Tombol Terapkan
                 Button(
                     onClick = {
-                        onPeriodeSelected(selectedOption.value)
+                        onPeriodeSelected(selectedOption)
                         onApply()
                     },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(48.dp)
-                        .padding(horizontal = 16.dp)
+                        .height(48.dp),
+                    shape = RoundedCornerShape(8.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = PrimaryVariant
+                    )
                 ) {
                     Text(
                         text = "Terapkan",
                         fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onPrimary
+                        fontWeight = FontWeight.Medium,
+                        fontFamily = Poppins
                     )
                 }
             }
