@@ -58,7 +58,19 @@ fun CashierScreen(
 ) {
     var selectedItem by remember { mutableStateOf("Cashier") }
     var searchQuery by remember { mutableStateOf("") }
-    var productList by remember { mutableStateOf<List<ProductItem>>(emptyList()) }
+    
+    // Menambahkan data produk dummy untuk demo
+    var productList by remember {
+        mutableStateOf<List<ProductItem>>(
+            listOf(
+                ProductItem(1, "Cappucino", 25000, R.drawable.logo),
+                ProductItem(2, "Americano", 20000, R.drawable.logo),
+                ProductItem(3, "Espresso", 15000, R.drawable.logo),
+                ProductItem(4, "Brown Sugar Latte", 15000, R.drawable.logo)
+            )
+        )
+    }
+    
     var showAddProductDialog by remember { mutableStateOf(false) }
     var showEditProductDialog by remember { mutableStateOf(false) }
     var selectedProduct by remember { mutableStateOf<ProductItem?>(null) }

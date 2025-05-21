@@ -304,58 +304,66 @@ fun ProductDetailItem(product: TransactionProduct) {
 @Composable
 fun SuccessDialog(onDismiss: () -> Unit) {
     Dialog(onDismissRequest = onDismiss) {
-        Surface(
+        Box(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 24.dp),
-            shape = RoundedCornerShape(16.dp),
-            color = Color.White
+                .fillMaxSize()
+                .background(Color(0x80000000)),
+            contentAlignment = Alignment.Center
         ) {
-            Column(
+            Surface(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 32.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+                    .fillMaxWidth(0.9f)
+                    .padding(horizontal = 8.dp),
+                shape = RoundedCornerShape(16.dp),
+                color = Color.White,
+                shadowElevation = 8.dp
             ) {
-                Surface(
-                    modifier = Modifier.size(80.dp),
-                    shape = RoundedCornerShape(40.dp),
-                    color = Color(0xFF62DCC8)
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 32.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
+                    Surface(
+                        modifier = Modifier.size(80.dp),
+                        shape = RoundedCornerShape(40.dp),
+                        color = Color(0xFF62DCC8)
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.Check,
-                            contentDescription = "Check",
-                            tint = Color.White,
-                            modifier = Modifier.size(40.dp)
-                        )
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Check,
+                                contentDescription = "Check",
+                                tint = Color.White,
+                                modifier = Modifier.size(40.dp)
+                            )
+                        }
                     }
+                    
+                    Spacer(modifier = Modifier.height(24.dp))
+                    
+                    Text(
+                        text = "Transaksi Berhasil!",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        fontFamily = Poppins,
+                        color = Color.Black
+                    )
+                    
+                    Spacer(modifier = Modifier.height(8.dp))
+                    
+                    Text(
+                        text = "Transaksi anda telah tercatat.",
+                        fontSize = 14.sp,
+                        fontFamily = Poppins,
+                        color = Color.Gray,
+                        textAlign = TextAlign.Center
+                    )
+                    
+                    Spacer(modifier = Modifier.height(16.dp))
                 }
-                
-                Spacer(modifier = Modifier.height(24.dp))
-                
-                Text(
-                    text = "Transaksi Berhasil!",
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
-                    fontFamily = Poppins,
-                    color = Color.Black
-                )
-                
-                Spacer(modifier = Modifier.height(8.dp))
-                
-                Text(
-                    text = "Transaksi anda telah tercatat.",
-                    fontSize = 14.sp,
-                    fontFamily = Poppins,
-                    color = Color.Gray,
-                    textAlign = TextAlign.Center
-                )
-                
-                Spacer(modifier = Modifier.height(16.dp))
             }
         }
     }
