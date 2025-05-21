@@ -24,6 +24,8 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.NavController
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import com.example.omsetku.Navigation.Routes
 import com.example.omsetku.R
 import com.example.omsetku.ui.components.BottomNavBar
@@ -693,7 +695,7 @@ fun FilterDialog(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(
-                        painter = painterResource(id = R.drawable.close),
+                        imageVector = Icons.Default.Close,
                         contentDescription = "Close",
                         modifier = Modifier
                             .size(24.dp)
