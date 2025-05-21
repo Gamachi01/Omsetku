@@ -69,7 +69,8 @@ fun HppScreen(navController: NavController) {
                 fontWeight = FontWeight.Bold,
                 color = Color.Black,
                 fontFamily = Poppins,
-                modifier = Modifier.fillMaxWidth().padding(top = 16.dp, bottom = 8.dp),
+                modifier = Modifier.fillMaxWidth()
+                    .padding(bottom = 8.dp),
                 textAlign = TextAlign.Center
             )
             
@@ -100,14 +101,14 @@ fun HppScreen(navController: NavController) {
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 8.dp),
+                    .padding(vertical = 4.dp),
                 colors = CardDefaults.cardColors(
                     containerColor = Color(0xFFF5F5F5)
                 ),
                 shape = RoundedCornerShape(8.dp)
             ) {
                 Row(
-                    modifier = Modifier.padding(12.dp),
+                    modifier = Modifier.padding(8.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(
@@ -127,7 +128,7 @@ fun HppScreen(navController: NavController) {
             }
             
             // Spacer diperkecil agar lebih rapat
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(2.dp))
             
             if (selectedTab == HppTab.STOK) {
                 HppStokContent()
@@ -194,8 +195,6 @@ fun HppTabButton(
 @Composable
 fun HppStokContent() {
     Column(modifier = Modifier.fillMaxWidth()) {
-        Spacer(modifier = Modifier.height(8.dp))
-        
         HppLabeledFieldBox(label = "Pilih Produk") {
             OutlinedTextField(
                 value = "",
@@ -387,8 +386,6 @@ fun HppStokContent() {
 @Composable
 fun HppBahanBakuContent() {
     Column(modifier = Modifier.fillMaxWidth()) {
-        Spacer(modifier = Modifier.height(8.dp))
-        
         HppLabeledFieldBox(label = "Pilih Produk") {
             OutlinedTextField(
                 value = "",
@@ -411,7 +408,7 @@ fun HppBahanBakuContent() {
             )
         }
         
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(8.dp))
         
         // Bahan Baku List
         var bahanBakuList by remember { mutableStateOf(listOf(1)) }
@@ -737,7 +734,7 @@ fun HppLabeledFieldBox(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp)
+            .padding(vertical = 4.dp)
     ) {
         Text(
             text = label,
@@ -745,7 +742,7 @@ fun HppLabeledFieldBox(
             fontFamily = Poppins,
             fontWeight = FontWeight.Medium
         )
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(4.dp))
         content()
     }
 } 
