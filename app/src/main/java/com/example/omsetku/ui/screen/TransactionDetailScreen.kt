@@ -18,6 +18,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -303,13 +304,17 @@ fun ProductDetailItem(product: TransactionProduct) {
 @Composable
 fun SuccessDialog(onDismiss: () -> Unit) {
     Dialog(onDismissRequest = onDismiss) {
-        Box(
+        Surface(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(32.dp),
-            contentAlignment = Alignment.Center
+                .padding(horizontal = 24.dp),
+            shape = RoundedCornerShape(16.dp),
+            color = Color.White
         ) {
             Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 32.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Surface(
@@ -317,17 +322,20 @@ fun SuccessDialog(onDismiss: () -> Unit) {
                     shape = RoundedCornerShape(40.dp),
                     color = Color(0xFF62DCC8)
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.Check,
-                        contentDescription = "Check",
-                        tint = Color.White,
-                        modifier = Modifier
-                            .padding(20.dp)
-                            .size(40.dp)
-                    )
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Check,
+                            contentDescription = "Check",
+                            tint = Color.White,
+                            modifier = Modifier.size(40.dp)
+                        )
+                    }
                 }
                 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(24.dp))
                 
                 Text(
                     text = "Transaksi Berhasil!",
@@ -337,14 +345,17 @@ fun SuccessDialog(onDismiss: () -> Unit) {
                     color = Color.Black
                 )
                 
-                Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(8.dp))
                 
                 Text(
                     text = "Transaksi anda telah tercatat.",
                     fontSize = 14.sp,
                     fontFamily = Poppins,
-                    color = Color.Gray
+                    color = Color.Gray,
+                    textAlign = TextAlign.Center
                 )
+                
+                Spacer(modifier = Modifier.height(16.dp))
             }
         }
     }

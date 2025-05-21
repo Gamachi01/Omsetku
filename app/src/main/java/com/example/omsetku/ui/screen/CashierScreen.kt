@@ -16,6 +16,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -61,6 +63,7 @@ fun CashierScreen(
     var showEditProductDialog by remember { mutableStateOf(false) }
     var selectedProduct by remember { mutableStateOf<ProductItem?>(null) }
     var showSuccessDialog by remember { mutableStateOf(false) }
+    var isEditMode by remember { mutableStateOf(false) }
     
     val totalItems = productList.sumOf { it.quantity }
     val hasSelectedItems = totalItems > 0
@@ -152,14 +155,15 @@ fun CashierScreen(
                     OutlinedButton(
                         onClick = { 
                             if (productList.isNotEmpty()) {
-                                showEditProductDialog = true
+                                isEditMode = !isEditMode
                             }
                         },
                         modifier = Modifier
                             .weight(1f)
                             .height(48.dp),
                         colors = ButtonDefaults.outlinedButtonColors(
-                            contentColor = Color(0xFF62DCC8)
+                            contentColor = if (isEditMode) Color.White else Color(0xFF62DCC8),
+                            containerColor = if (isEditMode) Color(0xFF62DCC8) else Color.White
                         ),
                         border = BorderStroke(1.dp, Color(0xFF62DCC8)),
                         shape = RoundedCornerShape(8.dp)
@@ -167,7 +171,7 @@ fun CashierScreen(
                         Icon(
                             painter = painterResource(R.drawable.point_of_sale),
                             contentDescription = "Atur Produk",
-                            tint = Color(0xFF62DCC8),
+                            tint = if (isEditMode) Color.White else Color(0xFF62DCC8),
                             modifier = Modifier.size(16.dp)
                         )
                         Spacer(modifier = Modifier.width(4.dp))
@@ -175,7 +179,8 @@ fun CashierScreen(
                             text = "Atur Produk",
                             fontSize = 13.sp,
                             fontWeight = FontWeight.Medium,
-                            fontFamily = Poppins
+                            fontFamily = Poppins,
+                            color = if (isEditMode) Color.White else Color(0xFF62DCC8)
                         )
                     }
                 }
@@ -219,11 +224,22 @@ fun CashierScreen(
                         horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         items(productList) { product ->
-                            ProductCard(product = product, onQuantityChanged = { newQuantity ->
-                                productList = productList.map {
-                                    if (it.id == product.id) it.copy(quantity = newQuantity) else it
+                            ProductCard(
+                                product = product,
+                                isEditMode = isEditMode,
+                                onQuantityChanged = { newQuantity ->
+                                    productList = productList.map {
+                                        if (it.id == product.id) it.copy(quantity = newQuantity) else it
+                                    }
+                                },
+                                onEdit = {
+                                    selectedProduct = product
+                                    showEditProductDialog = true
+                                },
+                                onDelete = {
+                                    productList = productList.filter { it.id != product.id }
                                 }
-                            })
+                            )
                         }
                     }
                 }
@@ -539,7 +555,10 @@ fun ProductDialog(
 @Composable
 fun ProductCard(
     product: ProductItem,
-    onQuantityChanged: (Int) -> Unit
+    isEditMode: Boolean = false,
+    onQuantityChanged: (Int) -> Unit,
+    onEdit: () -> Unit = {},
+    onDelete: () -> Unit = {}
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -584,56 +603,97 @@ fun ProductCard(
             
             Spacer(modifier = Modifier.height(8.dp))
             
-            // Quantity Controls
+            // Quantity Controls atau Edit/Delete buttons
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Surface(
-                    shape = CircleShape,
-                    color = PrimaryVariant,
-                    modifier = Modifier.size(28.dp)
-                ) {
-                    Box(
-                        contentAlignment = Alignment.Center,
-                        modifier = Modifier.clickable { 
-                            if (product.quantity > 0) {
-                                onQuantityChanged(product.quantity - 1)
-                            }
+                if (isEditMode) {
+                    // Edit button (pengganti tombol minus)
+                    Surface(
+                        shape = CircleShape,
+                        color = PrimaryVariant,
+                        modifier = Modifier.size(28.dp)
+                    ) {
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier.clickable { onEdit() }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Edit,
+                                contentDescription = "Edit",
+                                tint = Color.White,
+                                modifier = Modifier.size(16.dp)
+                            )
                         }
-                    ) {
-                        Text(
-                            text = "-",
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color.White
-                        )
                     }
-                }
-                
-                Text(
-                    text = "${product.quantity}",
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
-                    fontFamily = Poppins
-                )
-                
-                Surface(
-                    shape = CircleShape,
-                    color = PrimaryVariant,
-                    modifier = Modifier.size(28.dp)
-                ) {
-                    Box(
-                        contentAlignment = Alignment.Center,
-                        modifier = Modifier.clickable { onQuantityChanged(product.quantity + 1) }
+                    
+                    // Delete button (pengganti tombol plus)
+                    Surface(
+                        shape = CircleShape,
+                        color = Color(0xFFE74C3C), // Warna merah untuk delete
+                        modifier = Modifier.size(28.dp)
                     ) {
-                        Text(
-                            text = "+",
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color.White
-                        )
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier.clickable { onDelete() }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Delete,
+                                contentDescription = "Hapus",
+                                tint = Color.White,
+                                modifier = Modifier.size(16.dp)
+                            )
+                        }
+                    }
+                } else {
+                    // Normal quantity controls
+                    Surface(
+                        shape = CircleShape,
+                        color = PrimaryVariant,
+                        modifier = Modifier.size(28.dp)
+                    ) {
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier.clickable { 
+                                if (product.quantity > 0) {
+                                    onQuantityChanged(product.quantity - 1)
+                                }
+                            }
+                        ) {
+                            Text(
+                                text = "-",
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.White
+                            )
+                        }
+                    }
+                    
+                    Text(
+                        text = "${product.quantity}",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold,
+                        fontFamily = Poppins
+                    )
+                    
+                    Surface(
+                        shape = CircleShape,
+                        color = PrimaryVariant,
+                        modifier = Modifier.size(28.dp)
+                    ) {
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier.clickable { onQuantityChanged(product.quantity + 1) }
+                        ) {
+                            Text(
+                                text = "+",
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.White
+                            )
+                        }
                     }
                 }
             }
