@@ -13,6 +13,12 @@ fun AppNavGraph(navController: NavHostController) {
         composable(Routes.LOGIN) {
             LoginScreen(navController)
         }
+        composable(Routes.SIGNUP) {
+            SignUpScreen(navController)
+        }
+        composable(Routes.OTP) {
+            OTPScreen(navController)
+        }
         composable(Routes.HOME) {
             HomeScreen(navController)
         }
