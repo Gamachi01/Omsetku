@@ -2,8 +2,11 @@ package com.example.omsetku.ui.screen
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
@@ -13,10 +16,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.NavController
 import com.example.omsetku.Navigation.Routes
 import com.example.omsetku.R
@@ -24,11 +30,20 @@ import com.example.omsetku.ui.components.BottomNavBar
 import com.example.omsetku.ui.components.Poppins
 import com.example.omsetku.ui.theme.PrimaryVariant
 
+enum class FilterPeriode {
+    HARIAN, MINGGUAN, BULANAN, TAHUNAN
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ReportScreen(navController: NavController) {
     var selectedItem by remember { mutableStateOf("Report") }
     val scrollState = rememberScrollState()
+    var showFilterDialog by remember { mutableStateOf(false) }
+    var periodeText by remember { mutableStateOf("01 Maret 2025 - 31 Maret 2025") }
+    
+    // State untuk filter dialog
+    var selectedPeriode by remember { mutableStateOf(FilterPeriode.BULANAN) }
 
     Scaffold(
         bottomBar = {
@@ -82,7 +97,7 @@ fun ReportScreen(navController: NavController) {
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = "01 Maret 2025 - 31 Maret 2025",
+                    text = periodeText,
                     fontSize = 14.sp,
                     fontFamily = Poppins,
                     fontWeight = FontWeight.Medium,
@@ -99,7 +114,7 @@ fun ReportScreen(navController: NavController) {
             ) {
                 // Tombol Filter
                 OutlinedButton(
-                    onClick = { /* TODO: Implementasi filter */ },
+                    onClick = { showFilterDialog = true },
                     modifier = Modifier
                         .weight(0.3f)
                         .height(42.dp),
@@ -135,6 +150,25 @@ fun ReportScreen(navController: NavController) {
                         fontFamily = Poppins
                     )
                 }
+            }
+            
+            // Filter Dialog
+            if (showFilterDialog) {
+                FilterDialog(
+                    onDismiss = { showFilterDialog = false },
+                    selectedPeriode = selectedPeriode,
+                    onPeriodeSelected = { selectedPeriode = it },
+                    onApply = {
+                        // Update periode text berdasarkan selectedPeriode
+                        periodeText = when (selectedPeriode) {
+                            FilterPeriode.HARIAN -> "12 April 2025"
+                            FilterPeriode.MINGGUAN -> "06 April 2025 - 12 April 2025"
+                            FilterPeriode.BULANAN -> "01 April 2025 - 30 April 2025"
+                            FilterPeriode.TAHUNAN -> "2025"
+                        }
+                        showFilterDialog = false
+                    }
+                )
             }
             
             Spacer(modifier = Modifier.height(20.dp))
@@ -626,6 +660,98 @@ fun TransactionDayCard(
                             )
                         }
                     }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun FilterDialog(
+    onDismiss: () -> Unit,
+    selectedPeriode: FilterPeriode,
+    onPeriodeSelected: (FilterPeriode) -> Unit,
+    onApply: () -> Unit
+) {
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(usePlatformDefaultWidth = false)
+    ) {
+        Surface(
+            shape = RoundedCornerShape(16.dp),
+            color = MaterialTheme.colorScheme.surface
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+            ) {
+                Text(
+                    text = "Pilih Periode",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                val periodeOptions = listOf(
+                    FilterPeriode.HARIAN,
+                    FilterPeriode.MINGGUAN,
+                    FilterPeriode.BULANAN,
+                    FilterPeriode.TAHUNAN
+                )
+
+                val selectedOption = remember { mutableStateOf(selectedPeriode) }
+
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
+                ) {
+                    periodeOptions.forEach { periode ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    selectedOption.value = periode
+                                }
+                                .padding(vertical = 8.dp)
+                        ) {
+                            Text(
+                                text = when (periode) {
+                                    FilterPeriode.HARIAN -> "Harian"
+                                    FilterPeriode.MINGGUAN -> "Mingguan"
+                                    FilterPeriode.BULANAN -> "Bulanan"
+                                    FilterPeriode.TAHUNAN -> "Tahunan"
+                                },
+                                fontSize = 14.sp,
+                                fontWeight = if (selectedOption.value == periode) FontWeight.Bold else FontWeight.Medium,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Button(
+                    onClick = {
+                        onPeriodeSelected(selectedOption.value)
+                        onApply()
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp)
+                        .padding(horizontal = 16.dp)
+                ) {
+                    Text(
+                        text = "Terapkan",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onPrimary
+                    )
                 }
             }
         }
