@@ -57,7 +57,7 @@ fun ReportScreen(navController: NavController) {
                 .verticalScroll(scrollState)
         ) {
             Text(
-                text = "Laporan Keuanagn",
+                text = "Laporan Keuangan",
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.Black,
@@ -163,7 +163,7 @@ fun ReportScreen(navController: NavController) {
                     ) {
                         Text(
                             text = "Total Pendapatan",
-                            fontSize = 13.sp,
+                            fontSize = 14.sp,
                             fontFamily = Poppins,
                             color = Color.DarkGray
                         )
@@ -197,7 +197,7 @@ fun ReportScreen(navController: NavController) {
                     ) {
                         Text(
                             text = "Total Pengeluaran",
-                            fontSize = 13.sp,
+                            fontSize = 14.sp,
                             fontFamily = Poppins,
                             color = Color.DarkGray
                         )
@@ -219,7 +219,7 @@ fun ReportScreen(navController: NavController) {
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 8.dp),
+                    .padding(bottom = 12.dp),
                 shape = RoundedCornerShape(8.dp),
                 colors = CardDefaults.cardColors(
                     containerColor = Color(0xFFE8F7F5)
@@ -234,7 +234,7 @@ fun ReportScreen(navController: NavController) {
                 ) {
                     Text(
                         text = "Laba Bersih",
-                        fontSize = 13.sp,
+                        fontSize = 14.sp,
                         fontFamily = Poppins,
                         color = Color.DarkGray
                     )
@@ -253,19 +253,22 @@ fun ReportScreen(navController: NavController) {
             
             // Tabel Laporan Keuangan
             Surface(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(8.dp)),
                 color = Color(0xFFF5F5F5)
             ) {
                 Column(modifier = Modifier.fillMaxWidth()) {
+                    // Header tabel
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 12.dp),
+                            .padding(horizontal = 16.dp, vertical = 14.dp),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text(
                             text = "Deskripsi",
-                            fontSize = 13.sp,
+                            fontSize = 14.sp,
                             fontWeight = FontWeight.Medium,
                             fontFamily = Poppins,
                             color = Color.Gray
@@ -273,7 +276,7 @@ fun ReportScreen(navController: NavController) {
                         
                         Text(
                             text = "Saldo",
-                            fontSize = 13.sp,
+                            fontSize = 14.sp,
                             fontWeight = FontWeight.Medium,
                             fontFamily = Poppins,
                             color = Color.Gray
@@ -282,59 +285,228 @@ fun ReportScreen(navController: NavController) {
                     
                     Divider(thickness = 1.dp, color = Color.LightGray)
                     
-                    TableRow("Laba Kotor", "Rp 7.500.000", false)
+                    // Laba kotor dengan highlight background
+                    Surface(
+                        color = Color(0xFFEEEEEE),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp, vertical = 12.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(
+                                text = "Laba Kotor",
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Medium,
+                                fontFamily = Poppins,
+                                color = Color.Black
+                            )
+                            
+                            Text(
+                                text = "Rp 7.500.000",
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Medium,
+                                fontFamily = Poppins,
+                                color = Color.Black
+                            )
+                        }
+                    }
                     
+                    // Judul Biaya Operasional
                     Text(
                         text = "Biaya Operasional",
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Medium,
                         fontFamily = Poppins,
                         color = Color.Black,
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp)
                     )
                     
-                    TableRow("Sewa", "Rp 2.000.000", true)
-                    TableRow("Gaji Karyawan", "Rp 4.500.000", true)
-                    TableRow("Listrik & Air", "Rp 500.000", true)
+                    // Item biaya operasional
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 32.dp, vertical = 10.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(
+                            text = "Sewa",
+                            fontSize = 13.sp,
+                            fontFamily = Poppins,
+                            color = Color.Black
+                        )
+                        
+                        Text(
+                            text = "Rp 2.000.000",
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Medium,
+                            fontFamily = Poppins,
+                            color = Color.Black
+                        )
+                    }
+                    
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 32.dp, vertical = 10.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(
+                            text = "Gaji Karyawan",
+                            fontSize = 13.sp,
+                            fontFamily = Poppins,
+                            color = Color.Black
+                        )
+                        
+                        Text(
+                            text = "Rp 4.500.000",
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Medium,
+                            fontFamily = Poppins,
+                            color = Color.Black
+                        )
+                    }
+                    
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 32.dp, vertical = 10.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(
+                            text = "Listrik & Air",
+                            fontSize = 13.sp,
+                            fontFamily = Poppins,
+                            color = Color.Black
+                        )
+                        
+                        Text(
+                            text = "Rp 500.000",
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Medium,
+                            fontFamily = Poppins,
+                            color = Color.Black
+                        )
+                    }
                     
                     Divider(thickness = 1.dp, color = Color.LightGray)
                     
-                    TableRow("Total Biaya Operasional", "Rp 7.000.000", false)
+                    // Total Biaya Operasional dengan highlight background
+                    Surface(
+                        color = Color(0xFFEEEEEE),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp, vertical = 12.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(
+                                text = "Total Biaya Operasional",
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Medium,
+                                fontFamily = Poppins,
+                                color = Color.Black
+                            )
+                            
+                            Text(
+                                text = "Rp 7.000.000",
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Medium,
+                                fontFamily = Poppins,
+                                color = Color.Black
+                            )
+                        }
+                    }
                     
                     Divider(thickness = 1.dp, color = Color.LightGray)
                     
-                    TableRow("Laba Bersih", "Rp 500.000", false)
-                    TableRow("Pajak Penghasilan UMKM (0,5%)", "Rp 2.500", false)
-                    TableRow("Laba Bersih setelah Pajak", "Rp 497.500", false)
+                    // Laba Bersih dengan highlight background
+                    Surface(
+                        color = Color(0xFFEEEEEE),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp, vertical = 12.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(
+                                text = "Laba Bersih",
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Medium,
+                                fontFamily = Poppins,
+                                color = Color.Black
+                            )
+                            
+                            Text(
+                                text = "Rp 500.000",
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Medium,
+                                fontFamily = Poppins,
+                                color = Color.Black
+                            )
+                        }
+                    }
+                    
+                    // Pajak dengan padding yang sama dengan item biaya
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 10.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(
+                            text = "Pajak Penghasilan UMKM (0,5%)",
+                            fontSize = 13.sp,
+                            fontFamily = Poppins,
+                            color = Color.Black
+                        )
+                        
+                        Text(
+                            text = "Rp 2.500",
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Medium,
+                            fontFamily = Poppins,
+                            color = Color.Black
+                        )
+                    }
+                    
+                    // Laba Bersih setelah pajak dengan highlight background
+                    Surface(
+                        color = Color(0xFFEEEEEE),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp, vertical = 12.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(
+                                text = "Laba Bersih setelah Pajak",
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Medium,
+                                fontFamily = Poppins,
+                                color = Color.Black
+                            )
+                            
+                            Text(
+                                text = "Rp 497.500",
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Medium,
+                                fontFamily = Poppins,
+                                color = Color.Black
+                            )
+                        }
+                    }
                 }
             }
         }
-    }
-}
-
-@Composable
-fun TableRow(label: String, value: String, isIndented: Boolean = false) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = if (isIndented) 32.dp else 16.dp, vertical = 4.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            text = label,
-            fontSize = 11.sp,
-            fontFamily = Poppins,
-            color = Color.Black
-        )
-        
-        Text(
-            text = value,
-            fontSize = 11.sp,
-            fontWeight = FontWeight.Medium,
-            fontFamily = Poppins,
-            color = Color.Black
-        )
     }
 }
 
