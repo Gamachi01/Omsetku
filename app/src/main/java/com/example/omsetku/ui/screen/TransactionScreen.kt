@@ -19,6 +19,8 @@ import androidx.navigation.NavController
 import com.example.omsetku.Navigation.Routes
 import com.example.omsetku.ui.components.BottomNavBar
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 
 enum class TransactionType {
     INCOME, EXPENSE
@@ -32,6 +34,8 @@ fun TransactionScreen(navController: NavController) {
     var tanggal by remember { mutableStateOf("") }
     var nominal by remember { mutableStateOf("") }
     var deskripsi by remember { mutableStateOf("") }
+
+    val scrollState = rememberScrollState()
 
     Scaffold(
         bottomBar = {
@@ -53,8 +57,9 @@ fun TransactionScreen(navController: NavController) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .verticalScroll(scrollState)
                 .padding(horizontal = 16.dp)
-                .padding(top = 16.dp, bottom = 8.dp)
+                .padding(top = 16.dp, bottom = 80.dp)
                 .padding(paddingValues)
         ) {
             Text(
@@ -94,7 +99,7 @@ fun TransactionScreen(navController: NavController) {
                     value = tanggal,
                     onValueChange = { tanggal = it },
                     textStyle = TextStyle(fontSize = 14.sp, color = Color.Black, fontFamily = Poppins),
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().height(56.dp),
                     trailingIcon = {
                         Icon(
                             painter = painterResource(id = R.drawable.transactioncalender),
@@ -116,7 +121,7 @@ fun TransactionScreen(navController: NavController) {
                     value = nominal,
                     onValueChange = { nominal = it },
                     textStyle = TextStyle(fontSize = 14.sp, color = Color.Black, fontFamily = Poppins),
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().height(56.dp),
                     placeholder = { 
                         Text(
                             "Rp", 
@@ -139,7 +144,7 @@ fun TransactionScreen(navController: NavController) {
                     onValueChange = {},
                     enabled = false,
                     textStyle = TextStyle(fontSize = 14.sp, color = Color.Black, fontFamily = Poppins),
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().height(56.dp),
                     shape = RoundedCornerShape(8.dp),
                     colors = OutlinedTextFieldDefaults.colors(
                         unfocusedBorderColor = Color.LightGray,
@@ -155,7 +160,7 @@ fun TransactionScreen(navController: NavController) {
                     value = deskripsi,
                     onValueChange = { deskripsi = it },
                     textStyle = TextStyle(fontSize = 14.sp, color = Color.Black, fontFamily = Poppins),
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().height(80.dp),
                     shape = RoundedCornerShape(8.dp),
                     colors = OutlinedTextFieldDefaults.colors(
                         unfocusedBorderColor = Color.LightGray,
@@ -172,13 +177,14 @@ fun TransactionScreen(navController: NavController) {
                 )
             }
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.weight(1f))
 
             Button(
                 onClick = { /* Simpan data */ },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(48.dp),
+                    .height(48.dp)
+                    .padding(vertical = 0.dp),
                 shape = RoundedCornerShape(8.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF5ED0C5))
             ) {
@@ -189,6 +195,8 @@ fun TransactionScreen(navController: NavController) {
                     fontSize = 16.sp
                 )
             }
+            
+            Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }
@@ -235,7 +243,7 @@ fun LabeledFieldBox(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp)
+            .padding(vertical = 6.dp)
     ) {
         Text(
             text = label,
@@ -243,7 +251,7 @@ fun LabeledFieldBox(
             fontWeight = FontWeight.Medium,
             fontFamily = Poppins
         )
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(6.dp))
         content()
     }
 }
