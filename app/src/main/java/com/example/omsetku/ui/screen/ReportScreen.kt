@@ -730,7 +730,7 @@ fun FilterDialog(
                     fontFamily = Poppins
                 )
                 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(12.dp))
                 
                 // Radio button options
                 val options = listOf(
@@ -748,7 +748,7 @@ fun FilterDialog(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(vertical = 8.dp)
+                            .padding(vertical = 4.dp)
                             .clickable { selectedOption = periode }
                     ) {
                         RadioButton(
@@ -757,9 +757,10 @@ fun FilterDialog(
                             colors = RadioButtonDefaults.colors(
                                 selectedColor = PrimaryVariant,
                                 unselectedColor = Color.Gray
-                            )
+                            ),
+                            modifier = Modifier.size(20.dp)
                         )
-                        Spacer(modifier = Modifier.width(8.dp))
+                        Spacer(modifier = Modifier.width(6.dp))
                         Text(
                             text = label,
                             fontSize = 14.sp,
@@ -769,7 +770,7 @@ fun FilterDialog(
                     }
                 }
                 
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(20.dp))
                 
                 // Input fields based on selected period
                 when (selectedOption) {
@@ -929,7 +930,8 @@ fun FilterDialog(
                     }
                 }
                 
-                Spacer(modifier = Modifier.weight(1f))
+                // Menambahkan spasi sebelum tombol Terapkan
+                Spacer(modifier = Modifier.height(32.dp))
                 
                 // Tombol Terapkan
                 Button(
