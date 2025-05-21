@@ -25,22 +25,30 @@ fun ProfileScreen(navController: NavController) {
             .fillMaxSize()
             .padding(16.dp)
     ) {
-        IconButton(onClick = { navController.navigate(Routes.HOME) }) {
-            Image(
-                painter = painterResource(id = R.drawable.back_icon),
-                contentDescription = "Back",
-                modifier = Modifier.size(24.dp)
-            )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(vertical = 8.dp)
+        ) {
+            IconButton(
+                onClick = { navController.navigate(Routes.HOME) },
+                modifier = Modifier.size(40.dp)
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.back_icon),
+                    contentDescription = "Back",
+                    modifier = Modifier.size(20.dp)
+                )
+            }
         }
 
         Card(
             shape = RoundedCornerShape(12.dp),
             elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-            colors = CardDefaults.cardColors(containerColor = Color.White),
+            colors = CardDefaults.cardColors(containerColor = Color(0xFFEBFBF8)),
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 8.dp)
-                .clickable { }
+                .clickable { navController.navigate(Routes.EDIT_PROFILE) }
         ) {
             Row(
                 modifier = Modifier
@@ -62,27 +70,28 @@ fun ProfileScreen(navController: NavController) {
                         fontSize = 16.sp
                     )
                 }
-                Image(
+                Icon(
                     painter = painterResource(id = R.drawable.go_icon),
                     contentDescription = "Arrow",
-                    modifier = Modifier.size(20.dp)
+                    modifier = Modifier.size(20.dp),
+                    tint = Color.Gray
                 )
             }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        MenuSection(title = "Operasional", items = listOf(
-            MenuItem("Informasi Usaha", R.drawable.usaha_icon),
+        MenuSection(title = "Operasional", navController = navController, items = listOf(
+            MenuItem("Informasi Usaha", R.drawable.usaha_icon, onClick = { navController.navigate(Routes.BUSINESS_INFO) }),
             MenuItem("Pajak", R.drawable.pajak_icon)
         ))
 
-        MenuSection(title = "Akun", items = listOf(
+        MenuSection(title = "Akun", navController = navController, items = listOf(
             MenuItem("Ubah Kata Sandi", R.drawable.password_icon),
             MenuItem("Notifikasi", R.drawable.notifikasi_icon)
         ))
 
-        MenuSection(title = "Lainnya", items = listOf(
+        MenuSection(title = "Lainnya", navController = navController, items = listOf(
             MenuItem("Pusat Bantuan", R.drawable.help_icon),
             MenuItem("Log Out", R.drawable.logout_icon, onClick = { navController.navigate(Routes.HOME) })
         ))
@@ -90,7 +99,7 @@ fun ProfileScreen(navController: NavController) {
 }
 
 @Composable
-fun MenuSection(title: String, items: List<MenuItem>) {
+fun MenuSection(title: String, navController: NavController, items: List<MenuItem>) {
     Text(
         text = title,
         fontWeight = FontWeight.Bold,
@@ -117,7 +126,6 @@ fun ProfileMenuItem(title: String, icon: Int, onClick: () -> Unit = {}) {
         Row(
             modifier = Modifier
                 .clickable { 
-                    isSelected = !isSelected
                     onClick()
                 }
                 .padding(horizontal = 12.dp, vertical = 10.dp),
@@ -135,15 +143,15 @@ fun ProfileMenuItem(title: String, icon: Int, onClick: () -> Unit = {}) {
             }
 
             if (title != "Log Out") {
-                Image(
+                Icon(
                     painter = painterResource(id = R.drawable.go_icon),
                     contentDescription = "Arrow",
                     modifier = Modifier
                         .size(20.dp)
                         .clickable {
-                            isSelected = !isSelected
                             onClick()
-                        }
+                        },
+                    tint = Color.Gray
                 )
             }
         }

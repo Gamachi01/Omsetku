@@ -34,5 +34,11 @@ fun AppNavGraph(navController: NavHostController) {
         composable(Routes.TRANSACTION_DETAIL) {
             TransactionDetailScreen(navController)
         }
+        composable(Routes.EDIT_PROFILE) {
+            EditProfileScreen(navController)
+        }
+        composable(Routes.BUSINESS_INFO) {
+            BusinessInfoScreen(navController)
+        }
     }
 }
