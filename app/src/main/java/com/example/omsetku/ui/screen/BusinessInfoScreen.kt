@@ -97,7 +97,6 @@ fun BusinessInfoScreen(navController: NavController) {
         Text(
             text = "Logo",
             fontSize = 14.sp,
-            fontWeight = FontWeight.Normal,
             fontFamily = Poppins,
             modifier = Modifier
                 .fillMaxWidth()
