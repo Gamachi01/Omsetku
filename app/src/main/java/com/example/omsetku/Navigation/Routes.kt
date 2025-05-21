@@ -11,4 +11,5 @@ object Routes {
     const val TRANSACTION_DETAIL = "transaction_detail"
     const val EDIT_PROFILE = "edit_profile"
     const val BUSINESS_INFO = "business_info"
+    const val TAX_SETTINGS = "tax_settings"
 }

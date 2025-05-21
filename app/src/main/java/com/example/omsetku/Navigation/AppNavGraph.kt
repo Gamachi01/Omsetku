@@ -40,5 +40,8 @@ fun AppNavGraph(navController: NavHostController) {
         composable(Routes.BUSINESS_INFO) {
             BusinessInfoScreen(navController)
         }
+        composable(Routes.TAX_SETTINGS) {
+            TaxSettingsScreen(navController)
+        }
     }
 }

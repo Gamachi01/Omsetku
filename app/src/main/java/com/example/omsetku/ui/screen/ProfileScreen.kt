@@ -83,7 +83,7 @@ fun ProfileScreen(navController: NavController) {
 
         MenuSection(title = "Operasional", navController = navController, items = listOf(
             MenuItem("Informasi Usaha", R.drawable.usaha_icon, onClick = { navController.navigate(Routes.BUSINESS_INFO) }),
-            MenuItem("Pajak", R.drawable.pajak_icon)
+            MenuItem("Pajak", R.drawable.pajak_icon, onClick = { navController.navigate(Routes.TAX_SETTINGS) })
         ))
 
         MenuSection(title = "Akun", navController = navController, items = listOf(
