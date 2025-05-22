@@ -1,7 +1,10 @@
 package com.example.omsetku.ui.components
 
 import android.annotation.SuppressLint
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.*
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -26,6 +29,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.zIndex
 import com.example.omsetku.R
 import com.example.omsetku.data.Transaction
 import com.example.omsetku.ui.theme.IncomeColor
@@ -54,31 +58,35 @@ fun TransactionList(transactions: List<Transaction>) {
             .clip(RoundedCornerShape(16.dp))
             .background(Color.White)
     ) {
-        // Konten transaksi (statis, tidak bergerak)
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .onGloballyPositioned { coordinates ->
-                    with(density) {
-                        contentHeight = coordinates.size.height.toDp() - 40.dp // Mengurangi tinggi bar
-                    }
-                }
+        // Konten transaksi yang hanya terlihat saat expanded
+        AnimatedVisibility(
+            visible = isExpanded,
+            enter = fadeIn(animationSpec = tween(300)),
+            exit = fadeOut(animationSpec = tween(200))
         ) {
-            // Spacer untuk mengganti posisi bar abu-abu (sama tingginya dengan bar)
-            Spacer(modifier = Modifier.height(40.dp))
-            
-            // Konten transaksi
-            val listState = rememberLazyListState()
-            LazyColumn(
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .heightIn(max = 400.dp),
-                state = listState,
-                contentPadding = PaddingValues(horizontal = 20.dp, vertical = 8.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                    .padding(top = 40.dp) // Memberikan ruang untuk bar abu-abu
+                    .onGloballyPositioned { coordinates ->
+                        with(density) {
+                            contentHeight = coordinates.size.height.toDp() // Mengukur tinggi konten
+                        }
+                    }
             ) {
-                items(transactions) { transaction ->
-                    TransactionItem(transaction)
+                // Konten transaksi
+                val listState = rememberLazyListState()
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(max = 400.dp),
+                    state = listState,
+                    contentPadding = PaddingValues(horizontal = 20.dp, vertical = 8.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    items(transactions) { transaction ->
+                        TransactionItem(transaction)
+                    }
                 }
             }
         }
@@ -89,6 +97,7 @@ fun TransactionList(transactions: List<Transaction>) {
                 .fillMaxWidth()
                 .offset { IntOffset(0, barPosition.roundToPx()) }
                 .background(Color.White)
+                .zIndex(1f) // Memastikan bar abu-abu selalu di atas
         ) {
             // Bar abu-abu yang berfungsi sebagai handle untuk expand/collapse
             Box(
