@@ -31,6 +31,7 @@ import com.example.omsetku.R
 import com.example.omsetku.ui.components.BottomNavBar
 import com.example.omsetku.ui.components.Poppins
 import com.example.omsetku.ui.theme.PrimaryVariant
+import com.example.omsetku.ui.components.DatePickerField
 
 enum class FilterPeriode {
     HARIAN, MINGGUAN, BULANAN, TAHUNAN
@@ -465,27 +466,27 @@ fun ReportScreen(navController: NavController) {
                         color = Color(0xFFEEEEEE),
                         modifier = Modifier.fillMaxWidth()
                     ) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
                                 .padding(horizontal = 16.dp, vertical = 12.dp),
                             horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        Text(
+                        ) {
+                            Text(
                                 text = "Laba Bersih",
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.Medium,
-            fontFamily = Poppins,
-            color = Color.Black
-        )
-        
-        Text(
+                                fontFamily = Poppins,
+                                color = Color.Black
+                            )
+                            
+                            Text(
                                 text = "Rp 500.000",
                                 fontSize = 14.sp,
-            fontWeight = FontWeight.Medium,
-            fontFamily = Poppins,
-            color = Color.Black
-        )
+                                fontWeight = FontWeight.Medium,
+                                fontFamily = Poppins,
+                                color = Color.Black
+                            )
                         }
                     }
                     
@@ -677,6 +678,13 @@ fun FilterDialog(
 ) {
     val scrollState = rememberScrollState()
     
+    // State untuk nilai tanggal
+    var selectedDate by remember { mutableStateOf("") }
+    var startDate by remember { mutableStateOf("") }
+    var endDate by remember { mutableStateOf("") }
+    var selectedMonth by remember { mutableStateOf("") }
+    var selectedYear by remember { mutableStateOf("") }
+    
     Dialog(
         onDismissRequest = onDismiss,
         properties = DialogProperties(usePlatformDefaultWidth = false)
@@ -785,24 +793,11 @@ fun FilterDialog(
                         
                         Spacer(modifier = Modifier.height(8.dp))
                         
-                        // Date picker field
-                        OutlinedTextField(
-                            value = "",
-                            onValueChange = { },
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(8.dp),
-                            colors = OutlinedTextFieldDefaults.colors(
-                                unfocusedBorderColor = Color.LightGray,
-                                focusedBorderColor = PrimaryVariant
-                            ),
-                            readOnly = true,
-                            trailingIcon = {
-                                Icon(
-                                    painter = painterResource(id = R.drawable.transactioncalender),
-                                    contentDescription = "Pilih Tanggal",
-                                    tint = Color.Gray
-                                )
-                            }
+                        // Menggunakan DatePickerField
+                        DatePickerField(
+                            value = selectedDate,
+                            onDateSelected = { selectedDate = it },
+                            placeholder = "Pilih tanggal"
                         )
                     }
                     FilterPeriode.MINGGUAN -> {
@@ -817,23 +812,11 @@ fun FilterDialog(
                         
                         Spacer(modifier = Modifier.height(8.dp))
                         
-                        OutlinedTextField(
-                            value = "",
-                            onValueChange = { },
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(8.dp),
-                            colors = OutlinedTextFieldDefaults.colors(
-                                unfocusedBorderColor = Color.LightGray,
-                                focusedBorderColor = PrimaryVariant
-                            ),
-                            readOnly = true,
-                            trailingIcon = {
-                                Icon(
-                                    painter = painterResource(id = R.drawable.transactioncalender),
-                                    contentDescription = "Pilih Tanggal Awal",
-                                    tint = Color.Gray
-                                )
-                            }
+                        // Menggunakan DatePickerField untuk tanggal awal
+                        DatePickerField(
+                            value = startDate,
+                            onDateSelected = { startDate = it },
+                            placeholder = "Pilih tanggal awal"
                         )
                         
                         Spacer(modifier = Modifier.height(16.dp))
@@ -849,23 +832,11 @@ fun FilterDialog(
                         
                         Spacer(modifier = Modifier.height(8.dp))
                         
-                        OutlinedTextField(
-                            value = "",
-                            onValueChange = { },
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(8.dp),
-                            colors = OutlinedTextFieldDefaults.colors(
-                                unfocusedBorderColor = Color.LightGray,
-                                focusedBorderColor = PrimaryVariant
-                            ),
-                            readOnly = true,
-                            trailingIcon = {
-                                Icon(
-                                    painter = painterResource(id = R.drawable.transactioncalender),
-                                    contentDescription = "Pilih Tanggal Akhir",
-                                    tint = Color.Gray
-                                )
-                            }
+                        // Menggunakan DatePickerField untuk tanggal akhir
+                        DatePickerField(
+                            value = endDate,
+                            onDateSelected = { endDate = it },
+                            placeholder = "Pilih tanggal akhir"
                         )
                     }
                     FilterPeriode.BULANAN -> {
@@ -879,23 +850,11 @@ fun FilterDialog(
                         
                         Spacer(modifier = Modifier.height(8.dp))
                         
-                        OutlinedTextField(
-                            value = "",
-                            onValueChange = { },
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(8.dp),
-                            colors = OutlinedTextFieldDefaults.colors(
-                                unfocusedBorderColor = Color.LightGray,
-                                focusedBorderColor = PrimaryVariant
-                            ),
-                            readOnly = true,
-                            trailingIcon = {
-                                Icon(
-                                    painter = painterResource(id = R.drawable.transactioncalender),
-                                    contentDescription = "Pilih Bulan",
-                                    tint = Color.Gray
-                                )
-                            }
+                        // Menggunakan DatePickerField untuk bulan
+                        DatePickerField(
+                            value = selectedMonth,
+                            onDateSelected = { selectedMonth = it },
+                            placeholder = "Pilih bulan"
                         )
                     }
                     FilterPeriode.TAHUNAN -> {
@@ -909,23 +868,11 @@ fun FilterDialog(
                         
                         Spacer(modifier = Modifier.height(8.dp))
                         
-                        OutlinedTextField(
-                            value = "",
-                            onValueChange = { },
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(8.dp),
-                            colors = OutlinedTextFieldDefaults.colors(
-                                unfocusedBorderColor = Color.LightGray,
-                                focusedBorderColor = PrimaryVariant
-                            ),
-                            readOnly = true,
-                            trailingIcon = {
-                                Icon(
-                                    painter = painterResource(id = R.drawable.transactioncalender),
-                                    contentDescription = "Pilih Tahun",
-                                    tint = Color.Gray
-                                )
-                            }
+                        // Menggunakan DatePickerField untuk tahun
+                        DatePickerField(
+                            value = selectedYear,
+                            onDateSelected = { selectedYear = it },
+                            placeholder = "Pilih tahun"
                         )
                     }
                 }
