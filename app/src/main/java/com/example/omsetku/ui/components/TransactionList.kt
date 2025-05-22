@@ -1,20 +1,13 @@
 package com.example.omsetku.ui.components
 
 import android.annotation.SuppressLint
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.*
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Card
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
@@ -24,10 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.font.FontWeight
@@ -36,86 +26,43 @@ import com.example.omsetku.R
 import com.example.omsetku.data.Transaction
 import com.example.omsetku.ui.theme.IncomeColor
 import com.example.omsetku.ui.theme.ExpenseColor
-import com.example.omsetku.ui.theme.Background
 import com.example.omsetku.ui.theme.PrimaryVariant
 import com.example.omsetku.ui.theme.Divider as DividerColor
-import kotlin.math.roundToInt
 
 @SuppressLint("SuspiciousIndentation")
 @Composable
 fun TransactionList(transactions: List<Transaction>) {
     var isExpanded by remember { mutableStateOf(true) }
     
-    // Jarak yang akan ditempuh bar saat turun ke bawah (dibatasi agar tetap terlihat)
-    val barMaxOffset = 70.dp
+    // Navbar height (untuk memastikan bar berhenti tepat di atas navbar)
+    val navbarHeight = 56.dp
+    val bottomPadding = 8.dp // Jarak aman antara bar dan navbar
     
-    // Animasi posisi bar
-    val barOffset by animateDpAsState(
-        targetValue = if (isExpanded) 0.dp else barMaxOffset, // Dibatasi hanya bergerak sedikit ke bawah
+    // Jarak maksimum yang akan ditempuh panel saat turun (cukup untuk mencapai navbar)
+    val panelMaxOffset = 450.dp
+    
+    // Animasi posisi panel dan semua kontennya (termasuk bar)
+    val panelOffset by animateDpAsState(
+        targetValue = if (isExpanded) 0.dp else panelMaxOffset,
         animationSpec = tween(durationMillis = 300, easing = FastOutSlowInEasing),
-        label = "barOffset"
+        label = "panelOffset"
     )
-
-    // Background untuk konten yang tertutup
-    val backgroundColor = if (isExpanded) Color.White else Color.Transparent
 
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(bottom = 80.dp) // Ruang untuk navbar dan memastikan bar tetap terlihat
+            .padding(bottom = navbarHeight + bottomPadding) // Ruang antara konten dan navbar
     ) {
-        // Background putih yang mengikuti bar saat bergerak
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .offset(y = barOffset)
-                .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
-                .background(Color.White)
-                .height(40.dp) // Tinggi untuk bar saja
-                .zIndex(1f)
-        )
-        
-        // Konten transaksi
-        AnimatedVisibility(
-            visible = isExpanded,
-            enter = fadeIn(animationSpec = tween(300)),
-            exit = fadeOut(animationSpec = tween(200)),
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 40.dp) // Memberikan ruang untuk bar
-                .clip(RoundedCornerShape(bottomStart = 16.dp, bottomEnd = 16.dp))
-                .zIndex(0f)
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(backgroundColor)
-            ) {
-                // Konten transaksi
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .heightIn(max = 400.dp),
-                    contentPadding = PaddingValues(horizontal = 20.dp, vertical = 8.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    items(transactions) { transaction ->
-                        TransactionItem(transaction)
-                    }
-                }
-            }
-        }
-        
-        // Bar yang bergerak ke bawah (tetap terlihat)
+        // Seluruh panel dengan konten dan bar yang bergerak secara bersamaan
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .offset(y = barOffset)
+                .offset(y = panelOffset)
                 .clip(RoundedCornerShape(16.dp))
                 .background(Color.White)
-                .zIndex(2f) // Z-index lebih tinggi agar selalu berada di atas
+                .zIndex(1f)
         ) {
-            // Handle bar
+            // Bar di bagian atas
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -136,8 +83,24 @@ fun TransactionList(transactions: List<Transaction>) {
                 )
             }
             
-            // Divider
+            // Divider antara bar dan konten
             Divider(color = DividerColor, thickness = 1.dp)
+            
+            // Konten transaksi - hanya dimuat/ditampilkan jika panel terbuka
+            if (isExpanded) {
+                // Konten transaksi
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(max = 400.dp),
+                    contentPadding = PaddingValues(horizontal = 20.dp, vertical = 8.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    items(transactions) { transaction ->
+                        TransactionItem(transaction)
+                    }
+                }
+            }
         }
     }
 }
