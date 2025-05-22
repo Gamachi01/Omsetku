@@ -32,6 +32,9 @@ import com.example.omsetku.ui.components.BottomNavBar
 import com.example.omsetku.ui.components.Poppins
 import com.example.omsetku.ui.theme.PrimaryVariant
 import com.example.omsetku.ui.components.DatePickerField
+import com.example.omsetku.ui.components.DatePickerMode
+import java.text.SimpleDateFormat
+import java.util.*
 
 enum class FilterPeriode {
     HARIAN, MINGGUAN, BULANAN, TAHUNAN
@@ -685,6 +688,9 @@ fun FilterDialog(
     var selectedMonth by remember { mutableStateOf("") }
     var selectedYear by remember { mutableStateOf("") }
     
+    // State untuk menyimpan timestamp tanggal awal (untuk mode mingguan)
+    var startDateTimestamp by remember { mutableStateOf<Long?>(null) }
+    
     Dialog(
         onDismissRequest = onDismiss,
         properties = DialogProperties(usePlatformDefaultWidth = false)
@@ -757,11 +763,29 @@ fun FilterDialog(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 4.dp)
-                            .clickable { selectedOption = periode }
+                            .clickable { 
+                                selectedOption = periode
+                                // Reset nilai tanggal ketika periode berubah
+                                selectedDate = ""
+                                startDate = ""
+                                endDate = ""
+                                selectedMonth = ""
+                                selectedYear = ""
+                                startDateTimestamp = null
+                            }
                     ) {
                         RadioButton(
                             selected = selectedOption == periode,
-                            onClick = { selectedOption = periode },
+                            onClick = { 
+                                selectedOption = periode
+                                // Reset nilai tanggal ketika periode berubah
+                                selectedDate = ""
+                                startDate = ""
+                                endDate = ""
+                                selectedMonth = ""
+                                selectedYear = ""
+                                startDateTimestamp = null
+                            },
                             colors = RadioButtonDefaults.colors(
                                 selectedColor = PrimaryVariant,
                                 unselectedColor = Color.Gray
@@ -793,11 +817,12 @@ fun FilterDialog(
                         
                         Spacer(modifier = Modifier.height(8.dp))
                         
-                        // Menggunakan DatePickerField
+                        // Menggunakan DatePickerField dengan mode DAILY
                         DatePickerField(
                             value = selectedDate,
                             onDateSelected = { selectedDate = it },
-                            placeholder = "Pilih tanggal"
+                            placeholder = "Pilih tanggal",
+                            mode = DatePickerMode.DAILY
                         )
                     }
                     FilterPeriode.MINGGUAN -> {
@@ -812,11 +837,26 @@ fun FilterDialog(
                         
                         Spacer(modifier = Modifier.height(8.dp))
                         
-                        // Menggunakan DatePickerField untuk tanggal awal
+                        // Menggunakan DatePickerField dengan mode WEEKLY_START
                         DatePickerField(
                             value = startDate,
-                            onDateSelected = { startDate = it },
-                            placeholder = "Pilih tanggal awal"
+                            onDateSelected = { date ->
+                                startDate = date
+                                // Menyimpan timestamp untuk digunakan pada tanggal akhir
+                                val dateFormat = SimpleDateFormat("dd MMMM yyyy", Locale("id", "ID"))
+                                val parsedDate = dateFormat.parse(date)
+                                startDateTimestamp = parsedDate?.time
+                                
+                                // Otomatis mengatur tanggal akhir seminggu setelah tanggal awal
+                                if (startDateTimestamp != null) {
+                                    val calendar = Calendar.getInstance()
+                                    calendar.timeInMillis = startDateTimestamp!!
+                                    calendar.add(Calendar.DAY_OF_MONTH, 7)
+                                    endDate = dateFormat.format(calendar.time)
+                                }
+                            },
+                            placeholder = "Pilih tanggal awal",
+                            mode = DatePickerMode.WEEKLY_START
                         )
                         
                         Spacer(modifier = Modifier.height(16.dp))
@@ -832,11 +872,14 @@ fun FilterDialog(
                         
                         Spacer(modifier = Modifier.height(8.dp))
                         
-                        // Menggunakan DatePickerField untuk tanggal akhir
+                        // Menggunakan DatePickerField dengan mode WEEKLY_END
+                        // Tanggal akhir otomatis diisi seminggu setelah tanggal awal
                         DatePickerField(
                             value = endDate,
                             onDateSelected = { endDate = it },
-                            placeholder = "Pilih tanggal akhir"
+                            placeholder = "Tanggal akhir (otomatis seminggu setelah tanggal awal)",
+                            mode = DatePickerMode.WEEKLY_END,
+                            startDate = startDateTimestamp
                         )
                     }
                     FilterPeriode.BULANAN -> {
@@ -850,11 +893,12 @@ fun FilterDialog(
                         
                         Spacer(modifier = Modifier.height(8.dp))
                         
-                        // Menggunakan DatePickerField untuk bulan
+                        // Menggunakan DatePickerField dengan mode MONTHLY
                         DatePickerField(
                             value = selectedMonth,
                             onDateSelected = { selectedMonth = it },
-                            placeholder = "Pilih bulan"
+                            placeholder = "Pilih bulan",
+                            mode = DatePickerMode.MONTHLY
                         )
                     }
                     FilterPeriode.TAHUNAN -> {
@@ -868,11 +912,12 @@ fun FilterDialog(
                         
                         Spacer(modifier = Modifier.height(8.dp))
                         
-                        // Menggunakan DatePickerField untuk tahun
+                        // Menggunakan DatePickerField dengan mode YEARLY
                         DatePickerField(
                             value = selectedYear,
                             onDateSelected = { selectedYear = it },
-                            placeholder = "Pilih tahun"
+                            placeholder = "Pilih tahun",
+                            mode = DatePickerMode.YEARLY
                         )
                     }
                 }
