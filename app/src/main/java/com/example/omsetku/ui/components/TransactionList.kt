@@ -36,47 +36,59 @@ import com.example.omsetku.ui.theme.Divider as DividerColor
 fun TransactionList(transactions: List<Transaction>) {
     var isExpanded by remember { mutableStateOf(true) }
 
-    Column(
+    Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(16.dp))
-            .background(Color.White)
-            .animateContentSize(animationSpec = tween(durationMillis = 300))
+            .clip(RoundedCornerShape(16.dp)),
+        color = Color.White
     ) {
-        // Bar abu-abu yang berfungsi sebagai handle untuk expand/collapse
-        Box(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 12.dp)
-                .clickable { isExpanded = !isExpanded },
-            contentAlignment = Alignment.Center
         ) {
+            // Bar abu-abu yang berfungsi sebagai handle untuk expand/collapse
             Box(
                 modifier = Modifier
-                    .width(60.dp)
-                    .height(6.dp)
-                    .background(
-                        color = Color.LightGray,
-                        shape = RoundedCornerShape(50)
-                    )
-            )
-        }
+                    .fillMaxWidth()
+                    .padding(vertical = 12.dp)
+                    .clickable { isExpanded = !isExpanded },
+                contentAlignment = Alignment.Center
+            ) {
+                Box(
+                    modifier = Modifier
+                        .width(60.dp)
+                        .height(6.dp)
+                        .background(
+                            color = Color.LightGray,
+                            shape = RoundedCornerShape(50)
+                        )
+                )
+            }
 
-        if (isExpanded) {
-            Divider(color = DividerColor, thickness = 1.dp, modifier = Modifier.padding(bottom = 8.dp))
+            Divider(color = DividerColor, thickness = 1.dp)
             
-            val listState = rememberLazyListState()
-
-            LazyColumn(
+            // Content yang bisa di-expand/collapse
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .heightIn(max = 400.dp),
-                state = listState,
-                contentPadding = PaddingValues(horizontal = 20.dp, vertical = 8.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                    .animateContentSize(animationSpec = tween(durationMillis = 300))
             ) {
-                items(transactions) { transaction ->
-                    TransactionItem(transaction)
+                if (isExpanded) {
+                    val listState = rememberLazyListState()
+
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(max = 400.dp),
+                        state = listState,
+                        contentPadding = PaddingValues(horizontal = 20.dp, vertical =
+                        8.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        items(transactions) { transaction ->
+                            TransactionItem(transaction)
+                        }
+                    }
                 }
             }
         }
