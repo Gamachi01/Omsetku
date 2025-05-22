@@ -105,7 +105,8 @@ fun OTPScreen(
         // Resend OTP Option
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
                 text = "Tidak mendapat kode? ",
