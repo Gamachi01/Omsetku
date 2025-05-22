@@ -14,14 +14,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavController
 import com.example.omsetku.R
 import com.example.omsetku.Navigation.Routes
 
 @Composable
 fun ProfileScreen(navController: NavController) {
+    // State untuk mengontrol dialog konfirmasi logout
+    var showLogoutDialog by remember { mutableStateOf(false) }
+    
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -96,8 +101,99 @@ fun ProfileScreen(navController: NavController) {
 
         MenuSection(title = "Lainnya", navController = navController, items = listOf(
             MenuItem("Pusat Bantuan", R.drawable.help_icon),
-            MenuItem("Log Out", R.drawable.logout_icon, onClick = { navController.navigate(Routes.HOME) })
+            MenuItem("Log Out", R.drawable.logout_icon, onClick = { showLogoutDialog = true })
         ))
+    }
+    
+    // Dialog konfirmasi logout
+    if (showLogoutDialog) {
+        LogoutConfirmationDialog(
+            onDismiss = { showLogoutDialog = false },
+            onConfirm = {
+                showLogoutDialog = false
+                // Kembali ke Login screen dengan menghapus semua screen dari backstack
+                navController.navigate(Routes.LOGIN) {
+                    popUpTo(navController.graph.startDestinationId) { inclusive = true }
+                }
+            }
+        )
+    }
+}
+
+@Composable
+fun LogoutConfirmationDialog(
+    onDismiss: () -> Unit,
+    onConfirm: () -> Unit
+) {
+    Dialog(onDismissRequest = onDismiss) {
+        Card(
+            shape = RoundedCornerShape(16.dp),
+            colors = CardDefaults.cardColors(containerColor = Color.White),
+            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = "Log Out Akun",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 18.sp,
+                    textAlign = TextAlign.Center
+                )
+                
+                Spacer(modifier = Modifier.height(16.dp))
+                
+                Text(
+                    text = "Apakah anda yakin log out?",
+                    fontSize = 14.sp,
+                    textAlign = TextAlign.Center
+                )
+                
+                Spacer(modifier = Modifier.height(24.dp))
+                
+                // Tombol Ya - untuk konfirmasi logout
+                Button(
+                    onClick = onConfirm,
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF62DCC8)),
+                    shape = RoundedCornerShape(8.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp)
+                ) {
+                    Text(
+                        text = "Ya",
+                        fontWeight = FontWeight.Medium,
+                        fontSize = 14.sp,
+                        color = Color.White
+                    )
+                }
+                
+                Spacer(modifier = Modifier.height(12.dp))
+                
+                // Tombol Batal - untuk membatalkan logout
+                OutlinedButton(
+                    onClick = onDismiss,
+                    shape = RoundedCornerShape(8.dp),
+                    border = BorderStroke(1.dp, Color(0xFF62DCC8)),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp)
+                ) {
+                    Text(
+                        text = "Batal",
+                        fontWeight = FontWeight.Medium,
+                        fontSize = 14.sp,
+                        color = Color(0xFF62DCC8)
+                    )
+                }
+            }
+        }
     }
 }
 
