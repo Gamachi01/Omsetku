@@ -39,25 +39,6 @@ import com.example.omsetku.ui.theme.PrimaryVariant
 import com.example.omsetku.ui.theme.Divider as DividerColor
 import kotlin.math.roundToInt
 
-// Fungsi untuk membuat animasi warna sendiri karena tidak ada animateColorAsState
-@Composable
-fun animateColorAsState(
-    targetValue: Color,
-    animationSpec: AnimationSpec<Color> = spring(),
-    label: String = "ColorAnimation"
-): State<Color> {
-    val color = remember { Animatable(targetValue) }
-    
-    LaunchedEffect(targetValue) {
-        color.animateTo(
-            targetValue = targetValue,
-            animationSpec = animationSpec
-        )
-    }
-    
-    return color.asState()
-}
-
 @SuppressLint("SuspiciousIndentation")
 @Composable
 fun TransactionList(transactions: List<Transaction>) {
@@ -74,13 +55,6 @@ fun TransactionList(transactions: List<Transaction>) {
         targetValue = if (isExpanded) 0.dp else contentHeight.coerceAtMost(maxCollapsedPosition),
         animationSpec = tween(durationMillis = 300, easing = FastOutSlowInEasing),
         label = "barPosition"
-    )
-    
-    // Animasi warna bar berdasarkan status expanded/collapsed
-    val barColor by animateColorAsState(
-        targetValue = if (isExpanded) PrimaryVariant else Color.LightGray,
-        animationSpec = tween(durationMillis = 300),
-        label = "barColor"
     )
 
     Box(
@@ -146,7 +120,7 @@ fun TransactionList(transactions: List<Transaction>) {
                         .width(60.dp)
                         .height(6.dp)
                         .background(
-                            color = barColor,
+                            color = if (isExpanded) PrimaryVariant else Color.LightGray,
                             shape = RoundedCornerShape(50)
                         )
                 )
