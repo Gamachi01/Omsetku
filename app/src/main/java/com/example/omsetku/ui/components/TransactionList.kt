@@ -5,6 +5,8 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.*
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -25,7 +27,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.font.FontWeight
@@ -37,72 +38,26 @@ import com.example.omsetku.ui.theme.ExpenseColor
 import com.example.omsetku.ui.theme.Background
 import com.example.omsetku.ui.theme.PrimaryVariant
 import com.example.omsetku.ui.theme.Divider as DividerColor
-import kotlin.math.roundToInt
 
 @SuppressLint("SuspiciousIndentation")
 @Composable
 fun TransactionList(transactions: List<Transaction>) {
-    val density = LocalDensity.current
     var isExpanded by remember { mutableStateOf(true) }
-    var contentHeight by remember { mutableStateOf(0.dp) }
-    
-    // Memberikan jarak minimal bar dari top navbar saat panel tertutup
-    val navbarBufferHeight = 70.dp
-    
-    // Posisi bar yang dianimasikan - bergerak ke bawah saat tertutup tapi tidak lebih dari posisi aman di atas navbar
-    val barPosition by animateDpAsState(
-        targetValue = if (isExpanded) 0.dp else contentHeight.coerceAtMost(navbarBufferHeight),
-        animationSpec = tween(durationMillis = 300, easing = FastOutSlowInEasing),
-        label = "barPosition"
-    )
 
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(16.dp))
+            .padding(bottom = 60.dp) // Ruang untuk memastikan konten tetap terlihat di atas navbar
     ) {
-        // Konten transaksi selalu ada di dalam struktur, tapi visibilitas diatur dengan AnimatedVisibility
-        AnimatedVisibility(
-            visible = isExpanded,
-            enter = fadeIn(animationSpec = tween(300)),
-            exit = fadeOut(animationSpec = tween(200))
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(Color.White)
-                    .padding(top = 40.dp) // Memberi ruang untuk bar
-                    .onGloballyPositioned { coordinates ->
-                        with(density) {
-                            contentHeight = coordinates.size.height.toDp()
-                        }
-                    }
-            ) {
-                // Konten transaksi
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .heightIn(max = 400.dp),
-                    contentPadding = PaddingValues(horizontal = 20.dp, vertical = 8.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    items(transactions) { transaction ->
-                        TransactionItem(transaction)
-                    }
-                }
-            }
-        }
-        
-        // Panel header dengan bar abu-abu - bergerak ke bawah saat panel tertutup
+        // 1. Layer paling bawah: bar dan divider yang selalu terlihat
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .offset { IntOffset(0, barPosition.roundToPx()) }
-                .background(Color.White)
                 .clip(RoundedCornerShape(16.dp))
+                .background(Color.White)
                 .zIndex(1f)
         ) {
-            // Bar yang berfungsi sebagai handle untuk expand/collapse
+            // Handle bar
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -125,6 +80,37 @@ fun TransactionList(transactions: List<Transaction>) {
             
             // Divider
             Divider(color = DividerColor, thickness = 1.dp)
+        }
+        
+        // 2. Layer di atas: konten transaksi yang muncul dan menghilang
+        AnimatedVisibility(
+            visible = isExpanded,
+            enter = slideInVertically(initialOffsetY = { it / 2 }) + fadeIn(),
+            exit = slideOutVertically(targetOffsetY = { it / 2 }) + fadeOut(),
+            modifier = Modifier
+                .padding(top = 40.dp) // Padding untuk memberikan ruang pada bar
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(bottomStart = 16.dp, bottomEnd = 16.dp))
+                .zIndex(0f)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Color.White)
+            ) {
+                // Konten transaksi
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(max = 400.dp),
+                    contentPadding = PaddingValues(horizontal = 20.dp, vertical = 8.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    items(transactions) { transaction ->
+                        TransactionItem(transaction)
+                    }
+                }
+            }
         }
     }
 }
