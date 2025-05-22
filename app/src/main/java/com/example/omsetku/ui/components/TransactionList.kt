@@ -17,7 +17,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -35,66 +34,45 @@ import com.example.omsetku.ui.theme.Divider as DividerColor
 fun TransactionList(transactions: List<Transaction>) {
     var isExpanded by remember { mutableStateOf(true) }
     
-    // Mengambil tinggi layar untuk perhitungan posisi
-    val screenHeight = LocalConfiguration.current.screenHeightDp.dp
+    // NILAI TETAP: 500dp cukup untuk memastikan konten bergerak ke bawah dan keluar layar
+    // tapi bar akan tetap terlihat di posisi yang mirip dengan navbar
+    val contentMaxOffset = 500.dp
     
-    // Tinggi navbar dan posisi aman untuk bar
-    val navbarHeight = 56.dp  // Tinggi navbar
-    val barHeight = 40.dp  // Tinggi bar (termasuk handle dan divider)
+    // NILAI TETAP: Bar hanya bergerak 100dp ke bawah - NILAI KONSERVATIF dan PASTI TERLIHAT
+    val barMaxOffset = 100.dp
     
-    // Menghitung posisi bar saat panel tertutup - akan berada tepat di atas navbar
-    val barClosedPosition = screenHeight - navbarHeight - barHeight
-    
-    // Animasi untuk konten dan bar - keduanya bergerak sepenuhnya
-    val offset by animateDpAsState(
-        targetValue = if (isExpanded) 0.dp else barClosedPosition,
-        animationSpec = tween(durationMillis = 300, easing = FastOutSlowInEasing),
-        label = "offset"
+    // Animasi untuk konten - bergerak jauh ke bawah dan keluar layar
+    val contentOffset by animateDpAsState(
+        targetValue = if (isExpanded) 0.dp else contentMaxOffset,
+        animationSpec = tween(durationMillis = 300),
+        label = "contentOffset"
     )
     
-    // Flag untuk menampilkan konten
-    val showContent = isExpanded
+    // Animasi untuk bar - hanya bergerak sedikit ke bawah
+    val barOffset by animateDpAsState(
+        targetValue = if (isExpanded) 0.dp else barMaxOffset,
+        animationSpec = tween(durationMillis = 300), 
+        label = "barOffset"
+    )
     
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .fillMaxHeight()
     ) {
-        // Panel transaksi yang bergerak sebagai satu unit
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .offset(y = offset)
-                .clip(RoundedCornerShape(16.dp))
-                .background(Color.White)
-                .zIndex(1f)
-        ) {
-            // Bar handle yang selalu dapat diklik
+        // Dua komponen terpisah: konten dan bar
+        
+        // 1. KONTEN TRANSAKSI - bergerak hingga hilang
+        if (isExpanded) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 12.dp)
-                    .clickable {
-                        isExpanded = !isExpanded
-                    },
-                contentAlignment = Alignment.Center
+                    .padding(top = 40.dp)  // Ruang untuk bar
+                    .offset(y = contentOffset)
+                    .clip(RoundedCornerShape(bottomStart = 16.dp, bottomEnd = 16.dp))
+                    .background(Color.White)
+                    .zIndex(0f)
             ) {
-                Box(
-                    modifier = Modifier
-                        .width(60.dp)
-                        .height(6.dp)
-                        .background(
-                            color = if (isExpanded) PrimaryVariant else Color.LightGray,
-                            shape = RoundedCornerShape(50)
-                        )
-                )
-            }
-            
-            // Divider
-            Divider(color = DividerColor, thickness = 1.dp)
-            
-            // Konten transaksi - hanya ditampilkan jika panel terbuka
-            if (showContent) {
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -106,6 +84,45 @@ fun TransactionList(transactions: List<Transaction>) {
                         TransactionItem(transaction)
                     }
                 }
+            }
+        }
+        
+        // 2. BAR - selalu terlihat dan bergerak sedikit
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .offset(y = barOffset)
+                .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
+                .background(Color.White)
+                .zIndex(1f)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+            ) {
+                // Bar handle
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 12.dp)
+                        .clickable {
+                            isExpanded = !isExpanded
+                        },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .width(60.dp)
+                            .height(6.dp)
+                            .background(
+                                color = if (isExpanded) PrimaryVariant else Color.LightGray,
+                                shape = RoundedCornerShape(50)
+                            )
+                    )
+                }
+                
+                // Divider
+                Divider(color = DividerColor, thickness = 1.dp)
             }
         }
     }
