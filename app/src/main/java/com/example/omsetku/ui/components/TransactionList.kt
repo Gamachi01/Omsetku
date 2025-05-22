@@ -35,7 +35,9 @@ import com.example.omsetku.data.Transaction
 import com.example.omsetku.ui.theme.IncomeColor
 import com.example.omsetku.ui.theme.ExpenseColor
 import com.example.omsetku.ui.theme.Background
+import com.example.omsetku.ui.theme.PrimaryVariant
 import com.example.omsetku.ui.theme.Divider as DividerColor
+import kotlin.math.min
 import kotlin.math.roundToInt
 
 @SuppressLint("SuspiciousIndentation")
@@ -45,18 +47,28 @@ fun TransactionList(transactions: List<Transaction>) {
     var isExpanded by remember { mutableStateOf(true) }
     var contentHeight by remember { mutableStateOf(0.dp) }
     
-    // Animasi untuk posisi bar abu-abu
+    // Membatasi ketinggian maksimum pergerakan bar agar tetap terlihat di layar
+    // dengan nilai maksimum 60.dp (dapat disesuaikan)
+    val maxCollapsedPosition = 60.dp
+    
+    // Animasi untuk posisi bar 
     val barPosition by animateDpAsState(
-        targetValue = if (isExpanded) 0.dp else contentHeight,
+        targetValue = if (isExpanded) 0.dp else min(contentHeight, maxCollapsedPosition),
         animationSpec = tween(durationMillis = 300, easing = FastOutSlowInEasing),
         label = "barPosition"
+    )
+    
+    // Animasi warna bar berdasarkan status expanded/collapsed
+    val barColor by animateColorAsState(
+        targetValue = if (isExpanded) PrimaryVariant else Color.LightGray,
+        animationSpec = tween(durationMillis = 300),
+        label = "barColor"
     )
 
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
-            .background(Color.White)
     ) {
         // Konten transaksi yang hanya terlihat saat expanded
         AnimatedVisibility(
@@ -67,7 +79,8 @@ fun TransactionList(transactions: List<Transaction>) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 40.dp) // Memberikan ruang untuk bar abu-abu
+                    .background(Color.White) // Background hanya untuk konten transaksi
+                    .padding(top = 40.dp) // Memberikan ruang untuk bar
                     .onGloballyPositioned { coordinates ->
                         with(density) {
                             contentHeight = coordinates.size.height.toDp() // Mengukur tinggi konten
@@ -91,15 +104,16 @@ fun TransactionList(transactions: List<Transaction>) {
             }
         }
         
-        // Panel abu-abu yang bergerak - sekarang sebagai overlay
+        // Panel bergerak - hanya area bar dan divider, tanpa background tambahan
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .offset { IntOffset(0, barPosition.roundToPx()) }
                 .background(Color.White)
-                .zIndex(1f) // Memastikan bar abu-abu selalu di atas
+                .clip(RoundedCornerShape(16.dp))
+                .zIndex(1f) // Memastikan bar selalu di atas
         ) {
-            // Bar abu-abu yang berfungsi sebagai handle untuk expand/collapse
+            // Bar yang berfungsi sebagai handle untuk expand/collapse
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -114,7 +128,7 @@ fun TransactionList(transactions: List<Transaction>) {
                         .width(60.dp)
                         .height(6.dp)
                         .background(
-                            color = Color.LightGray,
+                            color = barColor,
                             shape = RoundedCornerShape(50)
                         )
                 )
@@ -122,16 +136,6 @@ fun TransactionList(transactions: List<Transaction>) {
             
             // Divider
             Divider(color = DividerColor, thickness = 1.dp)
-            
-            // Background putih untuk menutupi konten saat collapse
-            if (!isExpanded) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(400.dp)
-                        .background(Color.White)
-                )
-            }
         }
     }
 }
