@@ -19,6 +19,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -33,55 +35,88 @@ import com.example.omsetku.ui.theme.Divider as DividerColor
 @SuppressLint("SuspiciousIndentation")
 @Composable
 fun TransactionList(transactions: List<Transaction>) {
+    val density = LocalDensity.current
     var isExpanded by remember { mutableStateOf(true) }
-
-    // Panel dengan bar abu-abu
-    Column(
+    var contentHeight by remember { mutableStateOf(0.dp) }
+    val listHeight = remember(contentHeight, isExpanded) {
+        if (isExpanded) contentHeight else 0.dp
+    }
+    
+    // Animasi untuk mengubah tinggi konten
+    val animatedHeight by animateDpAsState(
+        targetValue = listHeight,
+        animationSpec = tween(durationMillis = 300, easing = FastOutSlowInEasing),
+        label = "contentHeight"
+    )
+    
+    // Frame utama
+    Box(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
             .background(Color.White)
     ) {
-        // Bar abu-abu yang berfungsi sebagai handle untuk expand/collapse
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 12.dp)
-                .clickable { isExpanded = !isExpanded },
-            contentAlignment = Alignment.Center
-        ) {
+        Column(modifier = Modifier.fillMaxWidth()) {
+            // Konten transaksi yang terlihat atau tersembunyi
             Box(
                 modifier = Modifier
-                    .width(60.dp)
-                    .height(6.dp)
-                    .background(
-                        color = Color.LightGray,
-                        shape = RoundedCornerShape(50)
-                    )
+                    .fillMaxWidth()
+                    .height(animatedHeight)
+                    .onGloballyPositioned { coordinates ->
+                        // Hanya update height saat expanded, untuk mencegah height menjadi 0 sebelum animasi
+                        if (isExpanded) {
+                            with(density) {
+                                contentHeight = coordinates.size.height.toDp()
+                            }
+                        }
+                    }
+            ) {
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    // Konten LazyColumn
+                    val listState = rememberLazyListState()
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(max = 400.dp),
+                        state = listState,
+                        contentPadding = PaddingValues(
+                            top = 8.dp,
+                            start = 20.dp,
+                            end = 20.dp,
+                            bottom = 8.dp
+                        ),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        items(transactions) { transaction ->
+                            TransactionItem(transaction)
+                        }
+                    }
+                }
+            }
+            
+            // Divider yang selalu terlihat
+            Divider(
+                color = DividerColor,
+                thickness = 1.dp
             )
-        }
-
-        Divider(color = DividerColor, thickness = 1.dp)
-        
-        // Konten transisi yang beranimasi dengan slide verso bawah/atas
-        AnimatedVisibility(
-            visible = isExpanded,
-            enter = slideInVertically(initialOffsetY = { -it }) + expandVertically(),
-            exit = slideOutVertically(targetOffsetY = { -it }) + shrinkVertically()
-        ) {
-            val listState = rememberLazyListState()
-
-            LazyColumn(
+            
+            // Bar abu-abu yang berfungsi sebagai handle (selalu di bawah)
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .heightIn(max = 400.dp),
-                state = listState,
-                contentPadding = PaddingValues(horizontal = 20.dp, vertical = 8.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                    .padding(vertical = 12.dp)
+                    .clickable { isExpanded = !isExpanded },
+                contentAlignment = Alignment.Center
             ) {
-                items(transactions) { transaction ->
-                    TransactionItem(transaction)
-                }
+                Box(
+                    modifier = Modifier
+                        .width(60.dp)
+                        .height(6.dp)
+                        .background(
+                            color = Color.LightGray,
+                            shape = RoundedCornerShape(50)
+                        )
+                )
             }
         }
     }
