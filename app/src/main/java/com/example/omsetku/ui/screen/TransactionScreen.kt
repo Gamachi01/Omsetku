@@ -21,6 +21,19 @@ import com.example.omsetku.ui.components.BottomNavBar
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.example.omsetku.ui.components.DatePickerField
 
 enum class TransactionType {
     INCOME, EXPENSE
@@ -95,24 +108,9 @@ fun TransactionScreen(navController: NavController) {
             Spacer(modifier = Modifier.height(24.dp))
 
             LabeledFieldBox(label = "Tanggal Transaksi") {
-                OutlinedTextField(
+                DatePickerField(
                     value = tanggal,
-                    onValueChange = { tanggal = it },
-                    textStyle = TextStyle(fontSize = 14.sp, color = Color.Black, fontFamily = Poppins),
-                    modifier = Modifier.fillMaxWidth().height(56.dp),
-                    trailingIcon = {
-                        Icon(
-                            painter = painterResource(id = R.drawable.transactioncalender),
-                            contentDescription = "Kalender",
-                            modifier = Modifier.size(24.dp),
-                            tint = Color(0xFF5ED0C5)
-                        )
-                    },
-                    shape = RoundedCornerShape(8.dp),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        unfocusedBorderColor = Color.LightGray,
-                        focusedBorderColor = Color(0xFF5ED0C5)
-                    )
+                    onDateSelected = { tanggal = it }
                 )
             }
 

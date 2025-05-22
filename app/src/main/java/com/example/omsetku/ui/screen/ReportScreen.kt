@@ -465,27 +465,27 @@ fun ReportScreen(navController: NavController) {
                         color = Color(0xFFEEEEEE),
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
                                 .padding(horizontal = 16.dp, vertical = 12.dp),
                             horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            Text(
+    ) {
+        Text(
                                 text = "Laba Bersih",
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.Medium,
-                                fontFamily = Poppins,
-                                color = Color.Black
-                            )
-                            
-                            Text(
+            fontFamily = Poppins,
+            color = Color.Black
+        )
+        
+        Text(
                                 text = "Rp 500.000",
                                 fontSize = 14.sp,
-                                fontWeight = FontWeight.Medium,
-                                fontFamily = Poppins,
-                                color = Color.Black
-                            )
+            fontWeight = FontWeight.Medium,
+            fontFamily = Poppins,
+            color = Color.Black
+        )
                         }
                     }
                     

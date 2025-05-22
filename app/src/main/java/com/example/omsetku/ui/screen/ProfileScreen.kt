@@ -41,11 +41,11 @@ fun ProfileScreen(navController: NavController) {
                 onClick = { navController.navigate(Routes.HOME) },
                 modifier = Modifier.size(40.dp)
             ) {
-                Image(
-                    painter = painterResource(id = R.drawable.back_icon),
-                    contentDescription = "Back",
+            Image(
+                painter = painterResource(id = R.drawable.back_icon),
+                contentDescription = "Back",
                     modifier = Modifier.size(20.dp)
-                )
+            )
             }
         }
 
