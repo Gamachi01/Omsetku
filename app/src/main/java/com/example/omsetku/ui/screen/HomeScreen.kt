@@ -224,16 +224,7 @@ fun HomeScreen(
                 }
             }
 
-            // Transaksi Terbaru
-            Text(
-                text = "Transaksi Terbaru",
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.Black,
-                fontFamily = Poppins,
-                modifier = Modifier.padding(vertical = 6.dp)
-            )
-
+            // Hapus text "Transaksi Terbaru" dan langsung tampilkan TransactionList
             TransactionList(transactions = transactions)
         }
     }

@@ -34,61 +34,36 @@ import com.example.omsetku.ui.theme.Divider as DividerColor
 @SuppressLint("SuspiciousIndentation")
 @Composable
 fun TransactionList(transactions: List<Transaction>) {
-    var isExpanded by remember { mutableStateOf(false) }
+    var isExpanded by remember { mutableStateOf(true) }
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
             .background(Color.White)
-            .padding(vertical = 16.dp)
-            .animateContentSize(animationSpec = tween(durationMillis = 500))
+            .animateContentSize(animationSpec = tween(durationMillis = 300))
     ) {
+        // Bar abu-abu yang berfungsi sebagai handle untuk expand/collapse
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 8.dp),
+                .padding(vertical = 12.dp)
+                .clickable { isExpanded = !isExpanded },
             contentAlignment = Alignment.Center
         ) {
             Box(
                 modifier = Modifier
                     .width(60.dp)
                     .height(6.dp)
-                    .clickable { isExpanded = !isExpanded }
                     .background(
-                        color = if (isExpanded) IncomeColor else Color.LightGray,
+                        color = Color.LightGray,
                         shape = RoundedCornerShape(50)
                     )
             )
         }
 
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 20.dp, vertical = 8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(
-                text = "Transaksi Terakhir",
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.Black,
-                fontFamily = Poppins
-            )
-            
-            Text(
-                text = if (isExpanded) "Sembunyikan" else "Lihat Semua",
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Medium,
-                color = IncomeColor,
-                fontFamily = Poppins,
-                modifier = Modifier.clickable { isExpanded = !isExpanded }
-            )
-        }
-
         if (isExpanded) {
-            Divider(color = DividerColor, thickness = 1.dp, modifier = Modifier.padding(vertical = 8.dp))
+            Divider(color = DividerColor, thickness = 1.dp, modifier = Modifier.padding(bottom = 8.dp))
             
             val listState = rememberLazyListState()
 
@@ -102,24 +77,6 @@ fun TransactionList(transactions: List<Transaction>) {
             ) {
                 items(transactions) { transaction ->
                     TransactionItem(transaction)
-                }
-            }
-        } else {
-            // Menampilkan hanya beberapa transaksi terbaru jika tidak expanded
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 20.dp, vertical = 8.dp)
-            ) {
-                transactions.take(3).forEach { transaction ->
-                    TransactionItem(transaction)
-                    if (transaction != transactions.take(3).last()) {
-                        Divider(
-                            color = DividerColor.copy(alpha = 0.5f),
-                            thickness = 1.dp,
-                            modifier = Modifier.padding(vertical = 8.dp)
-                        )
-                    }
                 }
             }
         }
