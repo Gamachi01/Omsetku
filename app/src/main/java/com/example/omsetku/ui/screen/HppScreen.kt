@@ -2,6 +2,7 @@ package com.example.omsetku.ui.screen
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -17,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -24,19 +26,60 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.omsetku.Navigation.Routes
+import com.example.omsetku.R
 import com.example.omsetku.ui.components.BottomNavBar
 import com.example.omsetku.ui.components.Poppins
+import kotlinx.coroutines.launch
 
 enum class HppTab {
     STOK, BAHAN_BAKU
 }
+
+// Model data produk
+data class Product(
+    val id: String,
+    val name: String,
+    val price: Double,
+    val category: String,
+    val description: String = ""
+)
 
 @Composable
 fun HppScreen(navController: NavController) {
     var selectedItem by remember { mutableStateOf("HPP") }
     var selectedTab by remember { mutableStateOf(HppTab.STOK) }
     val scrollState = rememberScrollState()
+    val scope = rememberCoroutineScope()
+    
+    // State untuk dialog
+    var showHppResultDialog by remember { mutableStateOf(false) }
+    
+    // State untuk produk
+    var products by remember { mutableStateOf<List<Product>>(emptyList()) }
+    var selectedProduct by remember { mutableStateOf<Product?>(null) }
+    
+    // State untuk perhitungan
+    var totalBiaya by remember { mutableStateOf(0.0) }
+    var estimasiTerjual by remember { mutableStateOf(0) }
 
+    // Effect untuk memuat data produk saat screen dibuka
+    LaunchedEffect(Unit) {
+        scope.launch {
+            // Dummy data untuk sementara
+            products = listOf(
+                Product("1", "Nasi Goreng", 15000.0, "Makanan"),
+                Product("2", "Mie Goreng", 12000.0, "Makanan"),
+                Product("3", "Ayam Goreng", 18000.0, "Makanan"),
+                Product("4", "Sate Ayam", 20000.0, "Makanan"),
+                Product("5", "Gado-gado", 15000.0, "Makanan"),
+                Product("6", "Soto Ayam", 17000.0, "Makanan")
+            )
+        }
+    }
+    
+    // State untuk dropdown produk
+    var showProductDropdown by remember { mutableStateOf(false) }
+    
     Scaffold(
         bottomBar = {
             BottomNavBar(
@@ -140,7 +183,7 @@ fun HppScreen(navController: NavController) {
             
             // Tombol Hitung
             Button(
-                onClick = { /* TODO: Implementasi perhitungan HPP */ },
+                onClick = { showHppResultDialog = true },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(48.dp),
@@ -156,6 +199,180 @@ fun HppScreen(navController: NavController) {
             }
             
             Spacer(modifier = Modifier.height(16.dp))
+        }
+        
+        // Dialog Hasil HPP
+        if (showHppResultDialog && selectedProduct != null) {
+            Dialog(
+                onDismissRequest = { showHppResultDialog = false }
+            ) {
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = Color.White
+                    )
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(24.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = "HPP Produk",
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.Black,
+                            fontFamily = Poppins,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        
+                        Spacer(modifier = Modifier.height(24.dp))
+                        
+                        // Produk
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalAlignment = Alignment.Start
+                        ) {
+                            Text(
+                                text = "Produk:",
+                                fontSize = 14.sp,
+                                color = Color.Gray,
+                                fontFamily = Poppins
+                            )
+                            Text(
+                                text = selectedProduct?.name ?: "",
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Medium,
+                                color = Color.Black,
+                                fontFamily = Poppins
+                            )
+                        }
+                        
+                        Spacer(modifier = Modifier.height(16.dp))
+                        
+                        // Metode
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalAlignment = Alignment.Start
+                        ) {
+                            Text(
+                                text = "Metode:",
+                                fontSize = 14.sp,
+                                color = Color.Gray,
+                                fontFamily = Poppins
+                            )
+                            Text(
+                                text = if (selectedTab == HppTab.STOK) "Berdasarkan Stok" else "Berdasarkan Bahan Baku",
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Medium,
+                                color = Color.Black,
+                                fontFamily = Poppins
+                            )
+                        }
+                        
+                        Spacer(modifier = Modifier.height(16.dp))
+                        
+                        Divider(color = Color.LightGray)
+                        
+                        Spacer(modifier = Modifier.height(16.dp))
+                        
+                        // Total Biaya Produksi
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalAlignment = Alignment.Start
+                        ) {
+                            Text(
+                                text = "Total Biaya Produksi:",
+                                fontSize = 14.sp,
+                                color = Color.Gray,
+                                fontFamily = Poppins
+                            )
+                            Text(
+                                text = "Rp ${totalBiaya.toString().reversed().chunked(3).joinToString(".").reversed()}",
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Medium,
+                                color = Color.Black,
+                                fontFamily = Poppins
+                            )
+                        }
+                        
+                        Spacer(modifier = Modifier.height(16.dp))
+                        
+                        // Estimasi Terjual
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalAlignment = Alignment.Start
+                        ) {
+                            Text(
+                                text = "Estimasi Terjual per Bulan:",
+                                fontSize = 14.sp,
+                                color = Color.Gray,
+                                fontFamily = Poppins
+                            )
+                            Text(
+                                text = "$estimasiTerjual pcs",
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Medium,
+                                color = Color.Black,
+                                fontFamily = Poppins
+                            )
+                        }
+                        
+                        Spacer(modifier = Modifier.height(16.dp))
+                        
+                        Divider(color = Color.LightGray)
+                        
+                        Spacer(modifier = Modifier.height(16.dp))
+                        
+                        // HPP per Produk
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalAlignment = Alignment.Start
+                        ) {
+                            Text(
+                                text = "HPP per Produk:",
+                                fontSize = 14.sp,
+                                color = Color.Gray,
+                                fontFamily = Poppins
+                            )
+                            Text(
+                                text = "Rp ${(totalBiaya / estimasiTerjual).toString().reversed().chunked(3).joinToString(".").reversed()}",
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFF5ED0C5),
+                                fontFamily = Poppins
+                            )
+                        }
+                        
+                        Spacer(modifier = Modifier.height(24.dp))
+                        
+                        // Tombol OK
+                        Button(
+                            onClick = { showHppResultDialog = false },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(48.dp),
+                            shape = RoundedCornerShape(8.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color(0xFF5ED0C5)
+                            )
+                        ) {
+                            Text(
+                                text = "OK",
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.White,
+                                fontFamily = Poppins
+                            )
+                        }
+                    }
+                }
+            }
         }
     }
 }
@@ -194,27 +411,77 @@ fun HppTabButton(
 
 @Composable
 fun HppStokContent() {
+    var showProductDropdown by remember { mutableStateOf(false) }
+    
     Column(modifier = Modifier.fillMaxWidth()) {
         HppLabeledFieldBox(label = "Pilih Produk") {
-            OutlinedTextField(
-                value = "",
-                onValueChange = {},
-                readOnly = true,
-                modifier = Modifier.fillMaxWidth(),
-                textStyle = TextStyle(fontSize = 14.sp, color = Color.Black, fontFamily = Poppins),
-                trailingIcon = { 
-                    Icon(
-                        imageVector = Icons.Default.Close,
-                        contentDescription = "Dropdown",
-                        modifier = Modifier.size(24.dp)
-                    )
-                },
-                shape = RoundedCornerShape(8.dp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    unfocusedBorderColor = Color.LightGray,
-                    focusedBorderColor = Color(0xFF5ED0C5)
+            Box(modifier = Modifier.fillMaxWidth()) {
+                OutlinedTextField(
+                    value = selectedProduct?.name ?: "",
+                    onValueChange = {},
+                    readOnly = true,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { showProductDropdown = true },
+                    textStyle = TextStyle(fontSize = 14.sp, color = Color.Black, fontFamily = Poppins),
+                    placeholder = { 
+                        Text(
+                            "Pilih produk",
+                            fontSize = 14.sp,
+                            fontFamily = Poppins,
+                            color = Color.Gray
+                        )
+                    },
+                    trailingIcon = { 
+                        Icon(
+                            painter = painterResource(id = R.drawable.go_icon),
+                            contentDescription = "Dropdown",
+                            modifier = Modifier.size(24.dp),
+                            tint = Color.Gray
+                        )
+                    },
+                    shape = RoundedCornerShape(8.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        unfocusedBorderColor = Color.LightGray,
+                        focusedBorderColor = Color(0xFF5ED0C5),
+                        disabledBorderColor = Color.LightGray,
+                        disabledTextColor = Color.Black
+                    ),
+                    enabled = false
                 )
-            )
+
+                DropdownMenu(
+                    expanded = showProductDropdown,
+                    onDismissRequest = { showProductDropdown = false },
+                    modifier = Modifier
+                        .fillMaxWidth(0.9f)
+                        .background(Color.White)
+                ) {
+                    products.forEach { product ->
+                        DropdownMenuItem(
+                            text = {
+                                Column {
+                                    Text(
+                                        text = product.name,
+                                        fontSize = 14.sp,
+                                        fontFamily = Poppins
+                                    )
+                                    Text(
+                                        text = "Rp ${product.price.toInt()}",
+                                        fontSize = 12.sp,
+                                        color = Color.Gray,
+                                        fontFamily = Poppins
+                                    )
+                                }
+                            },
+                            onClick = {
+                                selectedProduct = product
+                                showProductDropdown = false
+                            }
+                        )
+                    }
+                }
+            }
         }
         
         // Persediaan Awal dan Akhir
@@ -385,27 +652,77 @@ fun HppStokContent() {
 
 @Composable
 fun HppBahanBakuContent() {
+    var showProductDropdown by remember { mutableStateOf(false) }
+    
     Column(modifier = Modifier.fillMaxWidth()) {
         HppLabeledFieldBox(label = "Pilih Produk") {
-            OutlinedTextField(
-                value = "",
-                onValueChange = {},
-                readOnly = true,
-                modifier = Modifier.fillMaxWidth(),
-                textStyle = TextStyle(fontSize = 14.sp, color = Color.Black, fontFamily = Poppins),
-                trailingIcon = { 
-                    Icon(
-                        imageVector = Icons.Default.Close,
-                        contentDescription = "Dropdown",
-                        modifier = Modifier.size(24.dp)
-                    )
-                },
-                shape = RoundedCornerShape(8.dp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    unfocusedBorderColor = Color.LightGray,
-                    focusedBorderColor = Color(0xFF5ED0C5)
+            Box(modifier = Modifier.fillMaxWidth()) {
+                OutlinedTextField(
+                    value = selectedProduct?.name ?: "",
+                    onValueChange = {},
+                    readOnly = true,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { showProductDropdown = true },
+                    textStyle = TextStyle(fontSize = 14.sp, color = Color.Black, fontFamily = Poppins),
+                    placeholder = { 
+                        Text(
+                            "Pilih produk",
+                            fontSize = 14.sp,
+                            fontFamily = Poppins,
+                            color = Color.Gray
+                        )
+                    },
+                    trailingIcon = { 
+                        Icon(
+                            painter = painterResource(id = R.drawable.go_icon),
+                            contentDescription = "Dropdown",
+                            modifier = Modifier.size(24.dp),
+                            tint = Color.Gray
+                        )
+                    },
+                    shape = RoundedCornerShape(8.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        unfocusedBorderColor = Color.LightGray,
+                        focusedBorderColor = Color(0xFF5ED0C5),
+                        disabledBorderColor = Color.LightGray,
+                        disabledTextColor = Color.Black
+                    ),
+                    enabled = false
                 )
-            )
+
+                DropdownMenu(
+                    expanded = showProductDropdown,
+                    onDismissRequest = { showProductDropdown = false },
+                    modifier = Modifier
+                        .fillMaxWidth(0.9f)
+                        .background(Color.White)
+                ) {
+                    products.forEach { product ->
+                        DropdownMenuItem(
+                            text = {
+                                Column {
+                                    Text(
+                                        text = product.name,
+                                        fontSize = 14.sp,
+                                        fontFamily = Poppins
+                                    )
+                                    Text(
+                                        text = "Rp ${product.price.toInt()}",
+                                        fontSize = 12.sp,
+                                        color = Color.Gray,
+                                        fontFamily = Poppins
+                                    )
+                                }
+                            },
+                            onClick = {
+                                selectedProduct = product
+                                showProductDropdown = false
+                            }
+                        )
+                    }
+                }
+            }
         }
         
         Spacer(modifier = Modifier.height(8.dp))
