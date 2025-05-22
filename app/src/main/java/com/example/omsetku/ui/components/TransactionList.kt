@@ -34,42 +34,41 @@ import com.example.omsetku.ui.theme.Divider as DividerColor
 fun TransactionList(transactions: List<Transaction>) {
     var isExpanded by remember { mutableStateOf(true) }
     
-    // Tinggi navbar
+    // Tinggi navbar dan posisi aman untuk bar
     val navbarHeight = 56.dp
+    val safeBarPosition = 120.dp // Diatur tetap agar pasti terlihat (nilai kecil yang aman)
     
-    // Posisi maksimum bar saat tertutup (akan berada tepat di atas navbar)
-    val barClosedPosition = 500.dp  // Posisi cukup jauh ke bawah tapi masih tampak di layar
+    // Apakah konten terlihat
+    val showContent = isExpanded
     
-    // Animasi untuk konten dan bar
+    // Animasi untuk konten - hanya bergerak saat terbuka
     val contentOffset by animateDpAsState(
-        targetValue = if (isExpanded) 0.dp else 400.dp, // Konten bergerak hingga tak terlihat
+        targetValue = if (isExpanded) 0.dp else 400.dp,
         animationSpec = tween(durationMillis = 300, easing = FastOutSlowInEasing),
         label = "contentOffset"
     )
     
-    // Animasi bar - akan berhenti di posisi tertentu
+    // Animasi bar - hanya bergerak sedikit
     val barOffset by animateDpAsState(
-        targetValue = if (isExpanded) 0.dp else 
-                      // Saat tidak expanded, bar hanya turun sedikit dan berhenti di atas navbar
-                      navbarHeight + 450.dp,  
-        animationSpec = tween(durationMillis = 300, easing = FastOutSlowInEasing),
+        targetValue = if (isExpanded) 0.dp else safeBarPosition,
+        animationSpec = tween(durationMillis = 300, easing = FastOutSlowInEasing), 
         label = "barOffset"
     )
     
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(bottom = navbarHeight + 24.dp) // Padding untuk memastikan ada ruang di bawah
+            .fillMaxHeight()
     ) {
-        // Konten transaksi
-        if (isExpanded) {
+        // Konten transaksi yang bisa bergerak dan hilang
+        if (showContent) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .offset(y = contentOffset)
                     .clip(RoundedCornerShape(16.dp))
                     .background(Color.White)
-                    .padding(top = 40.dp) // Ruang untuk bar
+                    .padding(top = 40.dp)
                     .padding(bottom = 16.dp)
                     .zIndex(0f)
             ) {
@@ -87,39 +86,55 @@ fun TransactionList(transactions: List<Transaction>) {
             }
         }
         
-        // Bar yang selalu terlihat dan dapat diakses - terpisah dari konten
-        Column(
+        // Bar yang selalu terlihat di atas navbar dengan posisi terbatas
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .offset(y = barOffset)
-                .heightIn(min = 40.dp) // Memastikan bar selalu punya tinggi minimal
                 .clip(RoundedCornerShape(16.dp))
                 .background(Color.White)
-                .zIndex(1f) // Selalu di atas konten
+                .zIndex(5f) // Prioritas tertinggi untuk selalu kelihatan
         ) {
-            // Bar handler
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+            ) {
+                // Bar handle yang selalu dapat diklik
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 12.dp)
+                        .clickable {
+                            isExpanded = !isExpanded
+                        },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .width(60.dp)
+                            .height(6.dp)
+                            .background(
+                                color = if (isExpanded) PrimaryVariant else Color.LightGray,
+                                shape = RoundedCornerShape(50)
+                            )
+                    )
+                }
+                
+                // Divider
+                Divider(color = DividerColor, thickness = 1.dp)
+            }
+        }
+        
+        // Layer tambahan untuk memastikan area di belakang bar saat tertutup
+        if (!isExpanded) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 12.dp)
-                    .clickable { 
-                        isExpanded = !isExpanded 
-                    },
-                contentAlignment = Alignment.Center
-            ) {
-                Box(
-                    modifier = Modifier
-                        .width(60.dp)
-                        .height(6.dp)
-                        .background(
-                            color = if (isExpanded) PrimaryVariant else Color.LightGray,
-                            shape = RoundedCornerShape(50)
-                        )
-                )
-            }
-            
-            // Divider
-            Divider(color = DividerColor, thickness = 1.dp)
+                    .height(40.dp)
+                    .offset(y = barOffset)
+                    .background(Color.White)
+                    .zIndex(4f)
+            )
         }
     }
 }
