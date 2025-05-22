@@ -45,45 +45,51 @@ import kotlin.math.roundToInt
 @Composable
 fun TransactionList(transactions: List<Transaction>) {
     var isExpanded by remember { mutableStateOf(true) }
-    val density = LocalDensity.current
-    var contentHeight by remember { mutableStateOf(0.dp) }
     
-    // Memberikan nilai default untuk tinggi konten agar bar masih dapat bergerak
-    // meskipun content belum diukur
-    val defaultContentHeight = 400.dp
+    // Jarak yang akan ditempuh bar saat turun ke bawah (dibatasi agar tetap terlihat)
+    val barMaxOffset = 70.dp
     
     // Animasi posisi bar
     val barOffset by animateDpAsState(
-        targetValue = if (isExpanded) 0.dp else 300.dp, // Bergerak ke bawah saat tertutup
+        targetValue = if (isExpanded) 0.dp else barMaxOffset, // Dibatasi hanya bergerak sedikit ke bawah
         animationSpec = tween(durationMillis = 300, easing = FastOutSlowInEasing),
         label = "barOffset"
     )
 
+    // Background untuk konten yang tertutup
+    val backgroundColor = if (isExpanded) Color.White else Color.Transparent
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(bottom = 60.dp) // Ruang untuk navbar
+            .padding(bottom = 80.dp) // Ruang untuk navbar dan memastikan bar tetap terlihat
     ) {
-        // Komponen konten transaksi
+        // Background putih yang mengikuti bar saat bergerak
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .offset(y = barOffset)
+                .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
+                .background(Color.White)
+                .height(40.dp) // Tinggi untuk bar saja
+                .zIndex(1f)
+        )
+        
+        // Konten transaksi
         AnimatedVisibility(
             visible = isExpanded,
             enter = fadeIn(animationSpec = tween(300)),
             exit = fadeOut(animationSpec = tween(200)),
             modifier = Modifier
                 .fillMaxWidth()
+                .padding(top = 40.dp) // Memberikan ruang untuk bar
+                .clip(RoundedCornerShape(bottomStart = 16.dp, bottomEnd = 16.dp))
                 .zIndex(0f)
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(Color.White)
-                    .clip(RoundedCornerShape(16.dp))
-                    .padding(top = 40.dp) // Ruang untuk bar
-                    .onGloballyPositioned { coordinates ->
-                        with(density) {
-                            contentHeight = coordinates.size.height.toDp()
-                        }
-                    }
+                    .background(backgroundColor)
             ) {
                 // Konten transaksi
                 LazyColumn(
@@ -100,14 +106,14 @@ fun TransactionList(transactions: List<Transaction>) {
             }
         }
         
-        // Bar yang bergerak ke bawah
+        // Bar yang bergerak ke bawah (tetap terlihat)
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .offset(y = barOffset)
                 .clip(RoundedCornerShape(16.dp))
                 .background(Color.White)
-                .zIndex(1f)
+                .zIndex(2f) // Z-index lebih tinggi agar selalu berada di atas
         ) {
             // Handle bar
             Box(
