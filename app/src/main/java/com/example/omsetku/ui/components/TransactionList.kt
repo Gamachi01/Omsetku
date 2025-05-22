@@ -1,9 +1,8 @@
 package com.example.omsetku.ui.components
 
-
 import android.annotation.SuppressLint
-import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.tween
+import androidx.compose.animation.*
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -36,65 +35,57 @@ import com.example.omsetku.ui.theme.Divider as DividerColor
 fun TransactionList(transactions: List<Transaction>) {
     var isExpanded by remember { mutableStateOf(true) }
 
-    Surface(
+    // Panel dengan bar abu-abu
+    Column(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(16.dp)),
-        color = Color.White
+            .clip(RoundedCornerShape(16.dp))
+            .background(Color.White)
     ) {
-        Column(
+        // Bar abu-abu yang berfungsi sebagai handle untuk expand/collapse
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
+                .padding(vertical = 12.dp)
+                .clickable { isExpanded = !isExpanded },
+            contentAlignment = Alignment.Center
         ) {
-            // Bar abu-abu yang berfungsi sebagai handle untuk expand/collapse
             Box(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 12.dp)
-                    .clickable { isExpanded = !isExpanded },
-                contentAlignment = Alignment.Center
-            ) {
-                Box(
-                    modifier = Modifier
-                        .width(60.dp)
-                        .height(6.dp)
-                        .background(
-                            color = Color.LightGray,
-                            shape = RoundedCornerShape(50)
-                        )
-                )
-            }
+                    .width(60.dp)
+                    .height(6.dp)
+                    .background(
+                        color = Color.LightGray,
+                        shape = RoundedCornerShape(50)
+                    )
+            )
+        }
 
-            Divider(color = DividerColor, thickness = 1.dp)
-            
-            // Content yang bisa di-expand/collapse
-            Box(
+        Divider(color = DividerColor, thickness = 1.dp)
+        
+        // Konten transisi yang beranimasi dengan slide verso bawah/atas
+        AnimatedVisibility(
+            visible = isExpanded,
+            enter = slideInVertically(initialOffsetY = { -it }) + expandVertically(),
+            exit = slideOutVertically(targetOffsetY = { -it }) + shrinkVertically()
+        ) {
+            val listState = rememberLazyListState()
+
+            LazyColumn(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .animateContentSize(animationSpec = tween(durationMillis = 300))
+                    .heightIn(max = 400.dp),
+                state = listState,
+                contentPadding = PaddingValues(horizontal = 20.dp, vertical = 8.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                if (isExpanded) {
-                    val listState = rememberLazyListState()
-
-                    LazyColumn(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .heightIn(max = 400.dp),
-                        state = listState,
-                        contentPadding = PaddingValues(horizontal = 20.dp, vertical =
-                        8.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        items(transactions) { transaction ->
-                            TransactionItem(transaction)
-                        }
-                    }
+                items(transactions) { transaction ->
+                    TransactionItem(transaction)
                 }
             }
         }
     }
 }
-
 
 @Composable
 fun TransactionItem(transaction: Transaction) {
