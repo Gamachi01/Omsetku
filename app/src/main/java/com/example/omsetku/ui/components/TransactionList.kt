@@ -46,20 +46,11 @@ fun TransactionList(transactions: List<Transaction>) {
     var isExpanded by remember { mutableStateOf(true) }
     var contentHeight by remember { mutableStateOf(0.dp) }
     
-    // Membatasi ketinggian maksimum pergerakan bar agar tetap terlihat di layar
-    // dengan nilai maksimum 60.dp (dapat disesuaikan)
-    val maxCollapsedPosition = 60.dp
-    
-    // Animasi untuk posisi bar 
-    val barPosition by animateDpAsState(
-        targetValue = if (isExpanded) 0.dp else contentHeight.coerceAtMost(maxCollapsedPosition),
-        animationSpec = tween(durationMillis = 300, easing = FastOutSlowInEasing),
-        label = "barPosition"
-    )
-
+    // Box utama dengan padding bottom untuk memberikan ruang agar bar tetap terlihat di atas navbar
     Box(
         modifier = Modifier
             .fillMaxWidth()
+            .padding(bottom = 80.dp) // Memberikan ruang di bawah agar panel tidak tertutup navbar
             .clip(RoundedCornerShape(16.dp))
     ) {
         // Konten transaksi yang hanya terlihat saat expanded
@@ -96,38 +87,78 @@ fun TransactionList(transactions: List<Transaction>) {
             }
         }
         
-        // Panel bergerak - hanya area bar dan divider, tanpa background tambahan
-        Column(
+        // Panel dengan handle - akan terlihat di posisi fixed saat panel ditutup
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .offset { IntOffset(0, barPosition.roundToPx()) }
-                .background(Color.White)
-                .clip(RoundedCornerShape(16.dp))
                 .zIndex(1f) // Memastikan bar selalu di atas
         ) {
-            // Bar yang berfungsi sebagai handle untuk expand/collapse
-            Box(
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 12.dp)
-                    .clickable { 
-                        isExpanded = !isExpanded 
-                    },
-                contentAlignment = Alignment.Center
+                    .background(Color.White)
+                    .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
             ) {
+                // Bar yang berfungsi sebagai handle untuk expand/collapse
                 Box(
                     modifier = Modifier
-                        .width(60.dp)
-                        .height(6.dp)
-                        .background(
-                            color = if (isExpanded) PrimaryVariant else Color.LightGray,
-                            shape = RoundedCornerShape(50)
-                        )
-                )
+                        .fillMaxWidth()
+                        .padding(vertical = 12.dp)
+                        .clickable { 
+                            isExpanded = !isExpanded 
+                        },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .width(60.dp)
+                            .height(6.dp)
+                            .background(
+                                color = if (isExpanded) PrimaryVariant else Color.LightGray,
+                                shape = RoundedCornerShape(50)
+                            )
+                    )
+                }
+                
+                // Divider
+                Divider(color = DividerColor, thickness = 1.dp)
             }
             
-            // Divider
-            Divider(color = DividerColor, thickness = 1.dp)
+            // Konten transaksi jika expanded
+            if (isExpanded) {
+                AnimatedVisibility(
+                    visible = isExpanded,
+                    enter = fadeIn(animationSpec = tween(300)),
+                    modifier = Modifier
+                        .padding(top = 40.dp) // Memberikan ruang untuk bar yang tetap berada di atas
+                ) {
+                    TransactionContent(transactions = transactions)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun TransactionContent(transactions: List<Transaction>) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(Color.White)
+    ) {
+        // Konten transaksi
+        val listState = rememberLazyListState()
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxWidth()
+                .heightIn(max = 400.dp),
+            state = listState,
+            contentPadding = PaddingValues(horizontal = 20.dp, vertical = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            items(transactions) { transaction ->
+                TransactionItem(transaction)
+            }
         }
     }
 }
