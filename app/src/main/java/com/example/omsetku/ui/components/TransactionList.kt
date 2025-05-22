@@ -1,6 +1,7 @@
 package com.example.omsetku.ui.components
 
 import android.annotation.SuppressLint
+import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -34,94 +35,53 @@ import com.example.omsetku.ui.theme.Divider as DividerColor
 fun TransactionList(transactions: List<Transaction>) {
     var isExpanded by remember { mutableStateOf(true) }
     
-    // NILAI TETAP: Offset maksimal untuk konten
-    val contentMaxOffset = 1500.dp
-    
-    // NILAI TETAP: Bar akan bergerak SANGAT JAUH ke bawah - MEMASTIKAN ADA DI BAWAH DEKAT NAVBAR
-    val barMaxOffset = 1000.dp
-    
-    // Animasi untuk konten - bergerak jauh ke bawah dan keluar layar
-    val contentOffset by animateDpAsState(
-        targetValue = if (isExpanded) 0.dp else contentMaxOffset,
-        animationSpec = tween(durationMillis = 300),
-        label = "contentOffset"
-    )
-    
-    // Animasi untuk bar - hanya bergerak sedikit ke bawah
-    val barOffset by animateDpAsState(
-        targetValue = if (isExpanded) 0.dp else barMaxOffset,
-        animationSpec = tween(durationMillis = 300), 
-        label = "barOffset"
-    )
-    
-    Box(
+    // PENDEKATAN SEDERHANA: Panel tetap dengan konten yang muncul/hilang
+    Column(
         modifier = Modifier
             .fillMaxWidth()
-            .fillMaxHeight()
+            .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
+            .background(Color.White)
     ) {
-        // Dua komponen terpisah: konten dan bar
-        
-        // 1. KONTEN TRANSAKSI - bergerak hingga hilang
-        if (isExpanded) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 40.dp)  // Ruang untuk bar
-                    .offset(y = contentOffset)
-                    .clip(RoundedCornerShape(bottomStart = 16.dp, bottomEnd = 16.dp))
-                    .background(Color.White)
-                    .zIndex(0f)
-            ) {
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .heightIn(max = 400.dp),
-                    contentPadding = PaddingValues(horizontal = 20.dp, vertical = 8.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    items(transactions) { transaction ->
-                        TransactionItem(transaction)
-                    }
-                }
-            }
-        }
-        
-        // 2. BAR - selalu terlihat dan bergerak ke posisi JAUH KE BAWAH
+        // Bar handle - SELALU TERLIHAT di posisi yang sama
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .offset(y = barOffset)
-                .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
-                .background(Color.White)
-                .zIndex(1f)
+                .padding(vertical = 12.dp)
+                .clickable {
+                    isExpanded = !isExpanded
+                },
+            contentAlignment = Alignment.Center
         ) {
-            Column(
+            Box(
+                modifier = Modifier
+                    .width(60.dp)
+                    .height(6.dp)
+                    .background(
+                        color = if (isExpanded) PrimaryVariant else Color.LightGray,
+                        shape = RoundedCornerShape(50)
+                    )
+            )
+        }
+        
+        // Divider
+        Divider(color = DividerColor, thickness = 1.dp)
+        
+        // Konten - animasi sederhana fadeIn/fadeOut
+        AnimatedVisibility(
+            visible = isExpanded,
+            enter = fadeIn() + expandVertically(),
+            exit = fadeOut() + shrinkVertically()
+        ) {
+            LazyColumn(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .heightIn(max = 400.dp),
+                contentPadding = PaddingValues(horizontal = 20.dp, vertical = 8.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                // Bar handle
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 12.dp)
-                        .clickable {
-                            isExpanded = !isExpanded
-                        },
-                    contentAlignment = Alignment.Center
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .width(60.dp)
-                            .height(6.dp)
-                            .background(
-                                color = if (isExpanded) PrimaryVariant else Color.LightGray,
-                                shape = RoundedCornerShape(50)
-                            )
-                    )
+                items(transactions) { transaction ->
+                    TransactionItem(transaction)
                 }
-                
-                // Divider
-                Divider(color = DividerColor, thickness = 1.dp)
             }
         }
     }
