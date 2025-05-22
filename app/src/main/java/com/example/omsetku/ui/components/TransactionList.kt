@@ -34,35 +34,70 @@ import com.example.omsetku.ui.theme.Divider as DividerColor
 fun TransactionList(transactions: List<Transaction>) {
     var isExpanded by remember { mutableStateOf(true) }
     
-    // Navbar height (untuk memastikan bar berhenti tepat di atas navbar)
+    // Tinggi navbar
     val navbarHeight = 56.dp
-    val bottomPadding = 8.dp // Jarak aman antara bar dan navbar
     
-    // Jarak maksimum yang akan ditempuh panel saat turun (cukup untuk mencapai navbar)
-    val panelMaxOffset = 450.dp
+    // Posisi maksimum bar saat tertutup (akan berada tepat di atas navbar)
+    val barClosedPosition = 500.dp  // Posisi cukup jauh ke bawah tapi masih tampak di layar
     
-    // Animasi posisi panel dan semua kontennya (termasuk bar)
-    val panelOffset by animateDpAsState(
-        targetValue = if (isExpanded) 0.dp else panelMaxOffset,
+    // Animasi untuk konten dan bar
+    val contentOffset by animateDpAsState(
+        targetValue = if (isExpanded) 0.dp else 400.dp, // Konten bergerak hingga tak terlihat
         animationSpec = tween(durationMillis = 300, easing = FastOutSlowInEasing),
-        label = "panelOffset"
+        label = "contentOffset"
     )
-
+    
+    // Animasi bar - akan berhenti di posisi tertentu
+    val barOffset by animateDpAsState(
+        targetValue = if (isExpanded) 0.dp else 
+                      // Saat tidak expanded, bar hanya turun sedikit dan berhenti di atas navbar
+                      navbarHeight + 450.dp,  
+        animationSpec = tween(durationMillis = 300, easing = FastOutSlowInEasing),
+        label = "barOffset"
+    )
+    
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(bottom = navbarHeight + bottomPadding) // Ruang antara konten dan navbar
+            .padding(bottom = navbarHeight + 24.dp) // Padding untuk memastikan ada ruang di bawah
     ) {
-        // Seluruh panel dengan konten dan bar yang bergerak secara bersamaan
+        // Konten transaksi
+        if (isExpanded) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .offset(y = contentOffset)
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(Color.White)
+                    .padding(top = 40.dp) // Ruang untuk bar
+                    .padding(bottom = 16.dp)
+                    .zIndex(0f)
+            ) {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(max = 400.dp),
+                    contentPadding = PaddingValues(horizontal = 20.dp, vertical = 8.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    items(transactions) { transaction ->
+                        TransactionItem(transaction)
+                    }
+                }
+            }
+        }
+        
+        // Bar yang selalu terlihat dan dapat diakses - terpisah dari konten
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .offset(y = panelOffset)
+                .offset(y = barOffset)
+                .heightIn(min = 40.dp) // Memastikan bar selalu punya tinggi minimal
                 .clip(RoundedCornerShape(16.dp))
                 .background(Color.White)
-                .zIndex(1f)
+                .zIndex(1f) // Selalu di atas konten
         ) {
-            // Bar di bagian atas
+            // Bar handler
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -83,24 +118,8 @@ fun TransactionList(transactions: List<Transaction>) {
                 )
             }
             
-            // Divider antara bar dan konten
+            // Divider
             Divider(color = DividerColor, thickness = 1.dp)
-            
-            // Konten transaksi - hanya dimuat/ditampilkan jika panel terbuka
-            if (isExpanded) {
-                // Konten transaksi
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .heightIn(max = 400.dp),
-                    contentPadding = PaddingValues(horizontal = 20.dp, vertical = 8.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    items(transactions) { transaction ->
-                        TransactionItem(transaction)
-                    }
-                }
-            }
         }
     }
 }
