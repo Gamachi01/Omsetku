@@ -68,24 +68,28 @@ fun DatePickerField(
                         fontFamily = Poppins
                     )
                 }
-            },
-            colors = DatePickerDefaults.colors(
-                containerColor = Color.White,
-                titleContentColor = Color.Black,
-                headlineContentColor = Color.Black,
-                weekdayContentColor = Color.Gray,
-                subheadContentColor = Color(0xFF5ED0C5),
-                yearContentColor = Color.Black,
-                currentYearContentColor = Color(0xFF5ED0C5),
-                selectedYearContentColor = Color.White,
-                selectedYearContainerColor = Color(0xFF5ED0C5),
-                dayContentColor = Color.Black,
-                selectedDayContentColor = Color.White,
-                selectedDayContainerColor = Color(0xFF5ED0C5),
-                todayContentColor = Color(0xFF5ED0C5),
-                todayDateBorderColor = Color(0xFF5ED0C5)
+            }
+        ) {
+            DatePicker(
+                state = datePickerState,
+                colors = DatePickerDefaults.colors(
+                    containerColor = Color.White,
+                    titleContentColor = Color.Black,
+                    headlineContentColor = Color.Black,
+                    weekdayContentColor = Color.Gray,
+                    subheadContentColor = Color(0xFF5ED0C5),
+                    yearContentColor = Color.Black,
+                    currentYearContentColor = Color(0xFF5ED0C5),
+                    selectedYearContentColor = Color.White,
+                    selectedYearContainerColor = Color(0xFF5ED0C5),
+                    dayContentColor = Color.Black,
+                    selectedDayContentColor = Color.White,
+                    selectedDayContainerColor = Color(0xFF5ED0C5),
+                    todayContentColor = Color(0xFF5ED0C5),
+                    todayDateBorderColor = Color(0xFF5ED0C5)
+                )
             )
-        )
+        }
     }
     
     // Field tanggal yang dapat diklik
