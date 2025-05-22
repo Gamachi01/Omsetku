@@ -34,12 +34,11 @@ import com.example.omsetku.ui.theme.Divider as DividerColor
 fun TransactionList(transactions: List<Transaction>) {
     var isExpanded by remember { mutableStateOf(true) }
     
-    // NILAI TETAP: 500dp cukup untuk memastikan konten bergerak ke bawah dan keluar layar
-    // tapi bar akan tetap terlihat di posisi yang mirip dengan navbar
-    val contentMaxOffset = 500.dp
+    // NILAI TETAP: Offset maksimal untuk konten
+    val contentMaxOffset = 1500.dp
     
-    // NILAI TETAP: Bar hanya bergerak 100dp ke bawah - NILAI KONSERVATIF dan PASTI TERLIHAT
-    val barMaxOffset = 100.dp
+    // NILAI TETAP: Bar akan bergerak SANGAT JAUH ke bawah - MEMASTIKAN ADA DI BAWAH DEKAT NAVBAR
+    val barMaxOffset = 1000.dp
     
     // Animasi untuk konten - bergerak jauh ke bawah dan keluar layar
     val contentOffset by animateDpAsState(
@@ -87,7 +86,7 @@ fun TransactionList(transactions: List<Transaction>) {
             }
         }
         
-        // 2. BAR - selalu terlihat dan bergerak sedikit
+        // 2. BAR - selalu terlihat dan bergerak ke posisi JAUH KE BAWAH
         Box(
             modifier = Modifier
                 .fillMaxWidth()
