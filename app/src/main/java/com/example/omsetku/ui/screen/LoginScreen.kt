@@ -224,23 +224,20 @@ fun LoginScreen(navController: NavController = rememberNavController()) {
                 color = Color.Gray
             )
             
-            TextButton(
-                onClick = {
+            Text(
+                text = "Sign up",
+                style = TextStyle(
+                    color = Color(0xFF62DCC8),
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 14.sp,
+                    fontFamily = Poppins
+                ),
+                modifier = Modifier.clickable {
                     navController.navigate(Routes.SIGNUP) {
                         popUpTo(Routes.LOGIN) { inclusive = true }
                     }
                 }
-            ) {
-                Text(
-                    text = "Sign up",
-                    style = TextStyle(
-                        color = Color(0xFF62DCC8),
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 14.sp,
-                        fontFamily = Poppins
-                    )
-                )
-            }
+            )
         }
     }
 }

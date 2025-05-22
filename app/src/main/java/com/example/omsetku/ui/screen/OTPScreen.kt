@@ -83,7 +83,7 @@ fun OTPScreen(
         // 6-digit OTP Fields
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
+            horizontalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterHorizontally)
         ) {
             // Generate 6 OTP input fields
             repeat(6) { index ->
