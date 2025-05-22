@@ -27,6 +27,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.font.FontWeight
@@ -38,21 +39,72 @@ import com.example.omsetku.ui.theme.ExpenseColor
 import com.example.omsetku.ui.theme.Background
 import com.example.omsetku.ui.theme.PrimaryVariant
 import com.example.omsetku.ui.theme.Divider as DividerColor
+import kotlin.math.roundToInt
 
 @SuppressLint("SuspiciousIndentation")
 @Composable
 fun TransactionList(transactions: List<Transaction>) {
     var isExpanded by remember { mutableStateOf(true) }
+    val density = LocalDensity.current
+    var contentHeight by remember { mutableStateOf(0.dp) }
+    
+    // Memberikan nilai default untuk tinggi konten agar bar masih dapat bergerak
+    // meskipun content belum diukur
+    val defaultContentHeight = 400.dp
+    
+    // Animasi posisi bar
+    val barOffset by animateDpAsState(
+        targetValue = if (isExpanded) 0.dp else 300.dp, // Bergerak ke bawah saat tertutup
+        animationSpec = tween(durationMillis = 300, easing = FastOutSlowInEasing),
+        label = "barOffset"
+    )
 
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(bottom = 60.dp) // Ruang untuk memastikan konten tetap terlihat di atas navbar
+            .padding(bottom = 60.dp) // Ruang untuk navbar
     ) {
-        // 1. Layer paling bawah: bar dan divider yang selalu terlihat
+        // Komponen konten transaksi
+        AnimatedVisibility(
+            visible = isExpanded,
+            enter = fadeIn(animationSpec = tween(300)),
+            exit = fadeOut(animationSpec = tween(200)),
+            modifier = Modifier
+                .fillMaxWidth()
+                .zIndex(0f)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Color.White)
+                    .clip(RoundedCornerShape(16.dp))
+                    .padding(top = 40.dp) // Ruang untuk bar
+                    .onGloballyPositioned { coordinates ->
+                        with(density) {
+                            contentHeight = coordinates.size.height.toDp()
+                        }
+                    }
+            ) {
+                // Konten transaksi
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(max = 400.dp),
+                    contentPadding = PaddingValues(horizontal = 20.dp, vertical = 8.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    items(transactions) { transaction ->
+                        TransactionItem(transaction)
+                    }
+                }
+            }
+        }
+        
+        // Bar yang bergerak ke bawah
         Column(
             modifier = Modifier
                 .fillMaxWidth()
+                .offset(y = barOffset)
                 .clip(RoundedCornerShape(16.dp))
                 .background(Color.White)
                 .zIndex(1f)
@@ -80,37 +132,6 @@ fun TransactionList(transactions: List<Transaction>) {
             
             // Divider
             Divider(color = DividerColor, thickness = 1.dp)
-        }
-        
-        // 2. Layer di atas: konten transaksi yang muncul dan menghilang
-        AnimatedVisibility(
-            visible = isExpanded,
-            enter = slideInVertically(initialOffsetY = { it / 2 }) + fadeIn(),
-            exit = slideOutVertically(targetOffsetY = { it / 2 }) + fadeOut(),
-            modifier = Modifier
-                .padding(top = 40.dp) // Padding untuk memberikan ruang pada bar
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(bottomStart = 16.dp, bottomEnd = 16.dp))
-                .zIndex(0f)
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(Color.White)
-            ) {
-                // Konten transaksi
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .heightIn(max = 400.dp),
-                    contentPadding = PaddingValues(horizontal = 20.dp, vertical = 8.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    items(transactions) { transaction ->
-                        TransactionItem(transaction)
-                    }
-                }
-            }
         }
     }
 }
