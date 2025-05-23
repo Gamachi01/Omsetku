@@ -47,11 +47,15 @@ fun ReportScreen(navController: NavController) {
     val scrollState = rememberScrollState()
     var showFilterDialog by remember { mutableStateOf(false) }
     var periodeText by remember { mutableStateOf("01 Maret 2025 - 31 Maret 2025") }
-    
-    // State untuk filter dialog
     var selectedPeriode by remember { mutableStateOf(FilterPeriode.BULANAN) }
 
     Scaffold(
+        topBar = {
+            OmsetkuTopBar(
+                title = "Laporan Keuangan",
+                onBackClick = { navController.navigateUp() }
+            )
+        },
         bottomBar = {
             BottomNavBar(
                 selectedItem = selectedItem,
@@ -73,25 +77,14 @@ fun ReportScreen(navController: NavController) {
                 .fillMaxSize()
                 .background(Color.White)
                 .padding(horizontal = 16.dp)
-                .padding(top = 16.dp, bottom = 8.dp)
                 .padding(paddingValues)
                 .verticalScroll(scrollState)
         ) {
-            Text(
-                text = "Laporan Keuangan",
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.Black,
-                fontFamily = Poppins,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth()
-            )
-            
-            Spacer(modifier = Modifier.height(8.dp))
-
             // Tanggal periode
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 16.dp),
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -104,14 +97,12 @@ fun ReportScreen(navController: NavController) {
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
                     text = periodeText,
-                    fontSize = 14.sp,
-                    fontFamily = Poppins,
-                    fontWeight = FontWeight.Medium,
-                    color = Color.DarkGray
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        fontWeight = FontWeight.Medium,
+                        color = Color.DarkGray
+                    )
                 )
             }
-            
-            Spacer(modifier = Modifier.height(16.dp))
             
             // Filter dan Download Button
             Row(
@@ -119,43 +110,19 @@ fun ReportScreen(navController: NavController) {
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 // Tombol Filter
-                OutlinedButton(
+                OmsetkuButton(
+                    text = "Filter",
                     onClick = { showFilterDialog = true },
-                    modifier = Modifier
-                        .weight(0.3f)
-                        .height(42.dp),
-                    shape = RoundedCornerShape(8.dp),
-                    colors = ButtonDefaults.outlinedButtonColors(
-                        contentColor = PrimaryVariant
-                    ),
-                    border = BorderStroke(1.dp, Color.LightGray)
-                ) {
-                    Text(
-                        "Filter",
-                        fontSize = 13.sp,
-                        fontWeight = FontWeight.Medium,
-                        fontFamily = Poppins
-                    )
-                }
+                    modifier = Modifier.weight(0.3f),
+                    isOutlined = true
+                )
                 
                 // Tombol Download Laporan
-                Button(
+                OmsetkuButton(
+                    text = "Download Laporan",
                     onClick = { /* TODO: Implementasi download laporan */ },
-                    modifier = Modifier
-                        .weight(0.7f)
-                        .height(42.dp),
-                    shape = RoundedCornerShape(8.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = PrimaryVariant
-                    )
-                ) {
-                    Text(
-                        "Download Laporan",
-                        fontSize = 13.sp,
-                        fontWeight = FontWeight.Medium,
-                        fontFamily = Poppins
-                    )
-                }
+                    modifier = Modifier.weight(0.7f)
+                )
             }
             
             // Filter Dialog
@@ -185,69 +152,61 @@ fun ReportScreen(navController: NavController) {
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 // Card Total Pendapatan
-                Card(
+                OmsetkuCard(
                     modifier = Modifier
                         .weight(1f)
-                        .height(80.dp),
-                    shape = RoundedCornerShape(8.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = Color(0xFFE8F7F5)
-                    ),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+                        .height(80.dp)
                 ) {
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
+                            .background(Color(0xFFE8F7F5))
                             .padding(12.dp),
                         verticalArrangement = Arrangement.Center
                     ) {
                         Text(
                             text = "Total Pendapatan",
-                            fontSize = 14.sp,
-                            fontFamily = Poppins,
-                            color = Color.DarkGray
+                            style = MaterialTheme.typography.bodyMedium.copy(
+                                color = Color.DarkGray
+                            )
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
                             text = "Rp 103.193.000",
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Bold,
-                            fontFamily = Poppins,
-                            color = Color(0xFF08C39F)
+                            style = MaterialTheme.typography.titleMedium.copy(
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFF08C39F)
+                            )
                         )
                     }
                 }
                 
                 // Card Total Pengeluaran
-                Card(
+                OmsetkuCard(
                     modifier = Modifier
                         .weight(1f)
-                        .height(80.dp),
-                    shape = RoundedCornerShape(8.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = Color(0xFFFDEDED)
-                    ),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+                        .height(80.dp)
                 ) {
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
+                            .background(Color(0xFFFDEDED))
                             .padding(12.dp),
                         verticalArrangement = Arrangement.Center
                     ) {
                         Text(
                             text = "Total Pengeluaran",
-                            fontSize = 14.sp,
-                            fontFamily = Poppins,
-                            color = Color.DarkGray
+                            style = MaterialTheme.typography.bodyMedium.copy(
+                                color = Color.DarkGray
+                            )
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
                             text = "Rp 7.902.646",
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Bold,
-                            fontFamily = Poppins,
-                            color = Color(0xFFE74C3C)
+                            style = MaterialTheme.typography.titleMedium.copy(
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFFE74C3C)
+                            )
                         )
                     }
                 }
@@ -687,61 +646,23 @@ fun FilterDialog(
     var endDate by remember { mutableStateOf("") }
     var selectedMonth by remember { mutableStateOf("") }
     var selectedYear by remember { mutableStateOf("") }
-    
-    // State untuk menyimpan timestamp tanggal awal (untuk mode mingguan)
     var startDateTimestamp by remember { mutableStateOf<Long?>(null) }
-    
-    Dialog(
-        onDismissRequest = onDismiss,
-        properties = DialogProperties(usePlatformDefaultWidth = false)
-    ) {
-        Surface(
-            shape = RoundedCornerShape(16.dp),
-            color = Color.White,
-            modifier = Modifier.heightIn(max = 550.dp)
-        ) {
+
+    OmsetkuDialog(
+        title = "Filter",
+        onDismiss = onDismiss,
+        content = {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .verticalScroll(scrollState)
-                    .padding(24.dp)
+                    .padding(vertical = 16.dp)
             ) {
-                // Header dengan tombol close (X)
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Close,
-                        contentDescription = "Close",
-                        modifier = Modifier
-                            .size(24.dp)
-                            .clickable { onDismiss() },
-                        tint = Color.Black
-                    )
-                    
-                    Text(
-                        text = "Filter",
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.Black,
-                        fontFamily = Poppins
-                    )
-                    
-                    // Spacer untuk menjaga agar title tetap di tengah
-                    Spacer(modifier = Modifier.width(24.dp))
-                }
-                
-                Spacer(modifier = Modifier.height(24.dp))
-                
-                // Pilih Periode Transaksi
                 Text(
                     text = "Pilih Periode Transaksi",
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Medium,
-                    color = Color.Black,
-                    fontFamily = Poppins
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        fontWeight = FontWeight.Medium
+                    )
                 )
                 
                 Spacer(modifier = Modifier.height(12.dp))
@@ -763,31 +684,25 @@ fun FilterDialog(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 4.dp)
-                            .clickable { 
-                                selectedOption = periode
-                                // Reset nilai tanggal ketika periode berubah
-                                selectedDate = ""
-                                startDate = ""
-                                endDate = ""
-                                selectedMonth = ""
-                                selectedYear = ""
-                                startDateTimestamp = null
-                            }
+                            .selectable(
+                                selected = selectedOption == periode,
+                                onClick = { 
+                                    selectedOption = periode
+                                    selectedDate = ""
+                                    startDate = ""
+                                    endDate = ""
+                                    selectedMonth = ""
+                                    selectedYear = ""
+                                    startDateTimestamp = null
+                                },
+                                role = Role.RadioButton
+                            )
                     ) {
                         RadioButton(
                             selected = selectedOption == periode,
-                            onClick = { 
-                                selectedOption = periode
-                                // Reset nilai tanggal ketika periode berubah
-                                selectedDate = ""
-                                startDate = ""
-                                endDate = ""
-                                selectedMonth = ""
-                                selectedYear = ""
-                                startDateTimestamp = null
-                            },
+                            onClick = null,
                             colors = RadioButtonDefaults.colors(
-                                selectedColor = PrimaryVariant,
+                                selectedColor = MaterialTheme.colorScheme.primary,
                                 unselectedColor = Color.Gray
                             ),
                             modifier = Modifier.size(20.dp)
@@ -795,9 +710,7 @@ fun FilterDialog(
                         Spacer(modifier = Modifier.width(6.dp))
                         Text(
                             text = label,
-                            fontSize = 14.sp,
-                            fontFamily = Poppins,
-                            color = Color.Black
+                            style = MaterialTheme.typography.bodyMedium
                         )
                     }
                 }
@@ -809,15 +722,13 @@ fun FilterDialog(
                     FilterPeriode.HARIAN -> {
                         Text(
                             text = "Pilih Tanggal",
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Medium,
-                            color = Color.Black,
-                            fontFamily = Poppins
+                            style = MaterialTheme.typography.titleMedium.copy(
+                                fontWeight = FontWeight.Medium
+                            )
                         )
                         
                         Spacer(modifier = Modifier.height(8.dp))
                         
-                        // Menggunakan DatePickerField dengan mode DAILY
                         DatePickerField(
                             value = selectedDate,
                             onDateSelected = { selectedDate = it },
@@ -826,58 +737,40 @@ fun FilterDialog(
                         )
                     }
                     FilterPeriode.MINGGUAN -> {
-                        // Tanggal Awal
                         Text(
-                            text = "Tanggal Awal",
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Medium,
-                            color = Color.Black,
-                            fontFamily = Poppins
+                            text = "Pilih Tanggal Awal",
+                            style = MaterialTheme.typography.titleMedium.copy(
+                                fontWeight = FontWeight.Medium
+                            )
                         )
                         
                         Spacer(modifier = Modifier.height(8.dp))
                         
-                        // Menggunakan DatePickerField dengan mode WEEKLY_START
                         DatePickerField(
                             value = startDate,
-                            onDateSelected = { date ->
-                                startDate = date
-                                // Menyimpan timestamp untuk digunakan pada tanggal akhir
-                                val dateFormat = SimpleDateFormat("dd MMMM yyyy", Locale("id", "ID"))
-                                val parsedDate = dateFormat.parse(date)
-                                startDateTimestamp = parsedDate?.time
-                                
-                                // Otomatis mengatur tanggal akhir seminggu setelah tanggal awal
-                                if (startDateTimestamp != null) {
-                                    val calendar = Calendar.getInstance()
-                                    calendar.timeInMillis = startDateTimestamp!!
-                                    calendar.add(Calendar.DAY_OF_MONTH, 7)
-                                    endDate = dateFormat.format(calendar.time)
-                                }
+                            onDateSelected = { 
+                                startDate = it
+                                startDateTimestamp = SimpleDateFormat("dd MMMM yyyy", Locale("id")).parse(it)?.time
                             },
                             placeholder = "Pilih tanggal awal",
-                            mode = DatePickerMode.WEEKLY_START
+                            mode = DatePickerMode.DAILY
                         )
                         
                         Spacer(modifier = Modifier.height(16.dp))
                         
-                        // Tanggal Akhir
                         Text(
-                            text = "Tanggal Akhir",
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Medium,
-                            color = Color.Black,
-                            fontFamily = Poppins
+                            text = "Pilih Tanggal Akhir",
+                            style = MaterialTheme.typography.titleMedium.copy(
+                                fontWeight = FontWeight.Medium
+                            )
                         )
                         
                         Spacer(modifier = Modifier.height(8.dp))
                         
-                        // Menggunakan DatePickerField dengan mode WEEKLY_END
-                        // Tanggal akhir otomatis diisi seminggu setelah tanggal awal
                         DatePickerField(
                             value = endDate,
                             onDateSelected = { endDate = it },
-                            placeholder = "Tanggal akhir (otomatis seminggu setelah tanggal awal)",
+                            placeholder = "Pilih tanggal akhir",
                             mode = DatePickerMode.WEEKLY_END,
                             startDate = startDateTimestamp
                         )
@@ -885,15 +778,13 @@ fun FilterDialog(
                     FilterPeriode.BULANAN -> {
                         Text(
                             text = "Pilih Bulan",
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Medium,
-                            color = Color.Black,
-                            fontFamily = Poppins
+                            style = MaterialTheme.typography.titleMedium.copy(
+                                fontWeight = FontWeight.Medium
+                            )
                         )
                         
                         Spacer(modifier = Modifier.height(8.dp))
                         
-                        // Menggunakan DatePickerField dengan mode MONTHLY
                         DatePickerField(
                             value = selectedMonth,
                             onDateSelected = { selectedMonth = it },
@@ -904,15 +795,13 @@ fun FilterDialog(
                     FilterPeriode.TAHUNAN -> {
                         Text(
                             text = "Pilih Tahun",
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Medium,
-                            color = Color.Black,
-                            fontFamily = Poppins
+                            style = MaterialTheme.typography.titleMedium.copy(
+                                fontWeight = FontWeight.Medium
+                            )
                         )
                         
                         Spacer(modifier = Modifier.height(8.dp))
                         
-                        // Menggunakan DatePickerField dengan mode YEARLY
                         DatePickerField(
                             value = selectedYear,
                             onDateSelected = { selectedYear = it },
@@ -921,32 +810,17 @@ fun FilterDialog(
                         )
                     }
                 }
-                
-                // Menambahkan spasi sebelum tombol Terapkan
-                Spacer(modifier = Modifier.height(32.dp))
-                
-                // Tombol Terapkan
-                Button(
-                    onClick = {
-                        onPeriodeSelected(selectedOption)
-                        onApply()
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(48.dp),
-                    shape = RoundedCornerShape(8.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = PrimaryVariant
-                    )
-                ) {
-                    Text(
-                        text = "Terapkan",
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Medium,
-                        fontFamily = Poppins
-                    )
-                }
             }
+        },
+        buttons = {
+            OmsetkuButton(
+                text = "Terapkan",
+                onClick = {
+                    onPeriodeSelected(selectedOption)
+                    onApply()
+                },
+                modifier = Modifier.fillMaxWidth()
+            )
         }
-    }
+    )
 } 
