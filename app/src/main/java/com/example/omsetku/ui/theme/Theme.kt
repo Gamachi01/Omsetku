@@ -98,7 +98,7 @@ private val DarkColorScheme = darkColorScheme(
     secondary = OmsetkuTheme.Colors.PrimaryVariant,
     tertiary = OmsetkuTheme.Colors.IncomeColor,
     background = OmsetkuTheme.Colors.Background,
-    surface = OmsetkuTheme.Colors.White,
+    surface = OmsetkuTheme.Colors.SurfaceColor,
     onPrimary = OmsetkuTheme.Colors.White,
     onSecondary = OmsetkuTheme.Colors.White,
     onTertiary = OmsetkuTheme.Colors.White,
@@ -110,14 +110,14 @@ private val LightColorScheme = lightColorScheme(
     primary = OmsetkuTheme.Colors.PrimaryColor,
     primaryContainer = OmsetkuTheme.Colors.PrimaryLight,
     secondary = OmsetkuTheme.Colors.SecondaryColor,
-    background = OmsetkuTheme.Colors.BackgroundColor,
+    background = OmsetkuTheme.Colors.Background,
     surface = OmsetkuTheme.Colors.SurfaceColor,
     error = OmsetkuTheme.Colors.ErrorColor,
-    onPrimary = Color.White,
-    onSecondary = Color.White,
+    onPrimary = OmsetkuTheme.Colors.White,
+    onSecondary = OmsetkuTheme.Colors.White,
     onBackground = OmsetkuTheme.Colors.TextPrimaryColor,
     onSurface = OmsetkuTheme.Colors.TextPrimaryColor,
-    onError = Color.White
+    onError = OmsetkuTheme.Colors.White
 )
 
 @Composable
