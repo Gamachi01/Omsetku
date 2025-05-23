@@ -87,15 +87,17 @@ fun TransactionList(transactions: List<Transaction>) {
 
 @Composable
 fun TransactionItem(transaction: Transaction) {
+    val transactionColor = if (transaction.type == "Pemasukan") 
+        OmsetkuTheme.Colors.IncomeColor 
+    else 
+        OmsetkuTheme.Colors.ExpenseColor
+        
     Surface(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 4.dp),
         shape = RoundedCornerShape(12.dp),
-        color = if (transaction.type == "Pemasukan") 
-                  OmsetkuTheme.Colors.IncomeColor.copy(alpha = 0.05f) 
-                else 
-                  OmsetkuTheme.Colors.ExpenseColor.copy(alpha = 0.05f)
+        color = transactionColor.copy(alpha = 0.05f)
     ) {
         Row(
             modifier = Modifier

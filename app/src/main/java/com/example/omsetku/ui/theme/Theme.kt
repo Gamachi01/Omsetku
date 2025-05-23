@@ -24,22 +24,22 @@ import com.example.omsetku.ui.components.Poppins
 
 object OmsetkuTheme {
     val Colors = object {
-        val PrimaryColor = Color(0xFF62DCC8)
-        val PrimaryVariant = Color(0xFF5ED0C5)
-        val PrimaryLight = Color(0xFFE8F7F5)
+        val PrimaryColor = PrimaryColor
+        val PrimaryVariant = PrimaryVariant
+        val PrimaryLight = PrimaryLight
         val SecondaryColor = Color(0xFF2F7E68)
-        val BackgroundColor = Color(0xFFF8F8F8) // Warna untuk background aplikasi
-        val SurfaceColor = Color.White
+        val BackgroundColor = BackgroundColor
+        val SurfaceColor = SurfaceColor
         val ErrorColor = Color(0xFFE74C3C)
         val SuccessColor = Color(0xFF08C39F)
-        val IncomeColor = Color(0xFF08C39F)
-        val ExpenseColor = Color(0xFFE74C3C)
-        val TextPrimaryColor = Color.Black
+        val IncomeColor = IncomeColor
+        val ExpenseColor = ExpenseColor
+        val TextPrimaryColor = TextPrimaryColor
         val TextSecondaryColor = Color.Gray
         val BorderColor = Color.LightGray
-        val White = Color.White
-        val DarkText = Color(0xFF333333)
-        val Divider = Color(0xFFEEEEEE)
+        val White = White
+        val DarkText = DarkText
+        val Divider = Divider
     }
 
     val Typography = androidx.compose.material3.Typography(
@@ -120,7 +120,7 @@ private val LightColorScheme = lightColorScheme(
 )
 
 @Composable
-fun OmsetkuThemeComposable(
+fun OmsetkuTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     // Dynamic color is available on Android 12+
     dynamicColor: Boolean = false,
