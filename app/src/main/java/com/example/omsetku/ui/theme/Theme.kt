@@ -28,7 +28,7 @@ object OmsetkuTheme {
         val PrimaryVariant = Color(0xFF5ED0C5)
         val PrimaryLight = Color(0xFFE8F7F5)
         val SecondaryColor = Color(0xFF2F7E68)
-        val BackgroundColor = Color(0xFFF8F8F8)
+        val BackgroundColor = Color(0xFFF8F8F8) // Warna untuk background aplikasi
         val SurfaceColor = Color.White
         val ErrorColor = Color(0xFFE74C3C)
         val SuccessColor = Color(0xFF08C39F)
