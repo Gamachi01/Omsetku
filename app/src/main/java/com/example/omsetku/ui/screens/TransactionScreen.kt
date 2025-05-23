@@ -6,6 +6,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.omsetku.ui.theme.OmsetkuTheme
@@ -17,14 +18,16 @@ fun TransactionScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.White)
+            .background(color = Color.White)
     ) {
         // Header
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp)
-                .background(OmsetkuTheme.Colors.PrimaryVariant),
+                .background(
+                    color = OmsetkuTheme.Colors.PrimaryVariant
+                ),
             contentAlignment = Alignment.Center
         ) {
             Text(

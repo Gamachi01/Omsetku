@@ -125,7 +125,10 @@ fun HomeScreen(
                     modifier = Modifier
                         .size(44.dp)
                         .clip(CircleShape)
-                        .background(OmsetkuTheme.Colors.PrimaryLight)
+                        .background(
+                            color = OmsetkuTheme.Colors.PrimaryLight,
+                            shape = CircleShape
+                        )
                         .clickable { navController.navigate(Routes.PROFILE) },
                     contentAlignment = Alignment.Center
                 ) {
