@@ -112,10 +112,11 @@ fun TransactionItem(transaction: Transaction) {
                         .size(32.dp)
                         .clip(RoundedCornerShape(8.dp))
                         .background(
-                            if (transaction.type == "Pemasukan") 
+                            color = if (transaction.type == "Pemasukan") 
                                 OmsetkuTheme.Colors.IncomeColor.copy(alpha = 0.15f) 
                             else 
-                                OmsetkuTheme.Colors.ExpenseColor.copy(alpha = 0.15f)
+                                OmsetkuTheme.Colors.ExpenseColor.copy(alpha = 0.15f),
+                            shape = RoundedCornerShape(8.dp)
                         ),
                     contentAlignment = Alignment.Center
                 ) {

@@ -67,7 +67,10 @@ fun BottomNavBar(
                             modifier = Modifier
                                 .size(44.dp)
                                 .clip(RoundedCornerShape(12.dp))
-                                .background(OmsetkuTheme.Colors.PrimaryLight)
+                                .background(
+                                    color = OmsetkuTheme.Colors.PrimaryLight,
+                                    shape = RoundedCornerShape(12.dp)
+                                )
                                 .padding(10.dp),
                             contentAlignment = Alignment.Center
                         ) {

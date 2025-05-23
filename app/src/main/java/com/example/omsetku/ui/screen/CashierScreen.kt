@@ -38,16 +38,10 @@ import com.example.omsetku.Navigation.Routes
 import com.example.omsetku.R
 import com.example.omsetku.ui.components.BottomNavBar
 import com.example.omsetku.ui.components.Poppins
+import com.example.omsetku.ui.theme.OmsetkuTheme
 import com.example.omsetku.ui.theme.PrimaryLight
 import androidx.compose.foundation.verticalScroll
-
-data class ProductItem(
-    val id: Int,
-    val name: String,
-    val price: Int,
-    val imageRes: Int,
-    var quantity: Int = 0
-)
+import com.example.omsetku.ui.data.ProductItem
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

@@ -38,15 +38,6 @@ enum class HppTab {
     STOK, BAHAN_BAKU
 }
 
-// Menggunakan ProductItem sama seperti di CashierScreen
-data class ProductItem(
-    val id: Int,
-    val name: String,
-    val price: Int,
-    val imageRes: Int,
-    var quantity: Int = 0
-)
-
 @Composable
 fun HppScreen(navController: NavController) {
     var selectedItem by remember { mutableStateOf("HPP") }
