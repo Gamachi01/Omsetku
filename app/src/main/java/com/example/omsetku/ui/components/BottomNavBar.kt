@@ -17,8 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.omsetku.R
 import com.example.omsetku.ui.components.Poppins
-import com.example.omsetku.ui.theme.PrimaryVariant
-import com.example.omsetku.ui.theme.PrimaryLight
+import com.example.omsetku.ui.theme.OmsetkuTheme
 
 @Composable
 fun BottomNavBar(
@@ -52,7 +51,7 @@ fun BottomNavBar(
         ) {
             items.forEachIndexed { index, item ->
                 val isSelected = selectedItem == item
-                val activeColor = PrimaryVariant
+                val activeColor = OmsetkuTheme.Colors.PrimaryVariant
                 val inactiveColor = Color(0xFFAAAAAA)
 
                 Column(
@@ -68,7 +67,7 @@ fun BottomNavBar(
                             modifier = Modifier
                                 .size(44.dp)
                                 .clip(RoundedCornerShape(12.dp))
-                                .background(PrimaryLight)
+                                .background(OmsetkuTheme.Colors.PrimaryLight)
                                 .padding(10.dp),
                             contentAlignment = Alignment.Center
                         ) {

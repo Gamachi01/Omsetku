@@ -30,11 +30,7 @@ import com.example.omsetku.ui.components.BottomNavBar
 import com.example.omsetku.ui.components.TransactionList
 import com.example.omsetku.ui.components.Poppins
 import com.example.omsetku.data.Transaction
-import com.example.omsetku.ui.theme.PrimaryColor
-import com.example.omsetku.ui.theme.PrimaryLight
-import com.example.omsetku.ui.theme.PrimaryVariant
-import com.example.omsetku.ui.theme.IncomeColor
-import com.example.omsetku.ui.theme.ExpenseColor
+import com.example.omsetku.ui.theme.OmsetkuTheme
 import java.text.NumberFormat
 import java.util.*
 
@@ -122,14 +118,14 @@ fun HomeScreen(
                     text = "Omsetku",
                     fontSize = 30.sp,
                     fontWeight = FontWeight.Bold,
-                    color = PrimaryVariant,
+                    color = OmsetkuTheme.Colors.PrimaryVariant,
                     fontFamily = Poppins
                 )
                 Box(
                     modifier = Modifier
                         .size(44.dp)
                         .clip(CircleShape)
-                        .background(PrimaryLight)
+                        .background(OmsetkuTheme.Colors.PrimaryLight)
                         .clickable { navController.navigate(Routes.PROFILE) },
                     contentAlignment = Alignment.Center
                 ) {
@@ -149,7 +145,7 @@ fun HomeScreen(
                     .padding(bottom = 8.dp),
                 shape = RoundedCornerShape(16.dp),
                 elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-                colors = CardDefaults.cardColors(containerColor = PrimaryLight)
+                colors = CardDefaults.cardColors(containerColor = OmsetkuTheme.Colors.PrimaryLight)
             ) {
                 Column(
                     modifier = Modifier.padding(16.dp),
@@ -169,7 +165,7 @@ fun HomeScreen(
                         text = "Rp %,d".format(incomeAmount - expenseAmount).replace(',', '.'),
                         fontSize = 26.sp,
                         fontWeight = FontWeight.ExtraBold,
-                        color = PrimaryColor,
+                        color = OmsetkuTheme.Colors.PrimaryColor,
                         fontFamily = Poppins
                     )
                     
@@ -197,7 +193,7 @@ fun HomeScreen(
                                 text = "Rp %,d".format(incomeAmount).replace(',', '.'),
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = IncomeColor,
+                                color = OmsetkuTheme.Colors.IncomeColor,
                                 fontFamily = Poppins
                             )
                         }
@@ -216,7 +212,7 @@ fun HomeScreen(
                                 text = "Rp %,d".format(expenseAmount).replace(',', '.'),
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = ExpenseColor,
+                                color = OmsetkuTheme.Colors.ExpenseColor,
                                 fontFamily = Poppins
                             )
                         }
