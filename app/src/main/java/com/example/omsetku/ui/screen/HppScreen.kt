@@ -24,6 +24,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavController
 import com.example.omsetku.Navigation.Routes
 import com.example.omsetku.R
@@ -55,7 +56,14 @@ fun HppScreen(navController: NavController) {
     var showHppResultDialog by remember { mutableStateOf(false) }
     
     // State untuk produk
-    var products by remember { mutableStateOf<List<Product>>(emptyList()) }
+    var products by remember { mutableStateOf(listOf(
+        Product("1", "Nasi Goreng", 15000.0, "Makanan"),
+        Product("2", "Mie Goreng", 12000.0, "Makanan"),
+        Product("3", "Ayam Goreng", 18000.0, "Makanan"),
+        Product("4", "Sate Ayam", 20000.0, "Makanan"),
+        Product("5", "Gado-gado", 15000.0, "Makanan"),
+        Product("6", "Soto Ayam", 17000.0, "Makanan")
+    )) }
     var selectedProduct by remember { mutableStateOf<Product?>(null) }
     
     // State untuk perhitungan
@@ -174,9 +182,17 @@ fun HppScreen(navController: NavController) {
             Spacer(modifier = Modifier.height(2.dp))
             
             if (selectedTab == HppTab.STOK) {
-                HppStokContent()
+                HppStokContent(
+                    products = products,
+                    selectedProduct = selectedProduct,
+                    onProductSelected = { selectedProduct = it }
+                )
             } else {
-                HppBahanBakuContent()
+                HppBahanBakuContent(
+                    products = products,
+                    selectedProduct = selectedProduct,
+                    onProductSelected = { selectedProduct = it }
+                )
             }
             
             Spacer(modifier = Modifier.height(24.dp))
@@ -410,7 +426,11 @@ fun HppTabButton(
 }
 
 @Composable
-fun HppStokContent() {
+fun HppStokContent(
+    products: List<Product>,
+    selectedProduct: Product?,
+    onProductSelected: (Product) -> Unit
+) {
     var showProductDropdown by remember { mutableStateOf(false) }
     
     Column(modifier = Modifier.fillMaxWidth()) {
@@ -475,7 +495,7 @@ fun HppStokContent() {
                                 }
                             },
                             onClick = {
-                                selectedProduct = product
+                                onProductSelected(product)
                                 showProductDropdown = false
                             }
                         )
@@ -651,7 +671,11 @@ fun HppStokContent() {
 }
 
 @Composable
-fun HppBahanBakuContent() {
+fun HppBahanBakuContent(
+    products: List<Product>,
+    selectedProduct: Product?,
+    onProductSelected: (Product) -> Unit
+) {
     var showProductDropdown by remember { mutableStateOf(false) }
     
     Column(modifier = Modifier.fillMaxWidth()) {
@@ -716,7 +740,7 @@ fun HppBahanBakuContent() {
                                 }
                             },
                             onClick = {
-                                selectedProduct = product
+                                onProductSelected(product)
                                 showProductDropdown = false
                             }
                         )
