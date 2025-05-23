@@ -36,6 +36,10 @@ val ExpenseColor = Color(0xFFE74C3C)
 val TextPrimaryColor = Color.Black
 val TextSecondaryColor = Color.Gray
 val BorderColor = Color.LightGray
+val White = Color.White
+val DarkText = Color(0xFF333333)
+val Background = BackgroundColor
+val Divider = Color(0xFFEEEEEE)
 
 // Typography styles
 val Typography = androidx.compose.material3.Typography(
