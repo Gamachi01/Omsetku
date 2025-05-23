@@ -35,6 +35,13 @@ fun TransaksiScreen(
         Spacer(modifier = Modifier.height(16.dp))
         
         // Form content here
+        // Simulasi konten form
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(200.dp)
+                .background(Color(0xFFF5F5F5))
+        )
         
         Spacer(modifier = Modifier.height(24.dp))
         
