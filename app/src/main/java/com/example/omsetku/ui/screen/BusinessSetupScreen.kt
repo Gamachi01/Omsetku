@@ -209,8 +209,7 @@ fun BusinessSetupScreen(navController: NavController = rememberNavController()) 
             value = alamatUsaha,
             onValueChange = { alamatUsaha = it },
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 24.dp),
+                .fillMaxWidth(),
             shape = RoundedCornerShape(8.dp),
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = Color.LightGray,
@@ -220,6 +219,8 @@ fun BusinessSetupScreen(navController: NavController = rememberNavController()) 
             textStyle = TextStyle(fontFamily = Poppins),
             minLines = 3
         )
+        
+        Spacer(modifier = Modifier.weight(1f, fill = true))
         
         // Tombol Lanjutkan
         Button(
