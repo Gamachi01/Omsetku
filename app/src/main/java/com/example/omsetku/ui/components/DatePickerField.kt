@@ -17,6 +17,7 @@ import androidx.compose.ui.window.Dialog
 import com.example.omsetku.R
 import java.text.SimpleDateFormat
 import java.util.*
+import androidx.compose.foundation.background
 
 enum class DatePickerMode {
     DAILY, // Pilih tanggal normal
@@ -34,7 +35,7 @@ fun DatePickerField(
     placeholder: String = "Pilih tanggal",
     modifier: Modifier = Modifier,
     mode: DatePickerMode = DatePickerMode.DAILY,
-    startDate: Long? = null // Digunakan untuk mode WEEKLY_END
+    startDate: Long? = null
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     var showDatePicker by remember { mutableStateOf(false) }
@@ -70,7 +71,6 @@ fun DatePickerField(
             onDismissRequest = { showDatePicker = false },
             confirmButton = {
                 TextButton(onClick = {
-                    // Mengambil tanggal yang dipilih
                     datePickerState.selectedDateMillis?.let { millis ->
                         val selectedCalendar = Calendar.getInstance()
                         selectedCalendar.timeInMillis = millis
@@ -79,8 +79,10 @@ fun DatePickerField(
                         if (mode == DatePickerMode.WEEKLY_END && startDate != null) {
                             val startCalendar = Calendar.getInstance()
                             startCalendar.timeInMillis = startDate
-                            startCalendar.add(Calendar.DAY_OF_MONTH, 7)
-                            selectedCalendar.timeInMillis = startCalendar.timeInMillis
+                            if (selectedCalendar.timeInMillis >= startCalendar.timeInMillis) {
+                                startCalendar.add(Calendar.DAY_OF_MONTH, 7)
+                                selectedCalendar.timeInMillis = startCalendar.timeInMillis
+                            }
                         }
                         
                         val formattedDate = dateFormat.format(selectedCalendar.time)
@@ -107,12 +109,7 @@ fun DatePickerField(
         ) {
             DatePicker(
                 state = datePickerState,
-                dateValidator = when {
-                    mode == DatePickerMode.WEEKLY_END && startDate != null -> {
-                        { timestamp -> timestamp >= startDate }
-                    }
-                    else -> null
-                },
+                showModeToggle = false,
                 colors = DatePickerDefaults.colors(
                     containerColor = Color.White,
                     titleContentColor = Color.Black,
