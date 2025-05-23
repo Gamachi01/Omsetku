@@ -60,7 +60,7 @@ fun TransactionScreen(navController: NavController) {
                 .fillMaxSize()
                 .verticalScroll(scrollState)
                 .padding(horizontal = 16.dp)
-                .padding(top = 16.dp, bottom = 80.dp)
+                .padding(top = 16.dp, bottom = 16.dp)
                 .padding(paddingValues)
         ) {
             Text(
@@ -181,8 +181,6 @@ fun TransactionScreen(navController: NavController) {
                     fontSize = 16.sp
                 )
             }
-            
-            Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }
