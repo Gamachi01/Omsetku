@@ -39,7 +39,6 @@ object OmsetkuTheme {
         val BorderColor = Color.LightGray
         val White = Color.White
         val DarkText = Color(0xFF333333)
-        val Background = BackgroundColor
         val Divider = Color(0xFFEEEEEE)
     }
 
@@ -97,7 +96,7 @@ private val DarkColorScheme = darkColorScheme(
     primary = OmsetkuTheme.Colors.PrimaryColor,
     secondary = OmsetkuTheme.Colors.PrimaryVariant,
     tertiary = OmsetkuTheme.Colors.IncomeColor,
-    background = OmsetkuTheme.Colors.Background,
+    background = OmsetkuTheme.Colors.BackgroundColor,
     surface = OmsetkuTheme.Colors.SurfaceColor,
     onPrimary = OmsetkuTheme.Colors.White,
     onSecondary = OmsetkuTheme.Colors.White,
@@ -110,7 +109,7 @@ private val LightColorScheme = lightColorScheme(
     primary = OmsetkuTheme.Colors.PrimaryColor,
     primaryContainer = OmsetkuTheme.Colors.PrimaryLight,
     secondary = OmsetkuTheme.Colors.SecondaryColor,
-    background = OmsetkuTheme.Colors.Background,
+    background = OmsetkuTheme.Colors.BackgroundColor,
     surface = OmsetkuTheme.Colors.SurfaceColor,
     error = OmsetkuTheme.Colors.ErrorColor,
     onPrimary = OmsetkuTheme.Colors.White,
