@@ -11,6 +11,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -28,25 +30,20 @@ import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavController
 import com.example.omsetku.Navigation.Routes
 import com.example.omsetku.R
+import com.example.omsetku.data.Product
+import com.example.omsetku.data.ProductRepository
+import com.example.omsetku.data.DummyProductRepository
 import com.example.omsetku.ui.components.BottomNavBar
 import com.example.omsetku.ui.components.Poppins
-import kotlinx.coroutines.launch
 
 enum class HppTab {
     STOK, BAHAN_BAKU
 }
 
-// Model data produk
-data class Product(
-    val id: String,
-    val name: String,
-    val price: Double,
-    val category: String,
-    val description: String = ""
-)
-
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HppScreen(
+    navController: NavController,
     modifier: Modifier = Modifier,
     productRepository: ProductRepository = DummyProductRepository()
 ) {
@@ -66,7 +63,8 @@ fun HppScreen(
             fontWeight = FontWeight.Bold,
             color = Color.Black,
             fontFamily = Poppins,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
                 .padding(bottom = 16.dp),
             textAlign = TextAlign.Center
         )
@@ -116,7 +114,10 @@ fun HppScreen(
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = if (selectedTab == 0) "Hitung HPP dari stok produk yang terjual." else "Hitung HPP dari bahan resep dan jumlah pemakaian.",
+                    text = if (selectedTab == 0) 
+                        "Hitung HPP dari stok produk yang terjual." 
+                    else 
+                        "Hitung HPP dari bahan resep dan jumlah pemakaian.",
                     fontSize = 14.sp,
                     color = Color.Gray,
                     fontFamily = Poppins
@@ -124,9 +125,7 @@ fun HppScreen(
             }
         }
         
-        // Spacer diperkecil agar lebih rapat
-        Spacer(modifier = Modifier.height(2.dp))
-        
+        // Content berdasarkan tab yang dipilih
         when (selectedTab) {
             0 -> HppStokContent(
                 products = products,
@@ -158,8 +157,6 @@ fun HppScreen(
                 fontFamily = Poppins
             )
         }
-        
-        Spacer(modifier = Modifier.height(16.dp))
     }
 
     if (showDialog) {
@@ -177,27 +174,28 @@ fun HppScreen(
                 ) {
                     Text(
                         text = selectedProduct?.name ?: "",
-                        style = MaterialTheme.typography.h6,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
                         modifier = Modifier.padding(bottom = 8.dp)
                     )
                     Text(
                         text = "Metode: ${if (selectedTab == 0) "Stock" else "Bahan Baku"}",
-                        style = MaterialTheme.typography.body1,
+                        fontSize = 14.sp,
                         modifier = Modifier.padding(bottom = 4.dp)
                     )
                     Text(
                         text = "Total Biaya Produksi: Rp 1.000.000",
-                        style = MaterialTheme.typography.body1,
+                        fontSize = 14.sp,
                         modifier = Modifier.padding(bottom = 4.dp)
                     )
                     Text(
                         text = "Estimasi Penjualan per Bulan: 100 pcs",
-                        style = MaterialTheme.typography.body1,
+                        fontSize = 14.sp,
                         modifier = Modifier.padding(bottom = 4.dp)
                     )
                     Text(
                         text = "HPP per Produk: Rp 10.000",
-                        style = MaterialTheme.typography.body1,
+                        fontSize = 14.sp,
                         modifier = Modifier.padding(bottom = 8.dp)
                     )
                     Button(
@@ -244,6 +242,7 @@ fun HppTabButton(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HppStokContent(
     products: List<Product>,
@@ -259,10 +258,10 @@ fun HppStokContent(
             onValueChange = {},
             readOnly = true,
             label = { Text("Pilih Produk") },
-            trailingIcon = {
+            trailingIcon = { 
                 Icon(
-                    if (expanded) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown,
-                    "dropdown arrow"
+                    imageVector = if (expanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+                    contentDescription = "dropdown arrow"
                 )
             },
             modifier = Modifier
@@ -277,18 +276,18 @@ fun HppStokContent(
         ) {
             products.forEach { product ->
                 DropdownMenuItem(
+                    text = { Text(product.name) },
                     onClick = {
                         onProductSelected(product)
                         expanded = false
                     }
-                ) {
-                    Text(product.name)
-                }
+                )
             }
         }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HppBahanBakuContent(
     products: List<Product>,
@@ -304,10 +303,10 @@ fun HppBahanBakuContent(
             onValueChange = {},
             readOnly = true,
             label = { Text("Pilih Produk") },
-            trailingIcon = {
+            trailingIcon = { 
                 Icon(
-                    if (expanded) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown,
-                    "dropdown arrow"
+                    imageVector = if (expanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+                    contentDescription = "dropdown arrow"
                 )
             },
             modifier = Modifier
@@ -322,13 +321,12 @@ fun HppBahanBakuContent(
         ) {
             products.forEach { product ->
                 DropdownMenuItem(
+                    text = { Text(product.name) },
                     onClick = {
                         onProductSelected(product)
                         expanded = false
                     }
-                ) {
-                    Text(product.name)
-                }
+                )
             }
         }
     }

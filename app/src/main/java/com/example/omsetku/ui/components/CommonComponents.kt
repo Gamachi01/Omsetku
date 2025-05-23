@@ -4,7 +4,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -13,36 +13,34 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import com.example.omsetku.R
 import com.example.omsetku.ui.theme.*
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OmsetkuTopBar(
     title: String,
-    onBackClick: (() -> Unit)? = null,
-    actions: @Composable RowScope.() -> Unit = {}
+    onBackClick: () -> Unit
 ) {
-    CenterAlignedTopAppBar(
+    TopAppBar(
         title = {
             Text(
                 text = title,
-                style = MaterialTheme.typography.headlineSmall
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold
             )
         },
         navigationIcon = {
-            if (onBackClick != null) {
-                IconButton(onClick = onBackClick) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.back_icon),
-                        contentDescription = "Back",
-                        modifier = Modifier.size(24.dp)
-                    )
-                }
+            IconButton(onClick = onBackClick) {
+                Icon(
+                    painter = painterResource(id = R.drawable.back_icon),
+                    contentDescription = "Back"
+                )
             }
         },
-        actions = actions,
-        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-            containerColor = MaterialTheme.colorScheme.surface
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = Color.White
         )
     )
 }
@@ -52,99 +50,59 @@ fun OmsetkuButton(
     text: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    isOutlined: Boolean = false,
-    leadingIcon: ImageVector? = null
+    isOutlined: Boolean = false
 ) {
     if (isOutlined) {
         OutlinedButton(
             onClick = onClick,
             modifier = modifier.height(48.dp),
-            enabled = enabled,
-            shape = MaterialTheme.shapes.small,
-            border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
-            colors = ButtonDefaults.outlinedButtonColors(
-                contentColor = MaterialTheme.colorScheme.primary
-            )
+            shape = RoundedCornerShape(8.dp),
+            border = BorderStroke(1.dp, Color(0xFF5ED0C5))
         ) {
-            ButtonContent(text, leadingIcon)
+            Text(
+                text = text,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Medium
+            )
         }
     } else {
         Button(
             onClick = onClick,
             modifier = modifier.height(48.dp),
-            enabled = enabled,
-            shape = MaterialTheme.shapes.small,
+            shape = RoundedCornerShape(8.dp),
             colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.primary
+                containerColor = Color(0xFF5ED0C5)
             )
         ) {
-            ButtonContent(text, leadingIcon)
-        }
-    }
-}
-
-@Composable
-private fun ButtonContent(text: String, leadingIcon: ImageVector? = null) {
-    Row(
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        if (leadingIcon != null) {
-            Icon(
-                imageVector = leadingIcon,
-                contentDescription = null,
-                modifier = Modifier.size(18.dp)
+            Text(
+                text = text,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Medium,
+                color = Color.White
             )
-            Spacer(modifier = Modifier.width(8.dp))
         }
-        Text(
-            text = text,
-            style = MaterialTheme.typography.labelLarge
-        )
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OmsetkuTextField(
     value: String,
     onValueChange: (String) -> Unit,
     label: String,
-    modifier: Modifier = Modifier,
-    leadingIcon: @Composable (() -> Unit)? = null,
-    trailingIcon: @Composable (() -> Unit)? = null,
-    isError: Boolean = false,
-    errorMessage: String? = null,
-    enabled: Boolean = true,
-    readOnly: Boolean = false
+    modifier: Modifier = Modifier
 ) {
-    Column {
-        OutlinedTextField(
-            value = value,
-            onValueChange = onValueChange,
-            label = { Text(label) },
-            modifier = modifier.fillMaxWidth(),
-            leadingIcon = leadingIcon,
-            trailingIcon = trailingIcon,
-            enabled = enabled,
-            readOnly = readOnly,
-            isError = isError,
-            shape = MaterialTheme.shapes.small,
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = MaterialTheme.colorScheme.primary,
-                unfocusedBorderColor = BorderColor
-            ),
-            textStyle = MaterialTheme.typography.bodyMedium
+    OutlinedTextField(
+        value = value,
+        onValueChange = onValueChange,
+        label = { Text(label) },
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(8.dp),
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedBorderColor = Color(0xFF5ED0C5),
+            unfocusedBorderColor = Color.LightGray
         )
-        if (isError && errorMessage != null) {
-            Text(
-                text = errorMessage,
-                color = MaterialTheme.colorScheme.error,
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.padding(start = 16.dp, top = 4.dp)
-            )
-        }
-    }
+    )
 }
 
 @Composable
@@ -154,10 +112,7 @@ fun OmsetkuCard(
 ) {
     Card(
         modifier = modifier,
-        shape = MaterialTheme.shapes.medium,
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        ),
+        shape = RoundedCornerShape(8.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         content()
@@ -171,17 +126,30 @@ fun OmsetkuDialog(
     content: @Composable () -> Unit,
     buttons: @Composable () -> Unit
 ) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.headlineSmall
-            )
-        },
-        text = { content() },
-        confirmButton = { buttons() },
-        shape = MaterialTheme.shapes.large,
-        containerColor = MaterialTheme.colorScheme.surface
-    )
+    Dialog(onDismissRequest = onDismiss) {
+        Surface(
+            shape = RoundedCornerShape(16.dp),
+            color = Color.White
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(20.dp)
+            ) {
+                Text(
+                    text = title,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                
+                Spacer(modifier = Modifier.height(16.dp))
+                
+                content()
+                
+                Spacer(modifier = Modifier.height(24.dp))
+                
+                buttons()
+            }
+        }
+    }
 } 

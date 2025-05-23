@@ -14,7 +14,81 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.example.omsetku.ui.components.Poppins
 
+// Warna-warna utama
+val PrimaryColor = Color(0xFF62DCC8)
+val PrimaryVariant = Color(0xFF5ED0C5)
+val PrimaryLight = Color(0xFFE8F7F5)
+val SecondaryColor = Color(0xFF2F7E68)
+val BackgroundColor = Color(0xFFF8F8F8)
+val SurfaceColor = Color.White
+val ErrorColor = Color(0xFFE74C3C)
+val SuccessColor = Color(0xFF08C39F)
+val IncomeColor = Color(0xFF08C39F)
+val ExpenseColor = Color(0xFFE74C3C)
+val TextPrimaryColor = Color.Black
+val TextSecondaryColor = Color.Gray
+val BorderColor = Color.LightGray
+
+// Typography styles
+val Typography = androidx.compose.material3.Typography(
+    headlineLarge = TextStyle(
+        fontFamily = Poppins,
+        fontSize = 24.sp,
+        fontWeight = FontWeight.Bold
+    ),
+    headlineMedium = TextStyle(
+        fontFamily = Poppins,
+        fontSize = 20.sp,
+        fontWeight = FontWeight.Bold
+    ),
+    headlineSmall = TextStyle(
+        fontFamily = Poppins,
+        fontSize = 18.sp,
+        fontWeight = FontWeight.Bold
+    ),
+    titleLarge = TextStyle(
+        fontFamily = Poppins,
+        fontSize = 16.sp,
+        fontWeight = FontWeight.Bold
+    ),
+    titleMedium = TextStyle(
+        fontFamily = Poppins,
+        fontSize = 14.sp,
+        fontWeight = FontWeight.Medium
+    ),
+    bodyLarge = TextStyle(
+        fontFamily = Poppins,
+        fontSize = 16.sp
+    ),
+    bodyMedium = TextStyle(
+        fontFamily = Poppins,
+        fontSize = 14.sp
+    ),
+    labelLarge = TextStyle(
+        fontFamily = Poppins,
+        fontSize = 14.sp,
+        fontWeight = FontWeight.Medium
+    )
+)
+
+// Shapes
+val Shapes = androidx.compose.material3.Shapes(
+    extraSmall = RoundedCornerShape(4.dp),
+    small = RoundedCornerShape(8.dp),
+    medium = RoundedCornerShape(12.dp),
+    large = RoundedCornerShape(16.dp),
+    extraLarge = RoundedCornerShape(24.dp)
+)
+
+// Color Scheme
 private val DarkColorScheme = darkColorScheme(
     primary = PrimaryColor,
     secondary = PrimaryVariant,
@@ -30,15 +104,16 @@ private val DarkColorScheme = darkColorScheme(
 
 private val LightColorScheme = lightColorScheme(
     primary = PrimaryColor,
-    secondary = PrimaryVariant,
-    tertiary = IncomeColor,
-    background = Background,
-    surface = White,
-    onPrimary = White,
-    onSecondary = White,
-    onTertiary = White,
-    onBackground = DarkText,
-    onSurface = DarkText
+    primaryContainer = PrimaryLight,
+    secondary = SecondaryColor,
+    background = BackgroundColor,
+    surface = SurfaceColor,
+    error = ErrorColor,
+    onPrimary = Color.White,
+    onSecondary = Color.White,
+    onBackground = TextPrimaryColor,
+    onSurface = TextPrimaryColor,
+    onError = Color.White
 )
 
 @Composable
@@ -68,6 +143,7 @@ fun OmsetkuTheme(
     MaterialTheme(
         colorScheme = colorScheme,
         typography = Typography,
+        shapes = Shapes,
         content = content
     )
 }
