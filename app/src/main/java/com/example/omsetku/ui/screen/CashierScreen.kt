@@ -38,8 +38,7 @@ import com.example.omsetku.Navigation.Routes
 import com.example.omsetku.R
 import com.example.omsetku.ui.components.BottomNavBar
 import com.example.omsetku.ui.components.Poppins
-import com.example.omsetku.ui.theme.OmsetkuTheme
-import com.example.omsetku.ui.theme.PrimaryLight
+import com.example.omsetku.ui.theme.PrimaryVariant
 import androidx.compose.foundation.verticalScroll
 import com.example.omsetku.ui.data.ProductItem
 
@@ -127,7 +126,7 @@ fun CashierScreen(
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = Color.LightGray,
                         unfocusedBorderColor = Color.LightGray,
-                        cursorColor = OmsetkuTheme.Colors.PrimaryVariant
+                        cursorColor = PrimaryVariant
                     ),
                     singleLine = true
                 )
@@ -145,7 +144,7 @@ fun CashierScreen(
                             .height(48.dp),
                         shape = RoundedCornerShape(8.dp),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = OmsetkuTheme.Colors.PrimaryVariant
+                            containerColor = PrimaryVariant
                         )
                     ) {
                         Text(
@@ -262,7 +261,7 @@ fun CashierScreen(
                         .padding(horizontal = 16.dp)
                         .padding(bottom = 8.dp),
                     shape = RoundedCornerShape(30.dp),
-                    color = OmsetkuTheme.Colors.PrimaryVariant,
+                    color = PrimaryVariant,
                     shadowElevation = 8.dp
                 ) {
                     Row(
@@ -301,7 +300,7 @@ fun CashierScreen(
                                         "$totalItems",
                                         fontSize = 14.sp,
                                         fontWeight = FontWeight.Bold,
-                                        color = OmsetkuTheme.Colors.PrimaryVariant,
+                                        color = PrimaryVariant,
                                         fontFamily = Poppins
                                     )
                                 }
@@ -443,7 +442,7 @@ fun ProductDialog(
                         Icon(
                             painter = painterResource(id = R.drawable.arrow_up),
                             contentDescription = "Upload",
-                            tint = Color(0xFF62DCC8),
+                            tint = PrimaryVariant,
                             modifier = Modifier.size(32.dp)
                         )
                         Spacer(modifier = Modifier.height(6.dp))
@@ -556,7 +555,7 @@ fun ProductDialog(
                             .weight(1f)
                             .height(48.dp),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFF62DCC8)
+                            containerColor = PrimaryVariant
                         ),
                         shape = RoundedCornerShape(8.dp)
                     ) {
@@ -612,7 +611,7 @@ fun ProductCard(
                 text = product.name,
                 fontWeight = FontWeight.Bold,
                 fontSize = 14.sp,
-                color = Color.Black,
+                color = PrimaryVariant,
                 fontFamily = Poppins
             )
             
@@ -621,7 +620,7 @@ fun ProductCard(
                 text = "Rp ${product.price}",
                 fontWeight = FontWeight.Medium,
                 fontSize = 14.sp,
-                color = OmsetkuTheme.Colors.PrimaryVariant,
+                color = PrimaryVariant,
                 fontFamily = Poppins
             )
             
@@ -637,7 +636,7 @@ fun ProductCard(
                     // Edit button (pengganti tombol minus)
                     Surface(
                         shape = CircleShape,
-                        color = OmsetkuTheme.Colors.PrimaryVariant,
+                        color = PrimaryVariant,
                         modifier = Modifier.size(28.dp)
                     ) {
                         Box(
@@ -675,7 +674,7 @@ fun ProductCard(
                     // Normal quantity controls
                     Surface(
                         shape = CircleShape,
-                        color = OmsetkuTheme.Colors.PrimaryVariant,
+                        color = PrimaryVariant,
                         modifier = Modifier.size(28.dp)
                     ) {
                         Box(
@@ -704,7 +703,7 @@ fun ProductCard(
                     
                     Surface(
                         shape = CircleShape,
-                        color = OmsetkuTheme.Colors.PrimaryVariant,
+                        color = PrimaryVariant,
                         modifier = Modifier.size(28.dp)
                     ) {
                         Box(

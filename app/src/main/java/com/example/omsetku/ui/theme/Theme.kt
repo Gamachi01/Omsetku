@@ -37,22 +37,22 @@ import com.example.omsetku.ui.theme.Divider
 
 object OmsetkuTheme {
     val Colors = object {
-        val PrimaryColor = PrimaryColor
-        val PrimaryVariant = PrimaryVariant
-        val PrimaryLight = PrimaryLight
-        val SecondaryColor = Color(0xFF2F7E68)
-        val BackgroundColor = BackgroundColor
-        val SurfaceColor = SurfaceColor
-        val ErrorColor = Color(0xFFE74C3C)
-        val SuccessColor = Color(0xFF08C39F)
-        val IncomeColor = IncomeColor
-        val ExpenseColor = ExpenseColor
-        val TextPrimaryColor = TextPrimaryColor
-        val TextSecondaryColor = Color.Gray
-        val BorderColor = Color.LightGray
-        val White = White
-        val DarkText = DarkText
-        val Divider = Divider
+        val PrimaryColor: Color = com.example.omsetku.ui.theme.PrimaryColor
+        val PrimaryVariant: Color = com.example.omsetku.ui.theme.PrimaryVariant
+        val PrimaryLight: Color = com.example.omsetku.ui.theme.PrimaryLight
+        val SecondaryColor: Color = Color(0xFF2F7E68)
+        val BackgroundColor: Color = com.example.omsetku.ui.theme.BackgroundColor
+        val SurfaceColor: Color = com.example.omsetku.ui.theme.SurfaceColor
+        val ErrorColor: Color = Color(0xFFE74C3C)
+        val SuccessColor: Color = Color(0xFF08C39F)
+        val IncomeColor: Color = com.example.omsetku.ui.theme.IncomeColor
+        val ExpenseColor: Color = com.example.omsetku.ui.theme.ExpenseColor
+        val TextPrimaryColor: Color = com.example.omsetku.ui.theme.TextPrimaryColor
+        val TextSecondaryColor: Color = Color.Gray
+        val BorderColor: Color = Color.LightGray
+        val White: Color = com.example.omsetku.ui.theme.White
+        val DarkText: Color = com.example.omsetku.ui.theme.DarkText
+        val Divider: Color = com.example.omsetku.ui.theme.Divider
     }
 
     val Typography = androidx.compose.material3.Typography(

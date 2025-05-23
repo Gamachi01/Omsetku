@@ -27,6 +27,9 @@ import com.example.omsetku.R
 import com.example.omsetku.data.Transaction
 import com.example.omsetku.ui.theme.OmsetkuTheme
 import com.example.omsetku.ui.theme.Divider as DividerColor
+import com.example.omsetku.ui.theme.PrimaryVariant
+import com.example.omsetku.ui.theme.IncomeColor
+import com.example.omsetku.ui.theme.ExpenseColor
 
 @SuppressLint("SuspiciousIndentation")
 @Composable
@@ -55,7 +58,7 @@ fun TransactionList(transactions: List<Transaction>) {
                     .width(60.dp)
                     .height(6.dp)
                     .background(
-                        color = if (isExpanded) OmsetkuTheme.Colors.PrimaryVariant else Color.LightGray,
+                        color = if (isExpanded) PrimaryVariant else Color.LightGray,
                         shape = RoundedCornerShape(50)
                     )
             )
@@ -88,14 +91,14 @@ fun TransactionList(transactions: List<Transaction>) {
 @Composable
 fun TransactionItem(transaction: Transaction) {
     val transactionColor = if (transaction.type == "Pemasukan") 
-        OmsetkuTheme.Colors.IncomeColor 
+        IncomeColor 
     else 
-        OmsetkuTheme.Colors.ExpenseColor
+        ExpenseColor
     
     val backgroundColor = if (transaction.type == "Pemasukan")
-        OmsetkuTheme.Colors.IncomeColor.copy(alpha = 0.05f)
+        IncomeColor.copy(alpha = 0.05f)
     else
-        OmsetkuTheme.Colors.ExpenseColor.copy(alpha = 0.05f)
+        ExpenseColor.copy(alpha = 0.05f)
         
     Surface(
         modifier = Modifier
@@ -118,9 +121,9 @@ fun TransactionItem(transaction: Transaction) {
                         .clip(RoundedCornerShape(8.dp))
                         .background(
                             color = if (transaction.type == "Pemasukan") 
-                                OmsetkuTheme.Colors.IncomeColor.copy(alpha = 0.15f) 
+                                IncomeColor.copy(alpha = 0.15f) 
                             else 
-                                OmsetkuTheme.Colors.ExpenseColor.copy(alpha = 0.15f)
+                                ExpenseColor.copy(alpha = 0.15f)
                         ),
                     contentAlignment = Alignment.Center
                 ) {
@@ -130,7 +133,7 @@ fun TransactionItem(transaction: Transaction) {
                             else R.drawable.outcome_icon
                         ),
                         contentDescription = null,
-                        tint = if (transaction.type == "Pemasukan") OmsetkuTheme.Colors.IncomeColor else OmsetkuTheme.Colors.ExpenseColor,
+                        tint = if (transaction.type == "Pemasukan") IncomeColor else ExpenseColor,
                         modifier = Modifier.size(20.dp)
                     )
                 }
@@ -156,7 +159,7 @@ fun TransactionItem(transaction: Transaction) {
                     text = (if (transaction.type == "Pemasukan") "+Rp " else "-Rp ") +
                             "%,d".format(transaction.amount).replace(',', '.'),
                     fontSize = 14.sp,
-                    color = if (transaction.type == "Pemasukan") OmsetkuTheme.Colors.IncomeColor else OmsetkuTheme.Colors.ExpenseColor,
+                    color = if (transaction.type == "Pemasukan") IncomeColor else ExpenseColor,
                     fontWeight = FontWeight.Bold,
                     fontFamily = Poppins
                 )
