@@ -10,6 +10,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.omsetku.ui.theme.OmsetkuTheme
+import com.example.omsetku.ui.theme.PrimaryVariant
 
 @Composable
 fun TransactionScreen(
@@ -26,7 +27,7 @@ fun TransactionScreen(
                 .fillMaxWidth()
                 .height(56.dp)
                 .background(
-                    color = OmsetkuTheme.Colors.PrimaryVariant
+                    color = PrimaryVariant
                 ),
             contentAlignment = Alignment.Center
         ) {

@@ -91,13 +91,18 @@ fun TransactionItem(transaction: Transaction) {
         OmsetkuTheme.Colors.IncomeColor 
     else 
         OmsetkuTheme.Colors.ExpenseColor
+    
+    val backgroundColor = if (transaction.type == "Pemasukan")
+        OmsetkuTheme.Colors.IncomeColor.copy(alpha = 0.05f)
+    else
+        OmsetkuTheme.Colors.ExpenseColor.copy(alpha = 0.05f)
         
     Surface(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 4.dp),
         shape = RoundedCornerShape(12.dp),
-        color = transactionColor.copy(alpha = 0.05f)
+        color = backgroundColor
     ) {
         Row(
             modifier = Modifier
@@ -115,8 +120,7 @@ fun TransactionItem(transaction: Transaction) {
                             color = if (transaction.type == "Pemasukan") 
                                 OmsetkuTheme.Colors.IncomeColor.copy(alpha = 0.15f) 
                             else 
-                                OmsetkuTheme.Colors.ExpenseColor.copy(alpha = 0.15f),
-                            shape = RoundedCornerShape(8.dp)
+                                OmsetkuTheme.Colors.ExpenseColor.copy(alpha = 0.15f)
                         ),
                     contentAlignment = Alignment.Center
                 ) {
