@@ -169,8 +169,8 @@ fun TransactionScreen(navController: NavController) {
                 onClick = { /* Simpan data */ },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(48.dp)
-                    .padding(vertical = 0.dp),
+                    .padding(top = 24.dp)
+                    .height(48.dp),
                 shape = RoundedCornerShape(8.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF5ED0C5))
             ) {
