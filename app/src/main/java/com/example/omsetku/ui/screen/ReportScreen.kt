@@ -649,6 +649,7 @@ fun FilterDialog(
     var selectedMonth by remember { mutableStateOf("") }
     var selectedYear by remember { mutableStateOf("") }
     var startDateTimestamp by remember { mutableStateOf<Long?>(null) }
+    var currentSelectedPeriode by remember { mutableStateOf(selectedPeriode) }
 
     OmsetkuDialog(
         title = "Filter",
@@ -677,8 +678,6 @@ fun FilterDialog(
                     FilterPeriode.TAHUNAN to "Tahunan"
                 )
                 
-                var selectedOption by remember { mutableStateOf(selectedPeriode) }
-                
                 // Radio button group
                 options.forEach { (periode, label) ->
                     Row(
@@ -687,9 +686,9 @@ fun FilterDialog(
                             .fillMaxWidth()
                             .padding(vertical = 4.dp)
                             .selectable(
-                                selected = selectedOption == periode,
+                                selected = currentSelectedPeriode == periode,
                                 onClick = { 
-                                    selectedOption = periode
+                                    currentSelectedPeriode = periode
                                     selectedDate = ""
                                     startDate = ""
                                     endDate = ""
@@ -701,7 +700,7 @@ fun FilterDialog(
                             )
                     ) {
                         RadioButton(
-                            selected = selectedOption == periode,
+                            selected = currentSelectedPeriode == periode,
                             onClick = null,
                             colors = RadioButtonDefaults.colors(
                                 selectedColor = MaterialTheme.colorScheme.primary,
@@ -720,7 +719,7 @@ fun FilterDialog(
                 Spacer(modifier = Modifier.height(20.dp))
                 
                 // Input fields based on selected period
-                when (selectedOption) {
+                when (currentSelectedPeriode) {
                     FilterPeriode.HARIAN -> {
                         Text(
                             text = "Pilih Tanggal",
@@ -818,7 +817,7 @@ fun FilterDialog(
             OmsetkuButton(
                 text = "Terapkan",
                 onClick = {
-                    onPeriodeSelected(selectedOption)
+                    onPeriodeSelected(currentSelectedPeriode)
                     onApply()
                 },
                 modifier = Modifier.fillMaxWidth()

@@ -22,26 +22,26 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.omsetku.ui.components.Poppins
 
-// Warna-warna utama
-val PrimaryColor = Color(0xFF62DCC8)
-val PrimaryVariant = Color(0xFF5ED0C5)
-val PrimaryLight = Color(0xFFE8F7F5)
-val SecondaryColor = Color(0xFF2F7E68)
-val BackgroundColor = Color(0xFFF8F8F8)
-val SurfaceColor = Color.White
-val ErrorColor = Color(0xFFE74C3C)
-val SuccessColor = Color(0xFF08C39F)
-val IncomeColor = Color(0xFF08C39F)
-val ExpenseColor = Color(0xFFE74C3C)
-val TextPrimaryColor = Color.Black
-val TextSecondaryColor = Color.Gray
-val BorderColor = Color.LightGray
-val White = Color.White
-val DarkText = Color(0xFF333333)
-val Background = BackgroundColor
-val Divider = Color(0xFFEEEEEE)
+object OmsetkuColors {
+    val PrimaryColor = Color(0xFF62DCC8)
+    val PrimaryVariant = Color(0xFF5ED0C5)
+    val PrimaryLight = Color(0xFFE8F7F5)
+    val SecondaryColor = Color(0xFF2F7E68)
+    val BackgroundColor = Color(0xFFF8F8F8)
+    val SurfaceColor = Color.White
+    val ErrorColor = Color(0xFFE74C3C)
+    val SuccessColor = Color(0xFF08C39F)
+    val IncomeColor = Color(0xFF08C39F)
+    val ExpenseColor = Color(0xFFE74C3C)
+    val TextPrimaryColor = Color.Black
+    val TextSecondaryColor = Color.Gray
+    val BorderColor = Color.LightGray
+    val White = Color.White
+    val DarkText = Color(0xFF333333)
+    val Background = BackgroundColor
+    val Divider = Color(0xFFEEEEEE)
+}
 
-// Typography styles
 val Typography = androidx.compose.material3.Typography(
     headlineLarge = TextStyle(
         fontFamily = Poppins,
@@ -83,7 +83,6 @@ val Typography = androidx.compose.material3.Typography(
     )
 )
 
-// Shapes
 val Shapes = androidx.compose.material3.Shapes(
     extraSmall = RoundedCornerShape(4.dp),
     small = RoundedCornerShape(8.dp),
@@ -92,31 +91,30 @@ val Shapes = androidx.compose.material3.Shapes(
     extraLarge = RoundedCornerShape(24.dp)
 )
 
-// Color Scheme
 private val DarkColorScheme = darkColorScheme(
-    primary = PrimaryColor,
-    secondary = PrimaryVariant,
-    tertiary = IncomeColor,
-    background = Background,
-    surface = White,
-    onPrimary = White,
-    onSecondary = White,
-    onTertiary = White,
-    onBackground = DarkText,
-    onSurface = DarkText
+    primary = OmsetkuColors.PrimaryColor,
+    secondary = OmsetkuColors.PrimaryVariant,
+    tertiary = OmsetkuColors.IncomeColor,
+    background = OmsetkuColors.Background,
+    surface = OmsetkuColors.White,
+    onPrimary = OmsetkuColors.White,
+    onSecondary = OmsetkuColors.White,
+    onTertiary = OmsetkuColors.White,
+    onBackground = OmsetkuColors.DarkText,
+    onSurface = OmsetkuColors.DarkText
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = PrimaryColor,
-    primaryContainer = PrimaryLight,
-    secondary = SecondaryColor,
-    background = BackgroundColor,
-    surface = SurfaceColor,
-    error = ErrorColor,
+    primary = OmsetkuColors.PrimaryColor,
+    primaryContainer = OmsetkuColors.PrimaryLight,
+    secondary = OmsetkuColors.SecondaryColor,
+    background = OmsetkuColors.BackgroundColor,
+    surface = OmsetkuColors.SurfaceColor,
+    error = OmsetkuColors.ErrorColor,
     onPrimary = Color.White,
     onSecondary = Color.White,
-    onBackground = TextPrimaryColor,
-    onSurface = TextPrimaryColor,
+    onBackground = OmsetkuColors.TextPrimaryColor,
+    onSurface = OmsetkuColors.TextPrimaryColor,
     onError = Color.White
 )
 
