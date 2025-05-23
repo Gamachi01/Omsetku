@@ -52,79 +52,79 @@ fun HppScreen(
     var showDialog by remember { mutableStateOf(false) }
     var selectedTab by remember { mutableStateOf(0) }
 
-    Column(
+        Column(
         modifier = modifier
-            .fillMaxSize()
+                .fillMaxSize()
             .padding(16.dp)
-    ) {
-        Text(
-            text = "Hitung HPP",
-            fontSize = 24.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color.Black,
-            fontFamily = Poppins,
+        ) {
+            Text(
+                text = "Hitung HPP",
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.Black,
+                fontFamily = Poppins,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 16.dp),
-            textAlign = TextAlign.Center
-        )
-        
-        // Tab Selection
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(40.dp)
-                .clip(RoundedCornerShape(8.dp))
-        ) {
-            HppTabButton(
-                text = "Stok",
-                isSelected = selectedTab == 0,
-                modifier = Modifier.weight(1f),
-                onClick = { selectedTab = 0 },
-                shape = RoundedCornerShape(topStart = 8.dp, bottomStart = 8.dp)
+                textAlign = TextAlign.Center
             )
-            HppTabButton(
-                text = "Bahan Baku",
-                isSelected = selectedTab == 1,
-                modifier = Modifier.weight(1f),
-                onClick = { selectedTab = 1 },
-                shape = RoundedCornerShape(topEnd = 8.dp, bottomEnd = 8.dp)
-            )
-        }
-        
-        // Info Box
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 4.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = Color(0xFFF5F5F5)
-            ),
-            shape = RoundedCornerShape(8.dp)
-        ) {
+            
+            // Tab Selection
             Row(
-                modifier = Modifier.padding(8.dp),
-                verticalAlignment = Alignment.CenterVertically
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(40.dp)
+                    .clip(RoundedCornerShape(8.dp))
             ) {
-                Icon(
-                    imageVector = Icons.Default.Info,
-                    contentDescription = null,
-                    tint = Color.Gray,
-                    modifier = Modifier.size(20.dp)
+                HppTabButton(
+                    text = "Stok",
+                isSelected = selectedTab == 0,
+                    modifier = Modifier.weight(1f),
+                onClick = { selectedTab = 0 },
+                    shape = RoundedCornerShape(topStart = 8.dp, bottomStart = 8.dp)
                 )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
+                HppTabButton(
+                    text = "Bahan Baku",
+                isSelected = selectedTab == 1,
+                    modifier = Modifier.weight(1f),
+                onClick = { selectedTab = 1 },
+                    shape = RoundedCornerShape(topEnd = 8.dp, bottomEnd = 8.dp)
+                )
+            }
+            
+            // Info Box
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                .padding(vertical = 4.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = Color(0xFFF5F5F5)
+                ),
+                shape = RoundedCornerShape(8.dp)
+            ) {
+                Row(
+                modifier = Modifier.padding(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Info,
+                        contentDescription = null,
+                        tint = Color.Gray,
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
                     text = if (selectedTab == 0) 
                         "Hitung HPP dari stok produk yang terjual." 
                     else 
                         "Hitung HPP dari bahan resep dan jumlah pemakaian.",
-                    fontSize = 14.sp,
-                    color = Color.Gray,
-                    fontFamily = Poppins
-                )
+                        fontSize = 14.sp,
+                        color = Color.Gray,
+                        fontFamily = Poppins
+                    )
+                }
             }
-        }
-        
+            
         // Content berdasarkan tab yang dipilih
         when (selectedTab) {
             0 -> HppStokContent(
@@ -137,25 +137,25 @@ fun HppScreen(
                 selectedProduct = selectedProduct,
                 onProductSelected = { selectedProduct = it }
             )
-        }
-        
-        Spacer(modifier = Modifier.height(24.dp))
-        
-        // Tombol Hitung
-        Button(
+            }
+            
+            Spacer(modifier = Modifier.height(24.dp))
+            
+            // Tombol Hitung
+            Button(
             onClick = { showDialog = true },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(48.dp),
-            shape = RoundedCornerShape(8.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF5ED0C5))
-        ) {
-            Text(
-                "Hitung", 
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold,
-                fontFamily = Poppins
-            )
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp),
+                shape = RoundedCornerShape(8.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF5ED0C5))
+            ) {
+                Text(
+                    "Hitung", 
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = Poppins
+                )
         }
     }
 
@@ -253,13 +253,13 @@ fun HppStokContent(
     var expanded by remember { mutableStateOf(false) }
 
     Column(modifier = modifier.fillMaxWidth()) {
-        OutlinedTextField(
+            OutlinedTextField(
             value = selectedProduct?.name ?: "",
-            onValueChange = {},
-            readOnly = true,
+                onValueChange = {},
+                readOnly = true,
             label = { Text("Pilih Produk") },
-            trailingIcon = { 
-                Icon(
+                trailingIcon = { 
+                    Icon(
                     imageVector = if (expanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
                     contentDescription = "dropdown arrow"
                 )
@@ -298,13 +298,13 @@ fun HppBahanBakuContent(
     var expanded by remember { mutableStateOf(false) }
 
     Column(modifier = modifier.fillMaxWidth()) {
-        OutlinedTextField(
+            OutlinedTextField(
             value = selectedProduct?.name ?: "",
-            onValueChange = {},
-            readOnly = true,
+                onValueChange = {},
+                readOnly = true,
             label = { Text("Pilih Produk") },
-            trailingIcon = { 
-                Icon(
+                trailingIcon = { 
+                    Icon(
                     imageVector = if (expanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
                     contentDescription = "dropdown arrow"
                 )

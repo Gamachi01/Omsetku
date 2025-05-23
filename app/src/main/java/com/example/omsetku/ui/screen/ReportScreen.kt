@@ -98,8 +98,8 @@ fun ReportScreen(navController: NavController) {
                 Text(
                     text = periodeText,
                     style = MaterialTheme.typography.bodyMedium.copy(
-                        fontWeight = FontWeight.Medium,
-                        color = Color.DarkGray
+                    fontWeight = FontWeight.Medium,
+                    color = Color.DarkGray
                     )
                 )
             }
@@ -167,15 +167,15 @@ fun ReportScreen(navController: NavController) {
                         Text(
                             text = "Total Pendapatan",
                             style = MaterialTheme.typography.bodyMedium.copy(
-                                color = Color.DarkGray
+                            color = Color.DarkGray
                             )
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
                             text = "Rp 103.193.000",
                             style = MaterialTheme.typography.titleMedium.copy(
-                                fontWeight = FontWeight.Bold,
-                                color = Color(0xFF08C39F)
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF08C39F)
                             )
                         )
                     }
@@ -197,15 +197,15 @@ fun ReportScreen(navController: NavController) {
                         Text(
                             text = "Total Pengeluaran",
                             style = MaterialTheme.typography.bodyMedium.copy(
-                                color = Color.DarkGray
+                            color = Color.DarkGray
                             )
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
                             text = "Rp 7.902.646",
                             style = MaterialTheme.typography.titleMedium.copy(
-                                fontWeight = FontWeight.Bold,
-                                color = Color(0xFFE74C3C)
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFFE74C3C)
                             )
                         )
                     }
@@ -428,27 +428,27 @@ fun ReportScreen(navController: NavController) {
                         color = Color(0xFFEEEEEE),
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
                                 .padding(horizontal = 16.dp, vertical = 12.dp),
                             horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            Text(
+    ) {
+        Text(
                                 text = "Laba Bersih",
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.Medium,
-                                fontFamily = Poppins,
-                                color = Color.Black
-                            )
-                            
-                            Text(
+            fontFamily = Poppins,
+            color = Color.Black
+        )
+        
+        Text(
                                 text = "Rp 500.000",
                                 fontSize = 14.sp,
-                                fontWeight = FontWeight.Medium,
-                                fontFamily = Poppins,
-                                color = Color.Black
-                            )
+            fontWeight = FontWeight.Medium,
+            fontFamily = Poppins,
+            color = Color.Black
+        )
                         }
                     }
                     
