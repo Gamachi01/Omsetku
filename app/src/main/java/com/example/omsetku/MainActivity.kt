@@ -7,13 +7,13 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.navigation.compose.rememberNavController
 import com.example.omsetku.Navigation.AppNavGraph
-import com.example.omsetku.ui.theme.OmsetkuTheme
+import com.example.omsetku.ui.theme.OmsetkuThemeComposable
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            OmsetkuTheme {
+            OmsetkuThemeComposable {
                 Surface(color = MaterialTheme.colorScheme.background) {
                     val navController = rememberNavController()
                     AppNavGraph(navController = navController)
