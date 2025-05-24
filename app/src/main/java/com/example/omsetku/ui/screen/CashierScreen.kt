@@ -613,7 +613,7 @@ fun ProductCard(
     
     // Update state lokal dari keranjang
     val cartItems by cartViewModel.cartItems.collectAsState()
-    val cartItem = cartItems.find { it.productId == product.id }
+    val cartItem = cartItems.find { it.productId == product.id.toString() }
     
     // Efek untuk update quantity dari keranjang
     LaunchedEffect(cartItems) {
