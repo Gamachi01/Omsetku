@@ -219,14 +219,6 @@ class FirestoreRepository {
         val userId = getCurrentUserId()
         var query = transactionCollection.whereEqualTo("userId", userId)
         
-        // Filter berdasarkan tanggal
-        if (startDate != null) {
-            query = query.whereGreaterThanOrEqualTo("date", startDate)
-        }
-        if (endDate != null) {
-            query = query.whereLessThanOrEqualTo("date", endDate)
-        }
-        
         // Filter berdasarkan tipe transaksi
         if (type != null) {
             query = query.whereEqualTo("type", type)
@@ -236,11 +228,19 @@ class FirestoreRepository {
         query = query.orderBy("date", Query.Direction.DESCENDING)
         
         val snapshot = query.get().await()
+        
+        // Filter tanggal manual setelah query
         return snapshot.documents.mapNotNull { doc ->
             val data = doc.data
             data?.let {
                 it["id"] = doc.id
-                it
+                
+                // Filter startDate dan endDate secara manual
+                val date = (it["date"] as? Number)?.toLong() ?: 0L
+                val inRange = (startDate == null || date >= startDate) && 
+                              (endDate == null || date <= endDate)
+                
+                if (inRange) it else null
             }
         }
     }
