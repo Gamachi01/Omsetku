@@ -131,6 +131,13 @@ class AuthViewModel : ViewModel() {
     }
     
     /**
+     * Overload fungsi register untuk mendukung pemanggilan tanpa confirmPassword
+     */
+    fun register(name: String, email: String, password: String, phone: String) {
+        register(name, email, password, password, phone)
+    }
+    
+    /**
      * Menyimpan data diri user
      */
     fun savePersonalData(fullName: String, gender: String, position: String, address: String, phoneNumber: String) {
