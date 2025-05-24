@@ -9,6 +9,7 @@ import com.google.firebase.firestore.ktx.toObject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.tasks.await
+import com.example.omsetku.models.TaxSettings
 
 /**
  * Repository yang menangani operasi Firestore Database
@@ -394,6 +395,51 @@ class FirestoreRepository {
             true
         } catch (e: Exception) {
             false
+        }
+    }
+    
+    /**
+     * Mendapatkan pengaturan pajak
+     */
+    suspend fun getTaxSettings(userId: String): TaxSettings? {
+        return try {
+            val document = db.collection("taxSettings")
+                .document(userId)
+                .get()
+                .await()
+            
+            if (document.exists()) {
+                val data = document.data
+                if (data != null) {
+                    TaxSettings.fromMap(data)
+                } else {
+                    null
+                }
+            } else {
+                null
+            }
+        } catch (e: Exception) {
+            Log.e("FirestoreRepository", "Error getting tax settings", e)
+            throw e
+        }
+    }
+    
+    /**
+     * Menyimpan pengaturan pajak
+     */
+    suspend fun saveTaxSettings(taxSettings: TaxSettings) {
+        try {
+            val taxData = TaxSettings.toMap(taxSettings)
+            
+            db.collection("taxSettings")
+                .document(taxSettings.userId)
+                .set(taxData)
+                .await()
+            
+            Log.d("FirestoreRepository", "Tax settings saved successfully")
+        } catch (e: Exception) {
+            Log.e("FirestoreRepository", "Error saving tax settings", e)
+            throw e
         }
     }
 } 

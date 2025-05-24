@@ -22,29 +22,54 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.omsetku.Navigation.Routes
 import com.example.omsetku.R
+import com.example.omsetku.models.CartItem
 import com.example.omsetku.ui.components.Poppins
 import com.example.omsetku.ui.theme.PrimaryVariant
+import com.example.omsetku.viewmodels.CartViewModel
+import com.example.omsetku.viewmodels.TaxViewModel
+import java.text.SimpleDateFormat
+import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TransactionDetailScreen(navController: NavController) {
-    // Simulasikan data produk yang dipilih
-    val products = listOf(
-        TransactionProduct("Cappucino", 1, 25000, R.drawable.logo),
-        TransactionProduct("Americano", 1, 20000, R.drawable.logo),
-        TransactionProduct("Espresso", 1, 15000, R.drawable.logo),
-        TransactionProduct("Brown Sugar Latte", 1, 15000, R.drawable.logo)
-    )
+fun TransactionDetailScreen(
+    navController: NavController,
+    cartViewModel: CartViewModel = viewModel(),
+    taxViewModel: TaxViewModel = viewModel()
+) {
+    // Mengambil data dari ViewModel
+    val cartItems by cartViewModel.cartItems.collectAsState()
+    val taxSettings by taxViewModel.taxSettings.collectAsState()
+    val isLoading by cartViewModel.isLoading.collectAsState()
+    val transactionSuccess by cartViewModel.transactionSuccess.collectAsState()
+    val error by cartViewModel.error.collectAsState()
     
-    val subtotal = products.sumOf { it.price * it.quantity }
-    val taxRate = 0.10 // 10% pajak
-    val tax = (subtotal * taxRate).toInt()
+    // Perhitungan total
+    val subtotal = cartViewModel.getSubtotal()
+    val taxRate = if (taxSettings.enabled) taxSettings.rate else 0
+    val tax = if (taxSettings.enabled) (subtotal * taxRate / 100) else 0
     val total = subtotal + tax
     
+    // Format tanggal dan waktu
+    val currentDate = remember { System.currentTimeMillis() }
+    val dateFormat = remember { SimpleDateFormat("EEEE, d MMMM yyyy", Locale("id", "ID")) }
+    val timeFormat = remember { SimpleDateFormat("HH.mm", Locale("id", "ID")) }
+    val formattedDate = remember { dateFormat.format(Date(currentDate)) }
+    val formattedTime = remember { timeFormat.format(Date(currentDate)) }
+    
     var showSuccessDialog by remember { mutableStateOf(false) }
+    
+    // Effect untuk handle sukses transaksi
+    LaunchedEffect(transactionSuccess) {
+        if (transactionSuccess) {
+            showSuccessDialog = true
+            cartViewModel.resetTransactionSuccess()
+        }
+    }
     
     Scaffold(
         topBar = {
@@ -86,7 +111,7 @@ fun TransactionDetailScreen(navController: NavController) {
                     .padding(vertical = 12.dp)
             ) {
                 Text(
-                    text = "Tanggal: Senin, 2 Maret 2025",
+                    text = "Tanggal: $formattedDate",
                     fontSize = 15.sp,
                     fontFamily = Poppins,
                     color = Color.DarkGray
@@ -95,7 +120,7 @@ fun TransactionDetailScreen(navController: NavController) {
                 Spacer(modifier = Modifier.height(4.dp))
                 
                 Text(
-                    text = "Waktu: 19.00 PM",
+                    text = "Waktu: $formattedTime",
                     fontSize = 15.sp,
                     fontFamily = Poppins,
                     color = Color.DarkGray
@@ -103,9 +128,26 @@ fun TransactionDetailScreen(navController: NavController) {
             }
             
             // Product List
-            products.forEach { product ->
-                ProductDetailItem(product)
-                Spacer(modifier = Modifier.height(12.dp))
+            if (cartItems.isEmpty()) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(200.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "Keranjang kosong",
+                        fontSize = 16.sp,
+                        fontFamily = Poppins,
+                        color = Color.Gray,
+                        textAlign = TextAlign.Center
+                    )
+                }
+            } else {
+                cartItems.forEach { item ->
+                    ProductDetailItem(item)
+                    Spacer(modifier = Modifier.height(12.dp))
+                }
             }
             
             // Payment Summary
@@ -159,7 +201,7 @@ fun TransactionDetailScreen(navController: NavController) {
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text(
-                            text = "Pajak (10%)",
+                            text = if (taxSettings.enabled) "Pajak (${taxSettings.rate}%)" else "Pajak (0%)",
                             fontSize = 15.sp,
                             fontFamily = Poppins,
                             color = Color.DarkGray
@@ -201,25 +243,51 @@ fun TransactionDetailScreen(navController: NavController) {
                 }
             }
             
+            // Error message
+            if (error != null) {
+                Text(
+                    text = error ?: "",
+                    color = Color.Red,
+                    fontSize = 14.sp,
+                    fontFamily = Poppins,
+                    modifier = Modifier.padding(bottom = 16.dp)
+                )
+            }
+            
             // Confirmation Button
             Button(
-                onClick = { showSuccessDialog = true },
+                onClick = { 
+                    // Simpan transaksi ke Firestore
+                    cartViewModel.saveTransaction(
+                        taxEnabled = taxSettings.enabled,
+                        taxRate = taxSettings.rate
+                    )
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 24.dp)
                     .height(54.dp),
                 shape = RoundedCornerShape(8.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF62DCC8)
-                )
+                    containerColor = PrimaryVariant
+                ),
+                enabled = cartItems.isNotEmpty() && !isLoading
             ) {
-                Text(
-                    text = "Konfirmasi",
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
-                    fontFamily = Poppins,
-                    color = Color.White
-                )
+                if (isLoading) {
+                    CircularProgressIndicator(
+                        color = Color.White,
+                        modifier = Modifier.size(24.dp),
+                        strokeWidth = 2.dp
+                    )
+                } else {
+                    Text(
+                        text = "Konfirmasi",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold,
+                        fontFamily = Poppins,
+                        color = Color.White
+                    )
+                }
             }
         }
     }
@@ -238,15 +306,15 @@ fun TransactionDetailScreen(navController: NavController) {
 }
 
 @Composable
-fun ProductDetailItem(product: TransactionProduct) {
+fun ProductDetailItem(item: CartItem) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
         // Product Image
         Image(
-            painter = painterResource(id = product.imageRes),
-            contentDescription = product.name,
+            painter = painterResource(id = item.imageRes),
+            contentDescription = item.name,
             contentScale = ContentScale.Crop,
             modifier = Modifier
                 .size(70.dp)
@@ -260,7 +328,7 @@ fun ProductDetailItem(product: TransactionProduct) {
             modifier = Modifier.weight(1f)
         ) {
             Text(
-                text = product.name,
+                text = item.name,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
                 fontFamily = Poppins,
@@ -270,7 +338,7 @@ fun ProductDetailItem(product: TransactionProduct) {
             Spacer(modifier = Modifier.height(4.dp))
             
             Text(
-                text = "${product.quantity} Item",
+                text = "${item.quantity} Item",
                 fontSize = 14.sp,
                 fontFamily = Poppins,
                 color = Color.Gray
@@ -290,7 +358,7 @@ fun ProductDetailItem(product: TransactionProduct) {
                 )
                 
                 Text(
-                    text = "Rp ${product.price}",
+                    text = "Rp ${item.subtotal}",
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Medium,
                     fontFamily = Poppins,
@@ -304,74 +372,58 @@ fun ProductDetailItem(product: TransactionProduct) {
 @Composable
 fun SuccessDialog(onDismiss: () -> Unit) {
     Dialog(onDismissRequest = onDismiss) {
-        Box(
+        Surface(
+            shape = RoundedCornerShape(16.dp),
+            color = Color.White,
             modifier = Modifier
-                .fillMaxSize()
-                .background(Color(0x80000000)),
-            contentAlignment = Alignment.Center
+                .fillMaxWidth()
+                .padding(16.dp)
         ) {
-            Surface(
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth(0.9f)
-                    .padding(horizontal = 8.dp),
-                shape = RoundedCornerShape(16.dp),
-                color = Color.White,
-                shadowElevation = 8.dp
+                    .padding(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 32.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                Surface(
+                    modifier = Modifier.size(80.dp),
+                    shape = RoundedCornerShape(40.dp),
+                    color = PrimaryVariant
                 ) {
-                    Surface(
-                        modifier = Modifier.size(80.dp),
-                        shape = RoundedCornerShape(40.dp),
-                        color = Color(0xFF62DCC8)
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
                     ) {
-                        Box(
-                            modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Check,
-                                contentDescription = "Check",
-                                tint = Color.White,
-                                modifier = Modifier.size(40.dp)
-                            )
-                        }
+                        Icon(
+                            imageVector = Icons.Default.Check,
+                            contentDescription = "Check",
+                            tint = Color.White,
+                            modifier = Modifier.size(40.dp)
+                        )
                     }
-                    
-                    Spacer(modifier = Modifier.height(24.dp))
-                    
-                    Text(
-                        text = "Transaksi Berhasil!",
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
-                        fontFamily = Poppins,
-                        color = Color.Black
-                    )
-                    
-                    Spacer(modifier = Modifier.height(8.dp))
-                    
-                    Text(
-                        text = "Transaksi anda telah tercatat.",
-                        fontSize = 14.sp,
-                        fontFamily = Poppins,
-                        color = Color.Gray,
-                        textAlign = TextAlign.Center
-                    )
-                    
-                    Spacer(modifier = Modifier.height(16.dp))
                 }
+                
+                Spacer(modifier = Modifier.height(24.dp))
+                
+                Text(
+                    text = "Transaksi Berhasil!",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = Poppins,
+                    color = Color.Black
+                )
+                
+                Spacer(modifier = Modifier.height(8.dp))
+                
+                Text(
+                    text = "Transaksi anda telah tercatat.",
+                    fontSize = 14.sp,
+                    fontFamily = Poppins,
+                    color = Color.Gray,
+                    textAlign = TextAlign.Center
+                )
+                
+                Spacer(modifier = Modifier.height(16.dp))
             }
         }
     }
-}
-
-data class TransactionProduct(
-    val name: String,
-    val quantity: Int,
-    val price: Int,
-    val imageRes: Int
-) 
+} 
