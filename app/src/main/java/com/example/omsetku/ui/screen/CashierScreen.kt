@@ -51,7 +51,7 @@ fun CashierScreen(
     navController: NavController,
     modifier: Modifier = Modifier,
     productViewModel: ProductViewModel = viewModel(),
-    cartViewModel: CartViewModel = viewModel()
+    cartViewModel: CartViewModel
 ) {
     var selectedItem by remember { mutableStateOf("Cashier") }
     var searchQuery by remember { mutableStateOf("") }
@@ -279,7 +279,8 @@ fun CashierScreen(
                                     onDelete = {
                                         productToDelete = product
                                         showDeleteConfirmDialog = true
-                                    }
+                                    },
+                                    cartViewModel = cartViewModel
                                 )
                             }
                         }
@@ -608,11 +609,9 @@ fun ProductCard(
     isEditMode: Boolean = false,
     onQuantityChanged: (Int) -> Unit,
     onEdit: () -> Unit = {},
-    onDelete: () -> Unit = {}
+    onDelete: () -> Unit = {},
+    cartViewModel: CartViewModel
 ) {
-    // Ambil CartViewModel untuk operasi keranjang
-    val cartViewModel: CartViewModel = viewModel()
-    
     // State untuk quantity lokal
     var quantity by remember { mutableStateOf(0) }
     

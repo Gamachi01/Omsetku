@@ -4,12 +4,16 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
 import com.google.firebase.FirebaseApp
-import com.example.omsetku.Navigation.AppNavGraph
-import com.example.omsetku.ui.theme.OmsetkuThemeComposable
+import com.example.omsetku.Navigation.AppNavigation
+import com.example.omsetku.ui.theme.OmsetkuTheme
+import com.example.omsetku.viewmodels.CartViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -28,10 +32,16 @@ class MainActivity : ComponentActivity() {
         // Gunakan try-catch hanya untuk debug, bukan di sekitar fungsi composable
         try {
             setContent {
-                OmsetkuThemeComposable {
-                    Surface(color = MaterialTheme.colorScheme.background) {
+                OmsetkuTheme {
+                    // A surface container using the 'background' color from the theme
+                    Surface(
+                        modifier = Modifier.fillMaxSize(),
+                        color = MaterialTheme.colorScheme.background
+                    ) {
                         val navController = rememberNavController()
-                        AppNavGraph(navController = navController)
+                        // Buat CartViewModel sekali di sini dan bagikan ke seluruh navigasi
+                        val cartViewModel: CartViewModel = viewModel()
+                        AppNavigation(navController = navController, cartViewModel = cartViewModel)
                     }
                 }
             }

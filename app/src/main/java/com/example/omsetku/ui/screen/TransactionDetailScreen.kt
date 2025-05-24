@@ -38,7 +38,7 @@ import java.util.*
 @Composable
 fun TransactionDetailScreen(
     navController: NavController,
-    cartViewModel: CartViewModel = viewModel(),
+    cartViewModel: CartViewModel,
     taxViewModel: TaxViewModel = viewModel()
 ) {
     // Mengambil data dari ViewModel
@@ -47,6 +47,14 @@ fun TransactionDetailScreen(
     val isLoading by cartViewModel.isLoading.collectAsState()
     val transactionSuccess by cartViewModel.transactionSuccess.collectAsState()
     val error by cartViewModel.error.collectAsState()
+    
+    // Debug log untuk melihat isi cart
+    LaunchedEffect(cartItems) {
+        println("DEBUG: CartItems di TransactionDetailScreen: ${cartItems.size} items")
+        cartItems.forEach { item ->
+            println("DEBUG: Item: ${item.name}, Quantity: ${item.quantity}, Price: ${item.price}, Subtotal: ${item.subtotal}")
+        }
+    }
     
     // Perhitungan total
     val subtotal = cartViewModel.getSubtotal()
