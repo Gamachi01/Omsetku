@@ -73,15 +73,20 @@ fun TransactionList(transactions: List<Transaction>) {
             enter = fadeIn() + expandVertically(),
             exit = fadeOut() + shrinkVertically()
         ) {
-            LazyColumn(
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .heightIn(max = 400.dp),
-                contentPadding = PaddingValues(horizontal = 20.dp, vertical = 8.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                    .height(400.dp) // Tetapkan tinggi pasti untuk menghindari constraint infinity
             ) {
-                items(transactions) { transaction ->
-                    TransactionItem(transaction)
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize(), // Gunakan fillMaxSize karena Box parent sudah memiliki tinggi tetap
+                    contentPadding = PaddingValues(horizontal = 20.dp, vertical = 8.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    items(transactions) { transaction ->
+                        TransactionItem(transaction)
+                    }
                 }
             }
         }

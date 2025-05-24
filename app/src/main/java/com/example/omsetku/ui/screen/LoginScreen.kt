@@ -90,9 +90,9 @@ fun LoginScreen(
             color = Color.Gray,
             fontFamily = Poppins
         )
-        
+
         Spacer(modifier = Modifier.height(24.dp))
-        
+
         // Email Field
         Text(
             text = "Email",
@@ -125,7 +125,7 @@ fun LoginScreen(
             textStyle = TextStyle(fontFamily = Poppins),
             singleLine = true
         )
-        
+
         // Password Field
         Text(
             text = "Password",
@@ -173,7 +173,7 @@ fun LoginScreen(
             textStyle = TextStyle(fontFamily = Poppins),
             singleLine = true
         )
-        
+
         // Login Button
         Button(
             onClick = { 
@@ -194,13 +194,13 @@ fun LoginScreen(
                     modifier = Modifier.size(24.dp)
                 )
             } else {
-                Text(
-                    text = "Login",
-                    color = Color.White,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
-                    fontFamily = Poppins
-                )
+            Text(
+                text = "Login",
+                color = Color.White,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                fontFamily = Poppins
+            )
             }
         }
 

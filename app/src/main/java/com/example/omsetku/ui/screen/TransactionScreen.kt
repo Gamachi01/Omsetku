@@ -191,7 +191,7 @@ fun TransactionScreen(
                     }
                 )
             }
-            
+
             // Error message
             if (error != null) {
                 Spacer(modifier = Modifier.height(8.dp))
@@ -292,13 +292,13 @@ fun TransactionScreen(
                         modifier = Modifier.size(24.dp)
                     )
                 } else {
-                    Text(
-                        "Simpan", 
-                        fontWeight = FontWeight.Bold, 
-                        fontFamily = Poppins,
-                        fontSize = 16.sp
-                    )
-                }
+                Text(
+                    "Simpan", 
+                    fontWeight = FontWeight.Bold, 
+                    fontFamily = Poppins,
+                    fontSize = 16.sp
+                )
+            }
             }
         }
     }
