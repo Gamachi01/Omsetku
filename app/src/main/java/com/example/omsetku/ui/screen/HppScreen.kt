@@ -25,13 +25,14 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.omsetku.Navigation.Routes
 import com.example.omsetku.R
 import com.example.omsetku.ui.components.BottomNavBar
 import com.example.omsetku.ui.components.Poppins
 import com.example.omsetku.ui.data.ProductItem
-import com.example.omsetku.ui.data.ProductRepository
+import com.example.omsetku.viewmodels.HppViewModel
 import kotlinx.coroutines.launch
 
 enum class HppTab {
@@ -39,7 +40,10 @@ enum class HppTab {
 }
 
 @Composable
-fun HppScreen(navController: NavController) {
+fun HppScreen(
+    navController: NavController,
+    hppViewModel: HppViewModel = viewModel()
+) {
     var selectedItem by remember { mutableStateOf("HPP") }
     var selectedTab by remember { mutableStateOf(HppTab.STOK) }
     val scrollState = rememberScrollState()
@@ -48,30 +52,23 @@ fun HppScreen(navController: NavController) {
     // State untuk dialog
     var showHppResultDialog by remember { mutableStateOf(false) }
     
-    // State untuk produk
-    var products by remember { mutableStateOf(listOf<ProductItem>()) }
-    var selectedProduct by remember { mutableStateOf<ProductItem?>(null) }
-    
-    // State untuk perhitungan
-    var totalBiaya by remember { mutableStateOf(0.0) }
-    var estimasiTerjual by remember { mutableStateOf(0) }
+    // Mengambil data dari ViewModel
+    val products by hppViewModel.products.collectAsState()
+    val selectedProduct by hppViewModel.selectedProduct.collectAsState()
+    val isLoading by hppViewModel.isLoading.collectAsState()
+    val error by hppViewModel.error.collectAsState()
+    val totalBiaya by hppViewModel.totalBiaya.collectAsState()
+    val estimasiTerjual by hppViewModel.estimasiTerjual.collectAsState()
+    val persediaanAwal by hppViewModel.persediaanAwal.collectAsState()
+    val persediaanAkhir by hppViewModel.persediaanAkhir.collectAsState()
+    val pembelianBersih by hppViewModel.pembelianBersih.collectAsState()
+    val biayaOperasionalList by hppViewModel.biayaOperasionalList.collectAsState()
 
-    // Effect untuk memuat data produk saat screen dibuka
+    // Efek untuk memuat data produk saat screen dibuka
     LaunchedEffect(Unit) {
-        scope.launch {
-            // Menggunakan data yang sama dengan CashierScreen
-            products = listOf(
-                ProductItem(1, "Cappucino", 25000, R.drawable.logo),
-                ProductItem(2, "Americano", 20000, R.drawable.logo),
-                ProductItem(3, "Espresso", 15000, R.drawable.logo),
-                ProductItem(4, "Brown Sugar Latte", 15000, R.drawable.logo)
-            )
-        }
+        hppViewModel.loadProducts()
     }
     
-    // State untuk dropdown produk
-    var showProductDropdown by remember { mutableStateOf(false) }
-
     Scaffold(
         bottomBar = {
             BottomNavBar(
@@ -163,27 +160,91 @@ fun HppScreen(navController: NavController) {
             }
             
             // Spacer diperkecil agar lebih rapat
-            Spacer(modifier = Modifier.height(2.dp))
+            Spacer(modifier = Modifier.height(4.dp))
             
-            if (selectedTab == HppTab.STOK) {
-                HppStokContent(
-                    products = products,
-                    selectedProduct = selectedProduct,
-                    onProductSelected = { selectedProduct = it }
-                )
+            // Loading state
+            if (isLoading) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(200.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(color = Color(0xFF5ED0C5))
+                }
             } else {
-                HppBahanBakuContent(
-                    products = products,
-                    selectedProduct = selectedProduct,
-                    onProductSelected = { selectedProduct = it }
-                )
+                if (selectedTab == HppTab.STOK) {
+                    HppStokContent(
+                        products = products,
+                        selectedProduct = selectedProduct,
+                        persediaanAwal = persediaanAwal,
+                        persediaanAkhir = persediaanAkhir,
+                        pembelianBersih = pembelianBersih,
+                        biayaOperasionalList = biayaOperasionalList,
+                        estimasiTerjual = estimasiTerjual.toString(),
+                        onProductSelected = { hppViewModel.selectProduct(it) },
+                        onPersediaanAwalChanged = { hppViewModel.updatePersediaanAwal(it) },
+                        onPersediaanAkhirChanged = { hppViewModel.updatePersediaanAkhir(it) },
+                        onPembelianBersihChanged = { hppViewModel.updatePembelianBersih(it) },
+                        onBiayaOperasionalNamaChanged = { index, value -> 
+                            hppViewModel.updateBiayaOperasionalNama(index, value)
+                        },
+                        onBiayaOperasionalJumlahChanged = { index, value -> 
+                            hppViewModel.updateBiayaOperasionalJumlah(index, value)
+                        },
+                        onAddBiayaOperasional = { hppViewModel.addBiayaOperasional() },
+                        onRemoveBiayaOperasional = { hppViewModel.removeBiayaOperasional(it) },
+                        onEstimasiTerjualChanged = { hppViewModel.updateEstimasiTerjual(it) }
+                    )
+                } else {
+                    HppBahanBakuContent(
+                        products = products,
+                        selectedProduct = selectedProduct,
+                        onProductSelected = { hppViewModel.selectProduct(it) }
+                    )
+                }
+            }
+            
+            // Error message
+            if (error != null) {
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = Color(0xFFFFDCDC)
+                    ),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.padding(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Info,
+                            contentDescription = null,
+                            tint = Color.Red,
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = error ?: "",
+                            fontSize = 14.sp,
+                            color = Color.Red,
+                            fontFamily = Poppins
+                        )
+                    }
+                }
             }
             
             Spacer(modifier = Modifier.height(24.dp))
             
             // Tombol Hitung
             Button(
-                onClick = { showHppResultDialog = true },
+                onClick = { 
+                    hppViewModel.hitungHpp()
+                    showHppResultDialog = true
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(48.dp),
@@ -245,7 +306,7 @@ fun HppScreen(navController: NavController) {
                                 fontFamily = Poppins
                             )
                             Text(
-                                text = selectedProduct?.name ?: "",
+                                text = selectedProduct.name,
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.Medium,
                                 color = Color.Black,
@@ -293,7 +354,7 @@ fun HppScreen(navController: NavController) {
                                 fontFamily = Poppins
                             )
                             Text(
-                                text = "Rp ${totalBiaya.toString().reversed().chunked(3).joinToString(".").reversed()}",
+                                text = "Rp ${totalBiaya.toInt().toString().reversed().chunked(3).joinToString(".").reversed()}",
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.Medium,
                                 color = Color.Black,
@@ -340,8 +401,11 @@ fun HppScreen(navController: NavController) {
                                 color = Color.Gray,
                                 fontFamily = Poppins
                             )
+                            
+                            val hppPerProduk = if (estimasiTerjual > 0) totalBiaya / estimasiTerjual else 0.0
+                            
                             Text(
-                                text = "Rp ${(totalBiaya / estimasiTerjual).toString().reversed().chunked(3).joinToString(".").reversed()}",
+                                text = "Rp ${hppPerProduk.toInt().toString().reversed().chunked(3).joinToString(".").reversed()}",
                                 fontSize = 18.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Color(0xFF5ED0C5),
@@ -413,7 +477,20 @@ fun HppTabButton(
 fun HppStokContent(
     products: List<ProductItem>,
     selectedProduct: ProductItem?,
-    onProductSelected: (ProductItem) -> Unit
+    persediaanAwal: String,
+    persediaanAkhir: String,
+    pembelianBersih: String,
+    biayaOperasionalList: List<HppViewModel.BiayaOperasional>,
+    estimasiTerjual: String,
+    onProductSelected: (ProductItem) -> Unit,
+    onPersediaanAwalChanged: (String) -> Unit,
+    onPersediaanAkhirChanged: (String) -> Unit,
+    onPembelianBersihChanged: (String) -> Unit,
+    onBiayaOperasionalNamaChanged: (Int, String) -> Unit,
+    onBiayaOperasionalJumlahChanged: (Int, String) -> Unit,
+    onAddBiayaOperasional: () -> Unit,
+    onRemoveBiayaOperasional: (Int) -> Unit,
+    onEstimasiTerjualChanged: (String) -> Unit
 ) {
     var showProductDropdown by remember { mutableStateOf(false) }
     
@@ -496,8 +573,8 @@ fun HppStokContent(
             Column(modifier = Modifier.weight(1f)) {
                 HppLabeledFieldBox(label = "Persediaan Awal") {
                     OutlinedTextField(
-                        value = "",
-                        onValueChange = {},
+                        value = persediaanAwal,
+                        onValueChange = onPersediaanAwalChanged,
                         modifier = Modifier.fillMaxWidth(),
                         textStyle = TextStyle(fontSize = 14.sp, color = Color.Black, fontFamily = Poppins),
                         placeholder = { Text("Rp", fontSize = 14.sp, fontFamily = Poppins, color = Color.Gray) },
@@ -513,8 +590,8 @@ fun HppStokContent(
             Column(modifier = Modifier.weight(1f)) {
                 HppLabeledFieldBox(label = "Persediaan Akhir") {
                     OutlinedTextField(
-                        value = "",
-                        onValueChange = {},
+                        value = persediaanAkhir,
+                        onValueChange = onPersediaanAkhirChanged,
                         modifier = Modifier.fillMaxWidth(),
                         textStyle = TextStyle(fontSize = 14.sp, color = Color.Black, fontFamily = Poppins),
                         placeholder = { Text("Rp", fontSize = 14.sp, fontFamily = Poppins, color = Color.Gray) },
@@ -530,8 +607,8 @@ fun HppStokContent(
         
         HppLabeledFieldBox(label = "Pembelian Bersih") {
             OutlinedTextField(
-                value = "",
-                onValueChange = {},
+                value = pembelianBersih,
+                onValueChange = onPembelianBersihChanged,
                 modifier = Modifier.fillMaxWidth(),
                 textStyle = TextStyle(fontSize = 14.sp, color = Color.Black, fontFamily = Poppins),
                 placeholder = { Text("Rp", fontSize = 14.sp, fontFamily = Poppins, color = Color.Gray) },
@@ -544,8 +621,6 @@ fun HppStokContent(
         }
         
         // Biaya Operasional
-        var biayaOperasionalList by remember { mutableStateOf(listOf(1)) }
-        
         Text(
             text = "Biaya Operasional",
             fontSize = 16.sp,
@@ -554,7 +629,7 @@ fun HppStokContent(
             modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
         )
         
-        biayaOperasionalList.forEachIndexed { index, _ ->
+        biayaOperasionalList.forEachIndexed { index, biaya ->
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -563,8 +638,8 @@ fun HppStokContent(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 OutlinedTextField(
-                    value = "",
-                    onValueChange = {},
+                    value = biaya.nama,
+                    onValueChange = { value -> onBiayaOperasionalNamaChanged(index, value) },
                     modifier = Modifier
                         .weight(1f)
                         .height(56.dp),
@@ -578,8 +653,8 @@ fun HppStokContent(
                 )
                 
                 OutlinedTextField(
-                    value = "",
-                    onValueChange = {},
+                    value = biaya.jumlah,
+                    onValueChange = { value -> onBiayaOperasionalJumlahChanged(index, value) },
                     modifier = Modifier
                         .weight(1f)
                         .height(56.dp),
@@ -592,11 +667,7 @@ fun HppStokContent(
                     ),
                     trailingIcon = if (index > 0) {
                         {
-                            IconButton(onClick = {
-                                biayaOperasionalList = biayaOperasionalList.toMutableList().apply {
-                                    removeAt(index)
-                                }
-                            }) {
+                            IconButton(onClick = { onRemoveBiayaOperasional(index) }) {
                                 Icon(
                                     imageVector = Icons.Default.Close,
                                     contentDescription = "Remove",
@@ -611,9 +682,7 @@ fun HppStokContent(
         
         // Tombol Tambah Biaya Operasional
         OutlinedButton(
-            onClick = {
-                biayaOperasionalList = biayaOperasionalList + 1
-            },
+            onClick = onAddBiayaOperasional,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 8.dp),
@@ -640,8 +709,8 @@ fun HppStokContent(
         
         HppLabeledFieldBox(label = "Estimasi Jumlah Produk Terjual per Bulan") {
             OutlinedTextField(
-                value = "",
-                onValueChange = {},
+                value = estimasiTerjual,
+                onValueChange = onEstimasiTerjualChanged,
                 modifier = Modifier.fillMaxWidth(),
                 textStyle = TextStyle(fontSize = 14.sp, color = Color.Black, fontFamily = Poppins),
                 shape = RoundedCornerShape(8.dp),
