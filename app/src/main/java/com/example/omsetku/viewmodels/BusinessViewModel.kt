@@ -22,37 +22,114 @@ class BusinessViewModel : ViewModel() {
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error.asStateFlow()
     
-    // State untuk bisnis saat ini
-    private val _businessList = MutableStateFlow<List<Business>>(emptyList())
-    val businessList: StateFlow<List<Business>> = _businessList.asStateFlow()
+    // State untuk status sukses
+    private val _isSuccess = MutableStateFlow(false)
+    val isSuccess: StateFlow<Boolean> = _isSuccess.asStateFlow()
     
-    // State untuk bisnis yang dipilih
-    private val _selectedBusiness = MutableStateFlow<Business?>(null)
-    val selectedBusiness: StateFlow<Business?> = _selectedBusiness.asStateFlow()
+    // State untuk data bisnis saat ini
+    private val _currentBusiness = MutableStateFlow<Business?>(null)
+    val currentBusiness: StateFlow<Business?> = _currentBusiness.asStateFlow()
     
     init {
-        // Load daftar bisnis saat ViewModel dibuat
-        loadBusinesses()
+        // Load data bisnis saat ViewModel dibuat
+        loadBusinessData()
     }
     
     /**
-     * Memuat daftar bisnis
+     * Menyimpan data bisnis
      */
-    fun loadBusinesses() {
+    fun saveBusinessData(
+        name: String,
+        type: String,
+        address: String,
+        email: String? = null,
+        phone: String? = null,
+        logo: String? = null
+    ) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            _error.value = null
+            _isSuccess.value = false
+            
+            try {
+                val businessId = firestoreRepository.saveBusinessData(
+                    name = name,
+                    type = type,
+                    address = address,
+                    email = email,
+                    phone = phone,
+                    logo = logo
+                )
+                
+                // Refresh data bisnis
+                loadBusinessData()
+                
+                // Set status sukses
+                _isSuccess.value = true
+            } catch (e: Exception) {
+                _error.value = e.message ?: "Gagal menyimpan data bisnis"
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+    
+    /**
+     * Memuat data bisnis dari Firestore
+     */
+    fun loadBusinessData() {
         viewModelScope.launch {
             _isLoading.value = true
             _error.value = null
             
             try {
                 val businesses = firestoreRepository.getUserBusinesses()
-                _businessList.value = businesses.map { Business.fromMap(it) }
                 
-                // Select the first business if available and none is selected
-                if (_selectedBusiness.value == null && _businessList.value.isNotEmpty()) {
-                    _selectedBusiness.value = _businessList.value.first()
+                if (businesses.isNotEmpty()) {
+                    // Ambil bisnis pertama (untuk saat ini cukup 1 bisnis per user)
+                    val businessData = businesses.first()
+                    _currentBusiness.value = Business.fromMap(businessData)
                 }
             } catch (e: Exception) {
                 _error.value = e.message ?: "Gagal memuat data bisnis"
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+    
+    /**
+     * Mengupdate data bisnis
+     */
+    fun updateBusinessData(
+        businessId: String,
+        name: String? = null,
+        type: String? = null,
+        address: String? = null,
+        email: String? = null,
+        phone: String? = null,
+        logo: String? = null
+    ) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            _error.value = null
+            
+            try {
+                // Update di Firestore
+                firestoreRepository.updateBusinessData(
+                    businessId = businessId,
+                    name = name,
+                    type = type,
+                    address = address,
+                    email = email,
+                    phone = phone,
+                    logo = logo
+                )
+                
+                // Refresh data bisnis
+                loadBusinessData()
+            } catch (e: Exception) {
+                _error.value = e.message ?: "Gagal mengupdate data bisnis"
             } finally {
                 _isLoading.value = false
             }
@@ -92,28 +169,12 @@ class BusinessViewModel : ViewModel() {
                 )
                 
                 // Refresh daftar bisnis
-                loadBusinesses()
+                loadBusinessData()
             } catch (e: Exception) {
                 _error.value = e.message ?: "Gagal membuat bisnis baru"
             } finally {
                 _isLoading.value = false
             }
-        }
-    }
-    
-    /**
-     * Memilih bisnis
-     */
-    fun selectBusiness(business: Business) {
-        _selectedBusiness.value = business
-    }
-    
-    /**
-     * Memilih bisnis berdasarkan ID
-     */
-    fun selectBusinessById(businessId: String) {
-        _businessList.value.find { it.id == businessId }?.let {
-            _selectedBusiness.value = it
         }
     }
     

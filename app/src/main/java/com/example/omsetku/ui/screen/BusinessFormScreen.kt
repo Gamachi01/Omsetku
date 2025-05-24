@@ -1,69 +1,46 @@
 package com.example.omsetku.ui.screen
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.omsetku.Navigation.Routes
-import com.example.omsetku.R
 import com.example.omsetku.ui.components.Poppins
-import com.example.omsetku.viewmodels.AuthViewModel
+import com.example.omsetku.viewmodels.BusinessViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RegisterScreen(
+fun BusinessFormScreen(
     navController: NavController,
-    authViewModel: AuthViewModel = viewModel()
+    businessViewModel: BusinessViewModel = viewModel()
 ) {
-    var name by remember { mutableStateOf("") }
-    var email by remember { mutableStateOf("") }
-    var phone by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    var confirmPassword by remember { mutableStateOf("") }
+    var businessName by remember { mutableStateOf("") }
+    var businessType by remember { mutableStateOf("") }
+    var businessAddress by remember { mutableStateOf("") }
+    var businessEmail by remember { mutableStateOf("") }
+    var businessPhone by remember { mutableStateOf("") }
     
-    val isLoading by authViewModel.isLoading.collectAsState()
-    val error by authViewModel.error.collectAsState()
-    val isLoggedIn by authViewModel.isLoggedIn.collectAsState()
-    val isRegistered by authViewModel.isRegistered.collectAsState()
+    val isLoading by businessViewModel.isLoading.collectAsState()
+    val error by businessViewModel.error.collectAsState()
+    val isSuccess by businessViewModel.isSuccess.collectAsState()
     
-    // Efek untuk navigasi jika user sudah registrasi
-    LaunchedEffect(isRegistered) {
-        if (isRegistered) {
-            // Reset status registrasi dan arahkan ke form bisnis
-            authViewModel.resetRegistrationStatus()
-            navController.navigate(Routes.BUSINESS_FORM) {
-                popUpTo(Routes.SIGNUP) {
-                    inclusive = true
-                }
-            }
-        }
-    }
-    
-    // Efek untuk navigasi jika user sudah login tapi bukan dari registrasi
-    LaunchedEffect(isLoggedIn, isRegistered) {
-        if (isLoggedIn && !isRegistered) {
+    // Efek untuk navigasi jika data berhasil disimpan
+    LaunchedEffect(isSuccess) {
+        if (isSuccess) {
             navController.navigate(Routes.HOME) {
-                popUpTo(Routes.SIGNUP) {
-                    inclusive = true
-                }
+                popUpTo(Routes.BUSINESS_FORM) { inclusive = true }
             }
         }
     }
@@ -71,22 +48,13 @@ fun RegisterScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.White)
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 24.dp, vertical = 24.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         // Header
-        Image(
-            painter = painterResource(id = R.drawable.logo),
-            contentDescription = "Logo",
-            modifier = Modifier.size(100.dp)
-        )
-        
-        Spacer(modifier = Modifier.height(16.dp))
-        
         Text(
-            text = "Buat Akun Baru",
+            text = "Data Usaha",
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
             fontFamily = Poppins,
@@ -96,7 +64,7 @@ fun RegisterScreen(
         Spacer(modifier = Modifier.height(8.dp))
         
         Text(
-            text = "Silahkan isi data dengan benar",
+            text = "Lengkapi data usaha Anda untuk memulai",
             fontSize = 16.sp,
             fontFamily = Poppins,
             color = Color.Gray,
@@ -105,13 +73,13 @@ fun RegisterScreen(
         
         Spacer(modifier = Modifier.height(24.dp))
         
-        // Form Register
+        // Form Business
         Column(
             modifier = Modifier.fillMaxWidth()
         ) {
-            // Nama
+            // Nama Usaha
             Text(
-                text = "Nama Lengkap",
+                text = "Nama Usaha",
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium,
                 fontFamily = Poppins,
@@ -119,9 +87,9 @@ fun RegisterScreen(
             )
             
             OutlinedTextField(
-                value = name,
-                onValueChange = { name = it },
-                placeholder = { Text("Masukkan nama lengkap", fontSize = 14.sp, fontFamily = Poppins) },
+                value = businessName,
+                onValueChange = { businessName = it },
+                placeholder = { Text("Masukkan nama usaha", fontSize = 14.sp, fontFamily = Poppins) },
                 shape = RoundedCornerShape(8.dp),
                 colors = OutlinedTextFieldDefaults.colors(
                     unfocusedBorderColor = Color.LightGray,
@@ -139,9 +107,9 @@ fun RegisterScreen(
             
             Spacer(modifier = Modifier.height(16.dp))
             
-            // Email
+            // Jenis Usaha
             Text(
-                text = "Email",
+                text = "Jenis Usaha",
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium,
                 fontFamily = Poppins,
@@ -149,11 +117,10 @@ fun RegisterScreen(
             )
             
             OutlinedTextField(
-                value = email,
-                onValueChange = { email = it },
-                placeholder = { Text("Masukkan email", fontSize = 14.sp, fontFamily = Poppins) },
+                value = businessType,
+                onValueChange = { businessType = it },
+                placeholder = { Text("Contoh: Toko Kelontong, Restoran, dll", fontSize = 14.sp, fontFamily = Poppins) },
                 shape = RoundedCornerShape(8.dp),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                 colors = OutlinedTextFieldDefaults.colors(
                     unfocusedBorderColor = Color.LightGray,
                     focusedBorderColor = Color(0xFF5ED0C5)
@@ -170,9 +137,9 @@ fun RegisterScreen(
             
             Spacer(modifier = Modifier.height(16.dp))
             
-            // Nomor Telepon
+            // Alamat Usaha
             Text(
-                text = "Nomor Telepon",
+                text = "Alamat Usaha",
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium,
                 fontFamily = Poppins,
@@ -180,11 +147,39 @@ fun RegisterScreen(
             )
             
             OutlinedTextField(
-                value = phone,
-                onValueChange = { phone = it },
-                placeholder = { Text("Masukkan nomor telepon", fontSize = 14.sp, fontFamily = Poppins) },
+                value = businessAddress,
+                onValueChange = { businessAddress = it },
+                placeholder = { Text("Masukkan alamat lengkap", fontSize = 14.sp, fontFamily = Poppins) },
                 shape = RoundedCornerShape(8.dp),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+                colors = OutlinedTextFieldDefaults.colors(
+                    unfocusedBorderColor = Color.LightGray,
+                    focusedBorderColor = Color(0xFF5ED0C5)
+                ),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(100.dp),
+                textStyle = TextStyle(
+                    fontSize = 14.sp,
+                    fontFamily = Poppins
+                )
+            )
+            
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            // Email Usaha (Opsional)
+            Text(
+                text = "Email Usaha (Opsional)",
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Medium,
+                fontFamily = Poppins,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+            
+            OutlinedTextField(
+                value = businessEmail,
+                onValueChange = { businessEmail = it },
+                placeholder = { Text("Masukkan email usaha", fontSize = 14.sp, fontFamily = Poppins) },
+                shape = RoundedCornerShape(8.dp),
                 colors = OutlinedTextFieldDefaults.colors(
                     unfocusedBorderColor = Color.LightGray,
                     focusedBorderColor = Color(0xFF5ED0C5)
@@ -201,9 +196,9 @@ fun RegisterScreen(
             
             Spacer(modifier = Modifier.height(16.dp))
             
-            // Password
+            // Nomor Telepon Usaha (Opsional)
             Text(
-                text = "Password",
+                text = "Nomor Telepon Usaha (Opsional)",
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium,
                 fontFamily = Poppins,
@@ -211,44 +206,10 @@ fun RegisterScreen(
             )
             
             OutlinedTextField(
-                value = password,
-                onValueChange = { password = it },
-                placeholder = { Text("Masukkan password", fontSize = 14.sp, fontFamily = Poppins) },
+                value = businessPhone,
+                onValueChange = { businessPhone = it },
+                placeholder = { Text("Masukkan nomor telepon usaha", fontSize = 14.sp, fontFamily = Poppins) },
                 shape = RoundedCornerShape(8.dp),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                visualTransformation = PasswordVisualTransformation(),
-                colors = OutlinedTextFieldDefaults.colors(
-                    unfocusedBorderColor = Color.LightGray,
-                    focusedBorderColor = Color(0xFF5ED0C5)
-                ),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp),
-                textStyle = TextStyle(
-                    fontSize = 14.sp,
-                    fontFamily = Poppins
-                ),
-                singleLine = true
-            )
-            
-            Spacer(modifier = Modifier.height(16.dp))
-            
-            // Konfirmasi Password
-            Text(
-                text = "Konfirmasi Password",
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Medium,
-                fontFamily = Poppins,
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
-            
-            OutlinedTextField(
-                value = confirmPassword,
-                onValueChange = { confirmPassword = it },
-                placeholder = { Text("Konfirmasi password", fontSize = 14.sp, fontFamily = Poppins) },
-                shape = RoundedCornerShape(8.dp),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                visualTransformation = PasswordVisualTransformation(),
                 colors = OutlinedTextFieldDefaults.colors(
                     unfocusedBorderColor = Color.LightGray,
                     focusedBorderColor = Color(0xFF5ED0C5)
@@ -265,11 +226,17 @@ fun RegisterScreen(
             
             Spacer(modifier = Modifier.height(24.dp))
             
-            // Tombol Register
+            // Tombol Simpan
             Button(
                 onClick = { 
-                    if (validateInputs(name, email, phone, password, confirmPassword)) {
-                        authViewModel.register(name, email, password, phone)
+                    if (validateInputs(businessName, businessType, businessAddress)) {
+                        businessViewModel.saveBusinessData(
+                            name = businessName,
+                            type = businessType,
+                            address = businessAddress,
+                            email = businessEmail.takeIf { it.isNotBlank() },
+                            phone = businessPhone.takeIf { it.isNotBlank() }
+                        )
                     }
                 },
                 enabled = !isLoading,
@@ -288,7 +255,7 @@ fun RegisterScreen(
                     )
                 } else {
                     Text(
-                        text = "Daftar",
+                        text = "Simpan & Lanjutkan",
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold,
                         fontFamily = Poppins
@@ -298,28 +265,21 @@ fun RegisterScreen(
             
             Spacer(modifier = Modifier.height(16.dp))
             
-            // Text untuk login
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
+            // Tombol Lewati (Opsional)
+            TextButton(
+                onClick = { 
+                    navController.navigate(Routes.HOME) {
+                        popUpTo(Routes.BUSINESS_FORM) { inclusive = true }
+                    }
+                },
+                modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
-                    text = "Sudah punya akun?",
+                    text = "Lewati untuk saat ini",
+                    color = Color.Gray,
                     fontSize = 14.sp,
-                    fontFamily = Poppins,
-                    color = Color.Gray
+                    fontFamily = Poppins
                 )
-                
-                TextButton(onClick = { navController.navigate(Routes.LOGIN) }) {
-                    Text(
-                        text = "Masuk",
-                        color = Color(0xFF5ED0C5),
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 14.sp,
-                        fontFamily = Poppins
-                    )
-                }
             }
         }
     }
@@ -327,11 +287,11 @@ fun RegisterScreen(
     // Error dialog jika ada error
     if (error != null) {
         AlertDialog(
-            onDismissRequest = { authViewModel.clearError() },
+            onDismissRequest = { businessViewModel.clearError() },
             title = { Text("Error") },
             text = { Text(error ?: "") },
             confirmButton = {
-                TextButton(onClick = { authViewModel.clearError() }) {
+                TextButton(onClick = { businessViewModel.clearError() }) {
                     Text("OK")
                 }
             }
@@ -340,33 +300,15 @@ fun RegisterScreen(
 }
 
 /**
- * Validasi input register
+ * Validasi input form bisnis
  */
 private fun validateInputs(
-    name: String,
-    email: String,
-    phone: String,
-    password: String,
-    confirmPassword: String
+    businessName: String,
+    businessType: String,
+    businessAddress: String
 ): Boolean {
-    // Check if all fields are filled
-    if (name.isBlank() || email.isBlank() || phone.isBlank() || password.isBlank() || confirmPassword.isBlank()) {
-        return false
-    }
-    
-    // Check email format
-    val emailRegex = Regex("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$")
-    if (!email.matches(emailRegex)) {
-        return false
-    }
-    
-    // Check if passwords match
-    if (password != confirmPassword) {
-        return false
-    }
-    
-    // Check minimum password length
-    if (password.length < 6) {
+    // Check if required fields are filled
+    if (businessName.isBlank() || businessType.isBlank() || businessAddress.isBlank()) {
         return false
     }
     

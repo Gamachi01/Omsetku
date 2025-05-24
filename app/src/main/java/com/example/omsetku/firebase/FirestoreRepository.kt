@@ -308,4 +308,35 @@ class FirestoreRepository {
             false
         }
     }
+    
+    /**
+     * Memperbarui data bisnis
+     */
+    suspend fun updateBusinessData(
+        businessId: String,
+        name: String? = null,
+        type: String? = null,
+        address: String? = null,
+        email: String? = null,
+        phone: String? = null,
+        logo: String? = null
+    ): Boolean {
+        val updateData = hashMapOf<String, Any>()
+        
+        name?.let { updateData["name"] = it }
+        type?.let { updateData["type"] = it }
+        address?.let { updateData["address"] = it }
+        email?.let { updateData["email"] = it }
+        phone?.let { updateData["phone"] = it }
+        logo?.let { updateData["logo"] = it }
+        
+        if (updateData.isEmpty()) return true
+        
+        return try {
+            businessCollection.document(businessId).update(updateData).await()
+            true
+        } catch (e: Exception) {
+            false
+        }
+    }
 } 
