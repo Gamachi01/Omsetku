@@ -1,6 +1,7 @@
 package com.example.omsetku.firebase
 
 import android.net.Uri
+import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.tasks.await
@@ -12,7 +13,9 @@ import java.util.UUID
 class StorageRepository {
     private val storage = FirebaseStorage.getInstance()
     private val auth = FirebaseAuth.getInstance()
-    private val storageRef = storage.reference
+    
+    // Referensi storage
+    private val productImagesRef = storage.reference.child("product_images")
     
     /**
      * Mendapatkan ID user saat ini yang sedang login
@@ -22,47 +25,48 @@ class StorageRepository {
     }
     
     /**
-     * Upload gambar ke Firebase Storage
-     * @param uri Uri dari gambar lokal
-     * @param folderPath Path folder di Firebase Storage (e.g. "product_images")
-     * @return URL download dari gambar yang diupload
+     * Upload gambar produk ke Firebase Storage
+     * @param imageUri Uri gambar yang akan diupload
+     * @return URL gambar yang sudah diupload
      */
-    suspend fun uploadImage(uri: Uri, folderPath: String): String {
-        val userId = getCurrentUserId()
-        val fileName = UUID.randomUUID().toString()
-        val imageRef = storageRef.child("$userId/$folderPath/$fileName.jpg")
-        
-        val uploadTask = imageRef.putFile(uri).await()
-        return imageRef.downloadUrl.await().toString()
+    suspend fun uploadProductImage(imageUri: Uri): String {
+        try {
+            val userId = getCurrentUserId()
+            val filename = "${userId}_${UUID.randomUUID()}"
+            val fileRef = productImagesRef.child(filename)
+            
+            // Upload gambar
+            fileRef.putFile(imageUri).await()
+            
+            // Dapatkan URL download
+            val downloadUrl = fileRef.downloadUrl.await()
+            
+            Log.d("StorageRepository", "Image uploaded successfully: $downloadUrl")
+            return downloadUrl.toString()
+        } catch (e: Exception) {
+            Log.e("StorageRepository", "Error uploading image: ${e.message}", e)
+            throw Exception("Gagal mengupload gambar: ${e.message}")
+        }
     }
     
     /**
-     * Upload gambar profil user
+     * Menghapus gambar produk dari Firebase Storage
+     * @param imageUrl URL gambar yang akan dihapus
      */
-    suspend fun uploadProfileImage(uri: Uri): String {
-        return uploadImage(uri, "profile_images")
-    }
-    
-    /**
-     * Upload logo bisnis
-     */
-    suspend fun uploadBusinessLogo(uri: Uri): String {
-        return uploadImage(uri, "business_logos")
-    }
-    
-    /**
-     * Upload gambar produk
-     */
-    suspend fun uploadProductImage(uri: Uri): String {
-        return uploadImage(uri, "product_images")
-    }
-    
-    /**
-     * Menghapus gambar dari Firebase Storage
-     * @param downloadUrl URL download dari gambar yang akan dihapus
-     */
-    suspend fun deleteImage(downloadUrl: String) {
-        val imageRef = storage.getReferenceFromUrl(downloadUrl)
-        imageRef.delete().await()
+    suspend fun deleteProductImage(imageUrl: String) {
+        try {
+            if (imageUrl.isEmpty()) return
+            
+            // Ekstrak path dari URL
+            val storageRef = storage.getReferenceFromUrl(imageUrl)
+            
+            // Hapus file
+            storageRef.delete().await()
+            
+            Log.d("StorageRepository", "Image deleted successfully")
+        } catch (e: Exception) {
+            Log.e("StorageRepository", "Error deleting image: ${e.message}", e)
+            throw Exception("Gagal menghapus gambar: ${e.message}")
+        }
     }
 } 

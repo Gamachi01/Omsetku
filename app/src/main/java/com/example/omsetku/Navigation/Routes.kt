@@ -7,6 +7,7 @@ object Routes {
     const val OTP = "otp"
     const val BUSINESS_SETUP = "business_setup"
     const val BUSINESS_FORM = "business_form"
+    const val PERSONAL_DATA = "personal_data"
     const val CASHIER = "cashier"
     const val TRANSACTION = "transaction"
     const val HPP = "hpp"

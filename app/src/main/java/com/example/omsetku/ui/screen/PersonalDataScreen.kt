@@ -28,30 +28,26 @@ import com.example.omsetku.viewmodels.AuthViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BusinessFormScreen(
+fun PersonalDataScreen(
     navController: NavController,
     authViewModel: AuthViewModel = viewModel()
 ) {
-    var businessName by remember { mutableStateOf("") }
-    var businessType by remember { mutableStateOf("") }
-    var businessAddress by remember { mutableStateOf("") }
-    var businessEmail by remember { mutableStateOf("") }
-    var businessPhone by remember { mutableStateOf("") }
+    var fullName by remember { mutableStateOf("") }
+    var gender by remember { mutableStateOf("") }
+    var position by remember { mutableStateOf("") }
+    var address by remember { mutableStateOf("") }
+    var phoneNumber by remember { mutableStateOf("") }
     
     val isLoading by authViewModel.isLoading.collectAsState()
     val error by authViewModel.error.collectAsState()
-    val businessDataSaved by authViewModel.businessDataSaved.collectAsState()
+    val personalDataSaved by authViewModel.personalDataSaved.collectAsState()
     
-    // Efek untuk navigasi jika data usaha sudah disimpan
-    LaunchedEffect(businessDataSaved) {
-        if (businessDataSaved) {
-            // Reset status dan arahkan ke home
-            authViewModel.resetBusinessDataStatus()
-            navController.navigate(Routes.HOME) {
-                popUpTo(Routes.LOGIN) {
-                    inclusive = true
-                }
-            }
+    // Efek untuk navigasi jika data diri sudah disimpan
+    LaunchedEffect(personalDataSaved) {
+        if (personalDataSaved) {
+            // Reset status dan arahkan ke form bisnis
+            authViewModel.resetPersonalDataStatus()
+            navController.navigate(Routes.BUSINESS_FORM)
         }
     }
 
@@ -73,7 +69,7 @@ fun BusinessFormScreen(
         Spacer(modifier = Modifier.height(16.dp))
         
         Text(
-            text = "Data Usaha",
+            text = "Data Diri",
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
             fontFamily = Poppins,
@@ -83,7 +79,7 @@ fun BusinessFormScreen(
         Spacer(modifier = Modifier.height(8.dp))
         
         Text(
-            text = "Lengkapi data usaha Anda",
+            text = "Lengkapi data diri Anda",
             fontSize = 16.sp,
             fontFamily = Poppins,
             color = Color.Gray,
@@ -92,13 +88,13 @@ fun BusinessFormScreen(
         
         Spacer(modifier = Modifier.height(24.dp))
         
-        // Form Data Usaha
+        // Form Data Diri
         Column(
             modifier = Modifier.fillMaxWidth()
         ) {
-            // Nama Usaha
+            // Nama Lengkap
             Text(
-                text = "Nama Usaha",
+                text = "Nama Lengkap",
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium,
                 fontFamily = Poppins,
@@ -106,9 +102,9 @@ fun BusinessFormScreen(
             )
             
             OutlinedTextField(
-                value = businessName,
-                onValueChange = { businessName = it },
-                placeholder = { Text("Masukkan nama usaha", fontSize = 14.sp, fontFamily = Poppins) },
+                value = fullName,
+                onValueChange = { fullName = it },
+                placeholder = { Text("Masukkan nama lengkap", fontSize = 14.sp, fontFamily = Poppins) },
                 shape = RoundedCornerShape(8.dp),
                 colors = OutlinedTextFieldDefaults.colors(
                     unfocusedBorderColor = Color.LightGray,
@@ -126,28 +122,28 @@ fun BusinessFormScreen(
             
             Spacer(modifier = Modifier.height(16.dp))
             
-            // Jenis Usaha
+            // Jenis Kelamin
             Text(
-                text = "Jenis Usaha",
+                text = "Jenis Kelamin",
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium,
                 fontFamily = Poppins,
                 modifier = Modifier.padding(bottom = 8.dp)
             )
             
-            // Dropdown untuk jenis usaha
+            // Dropdown untuk jenis kelamin
             var expanded by remember { mutableStateOf(false) }
-            val businessTypes = listOf("Makanan & Minuman", "Retail", "Jasa", "Manufaktur", "Lainnya")
+            val genderOptions = listOf("Laki-laki", "Perempuan")
             
             ExposedDropdownMenuBox(
                 expanded = expanded,
                 onExpandedChange = { expanded = !expanded }
             ) {
                 OutlinedTextField(
-                    value = businessType,
+                    value = gender,
                     onValueChange = {},
                     readOnly = true,
-                    placeholder = { Text("Pilih jenis usaha", fontSize = 14.sp, fontFamily = Poppins) },
+                    placeholder = { Text("Pilih jenis kelamin", fontSize = 14.sp, fontFamily = Poppins) },
                     shape = RoundedCornerShape(8.dp),
                     colors = OutlinedTextFieldDefaults.colors(
                         unfocusedBorderColor = Color.LightGray,
@@ -170,11 +166,11 @@ fun BusinessFormScreen(
                     expanded = expanded,
                     onDismissRequest = { expanded = false }
                 ) {
-                    businessTypes.forEach { option ->
+                    genderOptions.forEach { option ->
                         DropdownMenuItem(
                             text = { Text(option, fontFamily = Poppins) },
                             onClick = {
-                                businessType = option
+                                gender = option
                                 expanded = false
                             }
                         )
@@ -184,9 +180,9 @@ fun BusinessFormScreen(
             
             Spacer(modifier = Modifier.height(16.dp))
             
-            // Alamat Usaha
+            // Jabatan
             Text(
-                text = "Alamat Usaha",
+                text = "Jabatan",
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium,
                 fontFamily = Poppins,
@@ -194,40 +190,10 @@ fun BusinessFormScreen(
             )
             
             OutlinedTextField(
-                value = businessAddress,
-                onValueChange = { businessAddress = it },
-                placeholder = { Text("Masukkan alamat usaha", fontSize = 14.sp, fontFamily = Poppins) },
+                value = position,
+                onValueChange = { position = it },
+                placeholder = { Text("Masukkan jabatan Anda", fontSize = 14.sp, fontFamily = Poppins) },
                 shape = RoundedCornerShape(8.dp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    unfocusedBorderColor = Color.LightGray,
-                    focusedBorderColor = Color(0xFF5ED0C5)
-                ),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(100.dp),
-                textStyle = TextStyle(
-                    fontSize = 14.sp,
-                    fontFamily = Poppins
-                )
-            )
-            
-            Spacer(modifier = Modifier.height(16.dp))
-            
-            // Email Usaha
-            Text(
-                text = "Email Usaha (Opsional)",
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Medium,
-                fontFamily = Poppins,
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
-            
-            OutlinedTextField(
-                value = businessEmail,
-                onValueChange = { businessEmail = it },
-                placeholder = { Text("Masukkan email usaha", fontSize = 14.sp, fontFamily = Poppins) },
-                shape = RoundedCornerShape(8.dp),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                 colors = OutlinedTextFieldDefaults.colors(
                     unfocusedBorderColor = Color.LightGray,
                     focusedBorderColor = Color(0xFF5ED0C5)
@@ -244,9 +210,9 @@ fun BusinessFormScreen(
             
             Spacer(modifier = Modifier.height(16.dp))
             
-            // Nomor Telepon Usaha
+            // Alamat
             Text(
-                text = "Nomor Telepon Usaha (Opsional)",
+                text = "Alamat",
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium,
                 fontFamily = Poppins,
@@ -254,9 +220,38 @@ fun BusinessFormScreen(
             )
             
             OutlinedTextField(
-                value = businessPhone,
-                onValueChange = { businessPhone = it },
-                placeholder = { Text("Masukkan nomor telepon usaha", fontSize = 14.sp, fontFamily = Poppins) },
+                value = address,
+                onValueChange = { address = it },
+                placeholder = { Text("Masukkan alamat lengkap", fontSize = 14.sp, fontFamily = Poppins) },
+                shape = RoundedCornerShape(8.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    unfocusedBorderColor = Color.LightGray,
+                    focusedBorderColor = Color(0xFF5ED0C5)
+                ),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(100.dp),
+                textStyle = TextStyle(
+                    fontSize = 14.sp,
+                    fontFamily = Poppins
+                )
+            )
+            
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            // Nomor Telepon
+            Text(
+                text = "Nomor Telepon",
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Medium,
+                fontFamily = Poppins,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+            
+            OutlinedTextField(
+                value = phoneNumber,
+                onValueChange = { phoneNumber = it },
+                placeholder = { Text("Masukkan nomor telepon", fontSize = 14.sp, fontFamily = Poppins) },
                 shape = RoundedCornerShape(8.dp),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
                 colors = OutlinedTextFieldDefaults.colors(
@@ -278,8 +273,8 @@ fun BusinessFormScreen(
             // Tombol Simpan
             Button(
                 onClick = { 
-                    if (validateInputs(businessName, businessType, businessAddress)) {
-                        authViewModel.saveBusinessData(businessName, businessType, businessAddress, businessEmail, businessPhone)
+                    if (validateInputs(fullName, gender, position, address, phoneNumber)) {
+                        authViewModel.savePersonalData(fullName, gender, position, address, phoneNumber)
                     }
                 },
                 enabled = !isLoading,
@@ -298,7 +293,7 @@ fun BusinessFormScreen(
                     )
                 } else {
                     Text(
-                        text = "Simpan dan Lanjutkan",
+                        text = "Selanjutnya",
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold,
                         fontFamily = Poppins
@@ -324,15 +319,17 @@ fun BusinessFormScreen(
 }
 
 /**
- * Validasi input data usaha
+ * Validasi input data diri
  */
 private fun validateInputs(
-    businessName: String,
-    businessType: String,
-    businessAddress: String
+    fullName: String,
+    gender: String,
+    position: String,
+    address: String,
+    phoneNumber: String
 ): Boolean {
     // Check if all required fields are filled
-    if (businessName.isBlank() || businessType.isBlank() || businessAddress.isBlank()) {
+    if (fullName.isBlank() || gender.isBlank() || phoneNumber.isBlank()) {
         return false
     }
     

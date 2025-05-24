@@ -31,9 +31,17 @@ class AuthViewModel : ViewModel() {
     private val _isLoggedIn = MutableStateFlow(false)
     val isLoggedIn: StateFlow<Boolean> = _isLoggedIn.asStateFlow()
     
-    // State untuk status registrasi berhasil (untuk navigasi ke form bisnis)
+    // State untuk status registrasi berhasil (untuk navigasi ke form data diri)
     private val _isRegistered = MutableStateFlow(false)
     val isRegistered: StateFlow<Boolean> = _isRegistered.asStateFlow()
+    
+    // State untuk status data diri tersimpan (untuk navigasi ke form bisnis)
+    private val _personalDataSaved = MutableStateFlow(false)
+    val personalDataSaved: StateFlow<Boolean> = _personalDataSaved.asStateFlow()
+    
+    // State untuk status data bisnis tersimpan (untuk navigasi ke home)
+    private val _businessDataSaved = MutableStateFlow(false)
+    val businessDataSaved: StateFlow<Boolean> = _businessDataSaved.asStateFlow()
     
     init {
         // Cek apakah user sudah login saat ViewModel dibuat
@@ -94,7 +102,7 @@ class AuthViewModel : ViewModel() {
                     createdAt = System.currentTimeMillis()
                 )
                 _isLoggedIn.value = true
-                _isRegistered.value = true // Set registrasi berhasil untuk navigasi ke form bisnis
+                _isRegistered.value = true // Set registrasi berhasil untuk navigasi ke form data diri
             } catch (e: Exception) {
                 _error.value = e.message ?: "Gagal mendaftar"
             } finally {
@@ -104,7 +112,80 @@ class AuthViewModel : ViewModel() {
     }
     
     /**
-     * Reset status registrasi setelah navigasi ke form bisnis
+     * Menyimpan data diri user
+     */
+    fun savePersonalData(fullName: String, gender: String, position: String, address: String, phoneNumber: String) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            _error.value = null
+            
+            try {
+                // Dapatkan ID user saat ini
+                val userId = authRepository.getCurrentUser()?.uid
+                    ?: throw Exception("User tidak ditemukan, silakan login ulang")
+                
+                // Update data user di Firestore
+                firestoreRepository.updateUserData(
+                    name = fullName,
+                    gender = gender,
+                    position = position,
+                    phone = phoneNumber
+                )
+                
+                // Update state
+                _personalDataSaved.value = true
+            } catch (e: Exception) {
+                _error.value = e.message ?: "Gagal menyimpan data diri"
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+    
+    /**
+     * Reset status data diri tersimpan
+     */
+    fun resetPersonalDataStatus() {
+        _personalDataSaved.value = false
+    }
+    
+    /**
+     * Menyimpan data usaha
+     */
+    fun saveBusinessData(name: String, type: String, address: String, email: String?, phone: String?) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            _error.value = null
+            
+            try {
+                // Simpan data bisnis ke Firestore
+                firestoreRepository.saveBusinessData(
+                    name = name,
+                    type = type,
+                    address = address,
+                    email = email,
+                    phone = phone
+                )
+                
+                // Update state
+                _businessDataSaved.value = true
+            } catch (e: Exception) {
+                _error.value = e.message ?: "Gagal menyimpan data usaha"
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+    
+    /**
+     * Reset status data usaha tersimpan
+     */
+    fun resetBusinessDataStatus() {
+        _businessDataSaved.value = false
+    }
+    
+    /**
+     * Reset status registrasi setelah navigasi ke form data diri
      */
     fun resetRegistrationStatus() {
         _isRegistered.value = false
@@ -122,6 +203,8 @@ class AuthViewModel : ViewModel() {
                 _currentUser.value = null
                 _isLoggedIn.value = false
                 _isRegistered.value = false
+                _personalDataSaved.value = false
+                _businessDataSaved.value = false
             } catch (e: Exception) {
                 _error.value = e.message ?: "Gagal logout"
             } finally {

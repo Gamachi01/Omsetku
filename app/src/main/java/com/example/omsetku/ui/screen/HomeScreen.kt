@@ -122,114 +122,115 @@ fun HomeScreen(
                 }
             }
 
-            // Tambahkan Column yang dapat di-scroll untuk konten utama
-            Column(
+            // Bagian statis yang tidak di-scroll
+            // Saldo Card
+            Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(1f)
-                    .verticalScroll(scrollState),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                    .padding(bottom = 8.dp),
+                shape = RoundedCornerShape(16.dp),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+                colors = CardDefaults.cardColors(containerColor = PrimaryLight)
             ) {
-                // Saldo Card
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 8.dp),
-                    shape = RoundedCornerShape(16.dp),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-                    colors = CardDefaults.cardColors(containerColor = PrimaryLight)
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    horizontalAlignment = Alignment.Start
                 ) {
-                    Column(
-                        modifier = Modifier.padding(16.dp),
-                        horizontalAlignment = Alignment.Start
-                    ) {
+                    Text(
+                        text = "Saldo Saat Ini",
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = Color.DarkGray,
+                        fontFamily = Poppins
+                    )
+                    
+                    Spacer(modifier = Modifier.height(6.dp))
+                    
+                    if (isLoading) {
+                        CircularProgressIndicator(
+                            color = PrimaryColor,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    } else {
                         Text(
-                            text = "Saldo Saat Ini",
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.Medium,
-                            color = Color.DarkGray,
+                            text = "Rp %,d".format(incomeAmount - expenseAmount).replace(',', '.'),
+                            fontSize = 26.sp,
+                            fontWeight = FontWeight.ExtraBold,
+                            color = PrimaryColor,
                             fontFamily = Poppins
                         )
-                        
-                        Spacer(modifier = Modifier.height(6.dp))
-                        
-                        if (isLoading) {
-                            CircularProgressIndicator(
-                                color = PrimaryColor,
-                                modifier = Modifier.size(24.dp)
-                            )
-                        } else {
+                    }
+                    
+                    Spacer(modifier = Modifier.height(12.dp))
+                    
+                    Divider(color = Color.LightGray, thickness = 1.dp)
+                    
+                    Spacer(modifier = Modifier.height(12.dp))
+                    
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Column {
                             Text(
-                                text = "Rp %,d".format(incomeAmount - expenseAmount).replace(',', '.'),
-                                fontSize = 26.sp,
-                                fontWeight = FontWeight.ExtraBold,
-                                color = PrimaryColor,
+                                text = "Pemasukan",
+                                fontSize = 12.sp,
+                                color = Color.DarkGray,
+                                fontFamily = Poppins
+                            )
+                            
+                            Spacer(modifier = Modifier.height(2.dp))
+                            
+                            Text(
+                                text = "Rp %,d".format(incomeAmount).replace(',', '.'),
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = IncomeColor,
                                 fontFamily = Poppins
                             )
                         }
                         
-                        Spacer(modifier = Modifier.height(12.dp))
-                        
-                        Divider(color = Color.LightGray, thickness = 1.dp)
-                        
-                        Spacer(modifier = Modifier.height(12.dp))
-                        
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            Column {
-                                Text(
-                                    text = "Pemasukan",
-                                    fontSize = 12.sp,
-                                    color = Color.DarkGray,
-                                    fontFamily = Poppins
-                                )
-                                
-                                Spacer(modifier = Modifier.height(2.dp))
-                                
-                                Text(
-                                    text = "Rp %,d".format(incomeAmount).replace(',', '.'),
-                                    fontSize = 16.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = IncomeColor,
-                                    fontFamily = Poppins
-                                )
-                            }
+                        Column(horizontalAlignment = Alignment.End) {
+                            Text(
+                                text = "Pengeluaran",
+                                fontSize = 12.sp,
+                                color = Color.DarkGray,
+                                fontFamily = Poppins
+                            )
                             
-                            Column(horizontalAlignment = Alignment.End) {
-                                Text(
-                                    text = "Pengeluaran",
-                                    fontSize = 12.sp,
-                                    color = Color.DarkGray,
-                                    fontFamily = Poppins
-                                )
-                                
-                                Spacer(modifier = Modifier.height(2.dp))
-                                
-                                Text(
-                                    text = "Rp %,d".format(expenseAmount).replace(',', '.'),
-                                    fontSize = 16.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = ExpenseColor,
-                                    fontFamily = Poppins
-                                )
-                            }
+                            Spacer(modifier = Modifier.height(2.dp))
+                            
+                            Text(
+                                text = "Rp %,d".format(expenseAmount).replace(',', '.'),
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = ExpenseColor,
+                                fontFamily = Poppins
+                            )
                         }
                     }
                 }
+            }
 
-                // Text "Transaksi Terakhir"
-                Text(
-                    text = "Transaksi Terakhir",
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.Black,
-                    fontFamily = Poppins,
-                    modifier = Modifier.fillMaxWidth().padding(top = 16.dp, bottom = 8.dp),
-                    textAlign = TextAlign.Left
-                )
-                
+            // Text "Transaksi Terakhir"
+            Text(
+                text = "Transaksi Terakhir",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.Black,
+                fontFamily = Poppins,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 16.dp, bottom = 8.dp),
+                textAlign = TextAlign.Left
+            )
+            
+            // Bagian yang dapat di-scroll (hanya daftar transaksi)
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+            ) {
                 // Loading state
                 if (isLoading) {
                     Box(
@@ -312,21 +313,17 @@ fun HomeScreen(
                         }
                     }
                 }
-                // Transactions list
+                // Transactions list - Gunakan LazyColumn di sini karena sudah dalam Box sendiri
                 else {
-                    // Menampilkan daftar transaksi sebagai Column biasa bukan LazyColumn
-                    // untuk menghindari masalah LazyColumn di dalam verticalScroll
-                    Column(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                        contentPadding = PaddingValues(bottom = 80.dp)
                     ) {
-                        transactions.forEach { transaction ->
+                        items(transactions) { transaction ->
                             TransactionItem(transaction)
                         }
                     }
-                    
-                    // Tambahkan Spacer di bagian bawah untuk padding
-                    Spacer(modifier = Modifier.height(80.dp))
                 }
             }
         }
