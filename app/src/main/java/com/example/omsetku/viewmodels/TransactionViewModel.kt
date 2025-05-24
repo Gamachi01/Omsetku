@@ -107,12 +107,15 @@ class TransactionViewModel : ViewModel() {
             _error.value = null
             
             try {
+                // Tentukan kategori berdasarkan tipe
+                val categoryLabel = if (type == "INCOME") "Pemasukan" else "Pengeluaran"
+                
                 // Simpan ke Firestore
                 repository.saveTransaction(
                     type = type,
                     amount = amount.toLong(),
                     date = parsedDate,
-                    category = if (type == "INCOME") "Pemasukan" else "Pengeluaran",
+                    category = categoryLabel,
                     description = description
                 )
                 
