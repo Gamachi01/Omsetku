@@ -46,12 +46,14 @@ fun EditProfileScreen(navController: NavController) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 8.dp),
+                .padding(bottom = 8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(
                 onClick = { navController.navigate(Routes.PROFILE) },
-                modifier = Modifier.size(40.dp)
+                modifier = Modifier
+                    .size(40.dp)
+                    .offset(x = (-12).dp)
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.back_icon),
