@@ -90,7 +90,7 @@ fun ProfileScreen(
                     )
                 }
                 Icon(
-                    painter = painterResource(id = R.drawable.go_icon),
+                    painter = painterResource(id = R.drawable.go_icon_vector),
                     contentDescription = "Arrow",
                     modifier = Modifier.size(20.dp),
                     tint = Color.Gray
@@ -265,7 +265,7 @@ fun ProfileMenuItem(title: String, icon: Int, onClick: () -> Unit = {}) {
 
             if (title != "Log Out") {
                 Icon(
-                    painter = painterResource(id = R.drawable.go_icon),
+                    painter = painterResource(id = R.drawable.go_icon_vector),
                     contentDescription = "Arrow",
                     modifier = Modifier
                         .size(20.dp)
