@@ -101,13 +101,13 @@ fun EditProfileScreen(
         Spacer(modifier = Modifier.height(24.dp))
         
         // Foto profil
-        Box(
+        Column(
             modifier = Modifier.fillMaxWidth(),
-            contentAlignment = Alignment.Center
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Box(
                 modifier = Modifier
-                    .size(120.dp)
+                    .size(160.dp)
                     .clip(CircleShape)
                     .background(Color.LightGray),
                 contentAlignment = Alignment.Center
@@ -116,10 +116,20 @@ fun EditProfileScreen(
                     painter = painterResource(id = R.drawable.profile_icon),
                     contentDescription = "Profile Photo",
                     modifier = Modifier
-                        .size(60.dp)
+                        .size(80.dp)
                         .clip(CircleShape)
                 )
             }
+            
+            Spacer(modifier = Modifier.height(8.dp))
+            
+            Text(
+                text = "Foto Profil",
+                fontSize = 14.sp,
+                fontFamily = Poppins,
+                color = Color.Gray,
+                fontWeight = FontWeight.Medium
+            )
         }
         
         Spacer(modifier = Modifier.height(30.dp))

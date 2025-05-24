@@ -115,40 +115,39 @@ fun BusinessInfoScreen(
             }
         } else {
             // Logo usaha
-            Box(
+            Column(
                 modifier = Modifier.fillMaxWidth(),
-                contentAlignment = Alignment.Center
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Box(
                     modifier = Modifier
-                        .size(100.dp)
+                        .size(140.dp)
                         .clip(CircleShape)
-                        .border(1.dp, Color(0xFF5ED0C5), CircleShape)
+                        .border(2.dp, Color(0xFF5ED0C5), CircleShape)
                         .background(Color.White),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
                         painter = painterResource(id = R.drawable.usaha_icon),
                         contentDescription = "Logo Usaha",
-                        modifier = Modifier.size(40.dp),
+                        modifier = Modifier.size(60.dp),
                         tint = Color(0xFF5ED0C5)
                     )
                 }
+                
+                Spacer(modifier = Modifier.height(8.dp))
+                
+                Text(
+                    text = "Logo",
+                    fontSize = 14.sp,
+                    fontFamily = Poppins,
+                    color = Color.Gray,
+                    fontWeight = FontWeight.Medium,
+                    textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                )
             }
             
-            Text(
-                text = "Logo",
-                fontSize = 14.sp,
-                fontFamily = Poppins,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp),
-                color = Color.Gray,
-                fontWeight = FontWeight.Medium,
-                textAlign = androidx.compose.ui.text.style.TextAlign.Center
-            )
-            
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(24.dp))
             
             // Form fields
             FormField(label = "Nama Usaha", value = namaUsaha, onValueChange = { namaUsaha = it })
