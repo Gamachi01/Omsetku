@@ -217,6 +217,8 @@ class FirestoreRepository {
         type: String? = null
     ): List<Map<String, Any>> {
         val userId = getCurrentUserId()
+        
+        // Gunakan query yang paling sederhana mungkin
         var query = transactionCollection.whereEqualTo("userId", userId)
         
         // Filter berdasarkan tipe transaksi
@@ -224,12 +226,9 @@ class FirestoreRepository {
             query = query.whereEqualTo("type", type)
         }
         
-        // Urutkan berdasarkan tanggal terbaru
-        query = query.orderBy("date", Query.Direction.DESCENDING)
-        
+        // Hilangkan pengurutan dengan Query.Direction untuk menghindari kebutuhan indeks
         val snapshot = query.get().await()
         
-        // Filter tanggal manual setelah query
         return snapshot.documents.mapNotNull { doc ->
             val data = doc.data
             data?.let {
@@ -242,7 +241,7 @@ class FirestoreRepository {
                 
                 if (inRange) it else null
             }
-        }
+        }.sortedByDescending { it["date"] as? Long ?: 0L } // Urutkan di dalam aplikasi alih-alih di query
     }
     
     /**
