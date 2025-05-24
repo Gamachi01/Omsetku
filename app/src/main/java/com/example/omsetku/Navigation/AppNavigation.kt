@@ -10,30 +10,14 @@ import com.example.omsetku.ui.screen.*
 fun AppNavigation(navController: NavHostController) {
     NavHost(
         navController = navController,
-        startDestination = Routes.LOGIN
+        startDestination = Routes.HOME
     ) {
         composable(route = Routes.LOGIN) {
             LoginScreen(navController = navController)
         }
         
-        composable(route = Routes.SIGNUP) {
-            SignupScreen(navController = navController)
-        }
-        
         composable(route = Routes.HOME) {
             HomeScreen(navController = navController)
-        }
-        
-        composable(route = Routes.OTP) {
-            OtpScreen(navController = navController)
-        }
-        
-        composable(route = Routes.BUSINESS_SETUP) {
-            BusinessSetupScreen(navController = navController)
-        }
-        
-        composable(route = Routes.BUSINESS_FORM) {
-            BusinessFormScreen(navController = navController)
         }
         
         composable(route = Routes.CASHIER) {
