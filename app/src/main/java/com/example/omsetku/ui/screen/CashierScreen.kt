@@ -43,13 +43,15 @@ import com.example.omsetku.ui.theme.PrimaryVariant
 import androidx.compose.foundation.verticalScroll
 import com.example.omsetku.ui.data.ProductItem
 import com.example.omsetku.viewmodels.ProductViewModel
+import com.example.omsetku.viewmodels.CartViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CashierScreen(
     navController: NavController,
     modifier: Modifier = Modifier,
-    productViewModel: ProductViewModel = viewModel()
+    productViewModel: ProductViewModel = viewModel(),
+    cartViewModel: CartViewModel = viewModel()
 ) {
     var selectedItem by remember { mutableStateOf("Cashier") }
     var searchQuery by remember { mutableStateOf("") }
@@ -58,6 +60,9 @@ fun CashierScreen(
     val products by productViewModel.products.collectAsState()
     val isLoading by productViewModel.isLoading.collectAsState()
     val error by productViewModel.error.collectAsState()
+    
+    // Mengambil data keranjang dari CartViewModel
+    val cartItems by cartViewModel.cartItems.collectAsState()
     
     // Filter produk berdasarkan pencarian
     val filteredProducts = remember(products, searchQuery) {
@@ -76,9 +81,8 @@ fun CashierScreen(
     var showSuccessDialog by remember { mutableStateOf(false) }
     var isEditMode by remember { mutableStateOf(false) }
     
-    val totalItems = products.sumOf { it.quantity }
+    val totalItems = cartViewModel.getTotalItems()
     val hasSelectedItems = totalItems > 0
-    val selectedProducts = products.filter { it.quantity > 0 }
 
     // Efek untuk memuat produk saat pertama kali
     LaunchedEffect(Unit) {
@@ -260,7 +264,7 @@ fun CashierScreen(
                                     product = product,
                                     isEditMode = isEditMode,
                                     onQuantityChanged = { newQuantity ->
-                                        productViewModel.updateProductQuantity(product.id, newQuantity)
+                                        // Implementasi update quantity
                                     },
                                     onEdit = {
                                         selectedProduct = product
@@ -323,36 +327,24 @@ fun CashierScreen(
                             color = Color.White,
                             modifier = Modifier.weight(1f)
                         )
-
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        
+                        Surface(
+                            modifier = Modifier
+                                .size(24.dp),
+                            shape = CircleShape,
+                            color = Color.White
                         ) {
-                            Surface(
-                                shape = CircleShape,
-                                color = Color.White,
-                                modifier = Modifier.size(32.dp)
+                            Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center
                             ) {
-                                Box(
-                                    contentAlignment = Alignment.Center,
-                                    modifier = Modifier.fillMaxSize()
-                                ) {
-                                    Text(
-                                        "$totalItems",
-                                        fontSize = 14.sp,
-                                        fontWeight = FontWeight.Bold,
-                                        color = PrimaryVariant,
-                                        fontFamily = Poppins
-                                    )
-                                }
+                                Text(
+                                    text = totalItems.toString(),
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = PrimaryVariant
+                                )
                             }
-                            
-                            Icon(
-                                painter = painterResource(id = R.drawable.arrow_down),
-                                contentDescription = "Arrow",
-                                modifier = Modifier.size(16.dp),
-                                tint = Color.White
-                            )
                         }
                     }
                 }
@@ -612,6 +604,21 @@ fun ProductCard(
     onEdit: () -> Unit = {},
     onDelete: () -> Unit = {}
 ) {
+    // Ambil CartViewModel untuk operasi keranjang
+    val cartViewModel: CartViewModel = viewModel()
+    
+    // State untuk quantity lokal
+    var quantity by remember { mutableStateOf(0) }
+    
+    // Update state lokal dari keranjang
+    val cartItems by cartViewModel.cartItems.collectAsState()
+    val cartItem = cartItems.find { it.productId == product.id }
+    
+    // Efek untuk update quantity dari keranjang
+    LaunchedEffect(cartItems) {
+        quantity = cartItem?.quantity ?: 0
+    }
+    
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
@@ -641,7 +648,9 @@ fun ProductCard(
                 fontWeight = FontWeight.Bold,
                 fontSize = 14.sp,
                 color = PrimaryVariant,
-                fontFamily = Poppins
+                fontFamily = Poppins,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
             )
             
             // Product Price
@@ -656,96 +665,107 @@ fun ProductCard(
             Spacer(modifier = Modifier.height(8.dp))
             
             // Quantity Controls atau Edit/Delete buttons
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                if (isEditMode) {
-                    // Edit button (pengganti tombol minus)
-                    Surface(
-                        shape = CircleShape,
-                        color = PrimaryVariant,
-                        modifier = Modifier.size(28.dp)
+            if (isEditMode) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceEvenly,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    IconButton(
+                        onClick = onEdit,
+                        modifier = Modifier
+                            .size(32.dp)
+                            .background(Color.LightGray.copy(alpha = 0.5f), CircleShape)
                     ) {
-                        Box(
-                            contentAlignment = Alignment.Center,
-                            modifier = Modifier.clickable { onEdit() }
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Edit,
-                                contentDescription = "Edit",
-                                tint = Color.White,
-                                modifier = Modifier.size(16.dp)
-                            )
-                        }
+                        Icon(
+                            imageVector = Icons.Default.Edit,
+                            contentDescription = "Edit",
+                            tint = Color.DarkGray,
+                            modifier = Modifier.size(16.dp)
+                        )
                     }
                     
-                    // Delete button (pengganti tombol plus)
-                    Surface(
-                        shape = CircleShape,
-                        color = Color(0xFFE74C3C), // Warna merah untuk delete
-                        modifier = Modifier.size(28.dp)
+                    IconButton(
+                        onClick = onDelete,
+                        modifier = Modifier
+                            .size(32.dp)
+                            .background(Color.Red.copy(alpha = 0.2f), CircleShape)
                     ) {
-                        Box(
-                            contentAlignment = Alignment.Center,
-                            modifier = Modifier.clickable { onDelete() }
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Delete,
-                                contentDescription = "Hapus",
-                                tint = Color.White,
-                                modifier = Modifier.size(16.dp)
-                            )
-                        }
+                        Icon(
+                            imageVector = Icons.Default.Delete,
+                            contentDescription = "Delete",
+                            tint = Color.Red,
+                            modifier = Modifier.size(16.dp)
+                        )
                     }
-                } else {
-                    // Normal quantity controls
-                    Surface(
-                        shape = CircleShape,
-                        color = PrimaryVariant,
-                        modifier = Modifier.size(28.dp)
-                    ) {
-                        Box(
-                            contentAlignment = Alignment.Center,
-                            modifier = Modifier.clickable { 
-                                if (product.quantity > 0) {
-                                    onQuantityChanged(product.quantity - 1)
-                                }
+                }
+            } else {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    // Minus Button
+                    IconButton(
+                        onClick = {
+                            if (quantity > 0) {
+                                quantity--
+                                cartViewModel.updateQuantity(product.id, quantity)
                             }
-                        ) {
-                            Text(
-                                text = "-",
-                                fontSize = 18.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = Color.White
+                        },
+                        modifier = Modifier
+                            .size(32.dp)
+                            .background(
+                                color = if (quantity > 0) PrimaryVariant else Color.LightGray,
+                                shape = CircleShape
                             )
-                        }
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.minus_icon),
+                            contentDescription = "Decrease",
+                            tint = Color.White,
+                            modifier = Modifier.size(16.dp)
+                        )
                     }
                     
+                    // Quantity
                     Text(
-                        text = "${product.quantity}",
+                        text = quantity.toString(),
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold,
                         fontFamily = Poppins
                     )
                     
-                    Surface(
-                        shape = CircleShape,
-                        color = PrimaryVariant,
-                        modifier = Modifier.size(28.dp)
+                    // Plus Button
+                    IconButton(
+                        onClick = {
+                            quantity++
+                            if (quantity == 1) {
+                                // Jika baru ditambahkan, gunakan addToCart
+                                cartViewModel.addToCart(
+                                    com.example.omsetku.models.Product(
+                                        id = product.id,
+                                        name = product.name,
+                                        price = product.price,
+                                        imageRes = product.imageRes
+                                    ),
+                                    1
+                                )
+                            } else {
+                                // Jika sudah ada, update quantity
+                                cartViewModel.updateQuantity(product.id, quantity)
+                            }
+                        },
+                        modifier = Modifier
+                            .size(32.dp)
+                            .background(PrimaryVariant, CircleShape)
                     ) {
-                        Box(
-                            contentAlignment = Alignment.Center,
-                            modifier = Modifier.clickable { onQuantityChanged(product.quantity + 1) }
-                        ) {
-                            Text(
-                                text = "+",
-                                fontSize = 18.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = Color.White
-                            )
-                        }
+                        Icon(
+                            imageVector = Icons.Default.Add,
+                            contentDescription = "Increase",
+                            tint = Color.White,
+                            modifier = Modifier.size(16.dp)
+                        )
                     }
                 }
             }
