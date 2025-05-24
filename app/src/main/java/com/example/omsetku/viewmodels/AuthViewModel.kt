@@ -83,7 +83,7 @@ class AuthViewModel : ViewModel() {
     /**
      * Mendaftarkan user baru
      */
-    fun register(name: String, email: String, password: String, phone: String) {
+    fun register(name: String, email: String, password: String, confirmPassword: String, phone: String) {
         if (email.isEmpty() || password.isEmpty()) {
             _error.value = "Semua field harus diisi"
             return
