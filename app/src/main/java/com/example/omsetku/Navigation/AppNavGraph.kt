@@ -14,7 +14,7 @@ fun AppNavGraph(navController: NavHostController) {
             LoginScreen(navController)
         }
         composable(Routes.SIGNUP) {
-            SignUpScreen(navController)
+            RegisterScreen(navController)
         }
         composable(Routes.OTP) {
             OTPScreen(navController)
