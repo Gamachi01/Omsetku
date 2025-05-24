@@ -47,7 +47,9 @@ fun RegisterScreen(
     LaunchedEffect(isLoggedIn) {
         if (isLoggedIn) {
             navController.navigate(Routes.HOME) {
-                popUpTo(Routes.REGISTER) { inclusive = true }
+                popUpTo(Routes.SIGNUP) {
+                    inclusive = true
+                }
             }
         }
     }
