@@ -30,6 +30,8 @@ class CartViewModel : ViewModel() {
     val transactionSuccess: StateFlow<Boolean> = _transactionSuccess.asStateFlow()
     
     fun addToCart(product: Product, quantity: Int) {
+        if (quantity <= 0) return
+        
         val existingItem = _cartItems.value.find { it.productId == product.id }
         
         val updatedItems = if (existingItem != null) {

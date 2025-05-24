@@ -81,7 +81,8 @@ fun CashierScreen(
     var showSuccessDialog by remember { mutableStateOf(false) }
     var isEditMode by remember { mutableStateOf(false) }
     
-    val totalItems = cartViewModel.getTotalItems()
+    // Selalu update totalItems ketika cartItems berubah
+    val totalItems = remember(cartItems) { cartViewModel.getTotalItems() }
     val hasSelectedItems = totalItems > 0
 
     // Efek untuk memuat produk saat pertama kali
@@ -264,7 +265,12 @@ fun CashierScreen(
                                     product = product,
                                     isEditMode = isEditMode,
                                     onQuantityChanged = { newQuantity ->
-                                        // Implementasi update quantity
+                                        // Implementasi yang benar untuk update quantity
+                                        if (newQuantity > 0) {
+                                            cartViewModel.updateQuantity(product.id.toString(), newQuantity)
+                                        } else {
+                                            cartViewModel.removeFromCart(product.id.toString())
+                                        }
                                     },
                                     onEdit = {
                                         selectedProduct = product
@@ -755,6 +761,9 @@ fun ProductCard(
                                 // Jika sudah ada, update quantity
                                 cartViewModel.updateQuantity(product.id.toString(), quantity)
                             }
+                            
+                            // Panggil callback untuk memberitahu parent
+                            onQuantityChanged(quantity)
                         },
                         modifier = Modifier
                             .size(32.dp)
