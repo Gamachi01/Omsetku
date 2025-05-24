@@ -104,7 +104,8 @@ fun TransactionScreen(
                 fontWeight = FontWeight.Bold,
                 color = Color.Black,
                 fontFamily = Poppins,
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth()
+                    .padding(bottom = 16.dp),
                 textAlign = TextAlign.Center
             )
 

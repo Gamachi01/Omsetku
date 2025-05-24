@@ -315,12 +315,15 @@ fun HomeScreen(
                 }
                 // Transactions list - Gunakan LazyColumn di sini karena sudah dalam Box sendiri
                 else {
+                    // Batasi hanya 10 transaksi terakhir
+                    val recentTransactions = transactions.take(10)
+                    
                     LazyColumn(
                         modifier = Modifier.fillMaxSize(),
                         verticalArrangement = Arrangement.spacedBy(8.dp),
-                        contentPadding = PaddingValues(bottom = 80.dp)
+                        contentPadding = PaddingValues(bottom = 24.dp)
                     ) {
-                        items(transactions) { transaction ->
+                        items(recentTransactions) { transaction ->
                             TransactionItem(transaction)
                         }
                     }
