@@ -270,6 +270,12 @@ fun RegisterScreen(
                 onClick = { 
                     if (validateInputs(name, email, phone, password, confirmPassword)) {
                         authViewModel.register(name, email, password, phone)
+                        // Setelah berhasil register langsung arahkan ke PersonalDataScreen
+                        navController.navigate(Routes.PERSONAL_DATA) {
+                            popUpTo(Routes.SIGNUP) {
+                                inclusive = true
+                            }
+                        }
                     }
                 },
                 enabled = !isLoading,
