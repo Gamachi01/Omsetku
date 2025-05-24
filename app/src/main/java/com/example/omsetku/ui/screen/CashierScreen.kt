@@ -722,7 +722,7 @@ fun ProductCard(
                             )
                     ) {
                         Icon(
-                            imageVector = Icons.Default.Remove,
+                            painter = painterResource(id = R.drawable.ic_remove),
                             contentDescription = "Decrease",
                             tint = Color.White,
                             modifier = Modifier.size(16.dp)
