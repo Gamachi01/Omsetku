@@ -227,7 +227,7 @@ fun BusinessSetupScreen(navController: NavController = rememberNavController()) 
             onClick = { navController.navigate(Routes.HOME) },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 24.dp)
+                .padding(top = 24.dp, bottom = 16.dp)
                 .height(54.dp),
             shape = RoundedCornerShape(8.dp),
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF62DCC8))
