@@ -243,28 +243,35 @@ fun CashierScreen(
                     }
                 } else {
                     // Product Grid
-                    LazyVerticalGrid(
-                        columns = GridCells.Fixed(2),
-                        contentPadding = PaddingValues(bottom = if (hasSelectedItems) 80.dp else 16.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f)
                     ) {
-                        items(filteredProducts) { product ->
-                            ProductCard(
-                                product = product,
-                                isEditMode = isEditMode,
-                                onQuantityChanged = { newQuantity ->
-                                    productViewModel.updateProductQuantity(product.id, newQuantity)
-                                },
-                                onEdit = {
-                                    selectedProduct = product
-                                    showEditProductDialog = true
-                                },
-                                onDelete = {
-                                    productToDelete = product
-                                    showDeleteConfirmDialog = true
-                                }
-                            )
+                        LazyVerticalGrid(
+                            columns = GridCells.Fixed(2),
+                            contentPadding = PaddingValues(bottom = if (hasSelectedItems) 80.dp else 16.dp),
+                            verticalArrangement = Arrangement.spacedBy(12.dp),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                            modifier = Modifier.fillMaxSize()
+                        ) {
+                            items(filteredProducts) { product ->
+                                ProductCard(
+                                    product = product,
+                                    isEditMode = isEditMode,
+                                    onQuantityChanged = { newQuantity ->
+                                        productViewModel.updateProductQuantity(product.id, newQuantity)
+                                    },
+                                    onEdit = {
+                                        selectedProduct = product
+                                        showEditProductDialog = true
+                                    },
+                                    onDelete = {
+                                        productToDelete = product
+                                        showDeleteConfirmDialog = true
+                                    }
+                                )
+                            }
                         }
                     }
                 }
