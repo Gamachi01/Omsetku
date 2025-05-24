@@ -38,7 +38,9 @@ fun TaxSettingsScreen(navController: NavController) {
         ) {
             IconButton(
                 onClick = { navController.popBackStack() },
-                modifier = Modifier.size(40.dp)
+                modifier = Modifier
+                    .size(40.dp)
+                    .offset(x = (-12).dp)
             ) {
                 Icon(
                     painter = painterResource(id = R.drawable.back_icon),
@@ -52,7 +54,7 @@ fun TaxSettingsScreen(navController: NavController) {
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 fontFamily = Poppins,
-                modifier = Modifier.padding(start = 16.dp)
+                modifier = Modifier.padding(start = 8.dp)
             )
         }
         
