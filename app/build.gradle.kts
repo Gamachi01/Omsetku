@@ -52,10 +52,9 @@ android {
         compose = true
     }
     
-    // Konfigurasi untuk WebP conversion
-    androidResources {
-        // Mengaktifkan generasi drawable untuk densitas yang berbeda
-        generateLocaleResources = true
+    // Konfigurasi untuk resource dan densitas
+    android.defaultConfig {
+        resourceConfigurations.addAll(listOf("en", "id"))
     }
 }
 
