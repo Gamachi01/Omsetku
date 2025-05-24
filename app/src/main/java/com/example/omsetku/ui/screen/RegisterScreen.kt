@@ -3,8 +3,10 @@ package com.example.omsetku.ui.screen
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -24,16 +26,19 @@ import com.example.omsetku.Navigation.Routes
 import com.example.omsetku.R
 import com.example.omsetku.ui.components.Poppins
 import com.example.omsetku.viewmodels.AuthViewModel
-import kotlinx.coroutines.flow.collectLatest
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LoginScreen(
+fun RegisterScreen(
     navController: NavController,
     authViewModel: AuthViewModel = viewModel()
 ) {
+    var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
+    var phone by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var confirmPassword by remember { mutableStateOf("") }
+    
     val isLoading by authViewModel.isLoading.collectAsState()
     val error by authViewModel.error.collectAsState()
     val isLoggedIn by authViewModel.isLoggedIn.collectAsState()
@@ -42,16 +47,8 @@ fun LoginScreen(
     LaunchedEffect(isLoggedIn) {
         if (isLoggedIn) {
             navController.navigate(Routes.HOME) {
-                popUpTo(Routes.LOGIN) { inclusive = true }
+                popUpTo(Routes.REGISTER) { inclusive = true }
             }
-        }
-    }
-    
-    // Efek untuk menampilkan error
-    LaunchedEffect(error) {
-        error?.let {
-            // Tampilkan error (bisa ditambahkan)
-            authViewModel.clearError()
         }
     }
 
@@ -59,22 +56,22 @@ fun LoginScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White)
-            .padding(horizontal = 24.dp, vertical = 32.dp),
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = 24.dp, vertical = 24.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Logo dan judul
-        Spacer(modifier = Modifier.height(24.dp))
+        // Header
         Image(
             painter = painterResource(id = R.drawable.logo),
             contentDescription = "Logo",
-            modifier = Modifier.size(120.dp)
+            modifier = Modifier.size(100.dp)
         )
         
         Spacer(modifier = Modifier.height(16.dp))
         
         Text(
-            text = "Omsetku",
-            fontSize = 28.sp,
+            text = "Buat Akun Baru",
+            fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
             fontFamily = Poppins,
             color = Color(0xFF5ED0C5)
@@ -83,19 +80,50 @@ fun LoginScreen(
         Spacer(modifier = Modifier.height(8.dp))
         
         Text(
-            text = "Kelola bisnis Anda dengan mudah",
+            text = "Silahkan isi data dengan benar",
             fontSize = 16.sp,
             fontFamily = Poppins,
             color = Color.Gray,
             textAlign = TextAlign.Center
         )
         
-        Spacer(modifier = Modifier.height(32.dp))
+        Spacer(modifier = Modifier.height(24.dp))
         
-        // Form Login
+        // Form Register
         Column(
             modifier = Modifier.fillMaxWidth()
         ) {
+            // Nama
+            Text(
+                text = "Nama Lengkap",
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Medium,
+                fontFamily = Poppins,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+            
+            OutlinedTextField(
+                value = name,
+                onValueChange = { name = it },
+                placeholder = { Text("Masukkan nama lengkap", fontSize = 14.sp, fontFamily = Poppins) },
+                shape = RoundedCornerShape(8.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    unfocusedBorderColor = Color.LightGray,
+                    focusedBorderColor = Color(0xFF5ED0C5)
+                ),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp),
+                textStyle = TextStyle(
+                    fontSize = 14.sp,
+                    fontFamily = Poppins
+                ),
+                singleLine = true
+            )
+            
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            // Email
             Text(
                 text = "Email",
                 fontSize = 14.sp,
@@ -107,7 +135,7 @@ fun LoginScreen(
             OutlinedTextField(
                 value = email,
                 onValueChange = { email = it },
-                placeholder = { Text("Masukkan email Anda", fontSize = 14.sp, fontFamily = Poppins) },
+                placeholder = { Text("Masukkan email", fontSize = 14.sp, fontFamily = Poppins) },
                 shape = RoundedCornerShape(8.dp),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                 colors = OutlinedTextFieldDefaults.colors(
@@ -126,6 +154,38 @@ fun LoginScreen(
             
             Spacer(modifier = Modifier.height(16.dp))
             
+            // Nomor Telepon
+            Text(
+                text = "Nomor Telepon",
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Medium,
+                fontFamily = Poppins,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+            
+            OutlinedTextField(
+                value = phone,
+                onValueChange = { phone = it },
+                placeholder = { Text("Masukkan nomor telepon", fontSize = 14.sp, fontFamily = Poppins) },
+                shape = RoundedCornerShape(8.dp),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+                colors = OutlinedTextFieldDefaults.colors(
+                    unfocusedBorderColor = Color.LightGray,
+                    focusedBorderColor = Color(0xFF5ED0C5)
+                ),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp),
+                textStyle = TextStyle(
+                    fontSize = 14.sp,
+                    fontFamily = Poppins
+                ),
+                singleLine = true
+            )
+            
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            // Password
             Text(
                 text = "Password",
                 fontSize = 14.sp,
@@ -137,7 +197,7 @@ fun LoginScreen(
             OutlinedTextField(
                 value = password,
                 onValueChange = { password = it },
-                placeholder = { Text("Masukkan password Anda", fontSize = 14.sp, fontFamily = Poppins) },
+                placeholder = { Text("Masukkan password", fontSize = 14.sp, fontFamily = Poppins) },
                 shape = RoundedCornerShape(8.dp),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 visualTransformation = PasswordVisualTransformation(),
@@ -155,30 +215,45 @@ fun LoginScreen(
                 singleLine = true
             )
             
-            // Tulisan lupa password
-            Box(
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            // Konfirmasi Password
+            Text(
+                text = "Konfirmasi Password",
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Medium,
+                fontFamily = Poppins,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+            
+            OutlinedTextField(
+                value = confirmPassword,
+                onValueChange = { confirmPassword = it },
+                placeholder = { Text("Konfirmasi password", fontSize = 14.sp, fontFamily = Poppins) },
+                shape = RoundedCornerShape(8.dp),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                visualTransformation = PasswordVisualTransformation(),
+                colors = OutlinedTextFieldDefaults.colors(
+                    unfocusedBorderColor = Color.LightGray,
+                    focusedBorderColor = Color(0xFF5ED0C5)
+                ),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 8.dp),
-                contentAlignment = Alignment.CenterEnd
-            ) {
-                TextButton(onClick = { /* TODO: Navigate to forgot password */ }) {
-                    Text(
-                        text = "Lupa password?",
-                        color = Color(0xFF5ED0C5),
-                        fontSize = 14.sp,
-                        fontFamily = Poppins
-                    )
-                }
-            }
+                    .height(56.dp),
+                textStyle = TextStyle(
+                    fontSize = 14.sp,
+                    fontFamily = Poppins
+                ),
+                singleLine = true
+            )
             
             Spacer(modifier = Modifier.height(24.dp))
             
-            // Tombol Login
+            // Tombol Register
             Button(
                 onClick = { 
-                    if (email.isNotEmpty() && password.isNotEmpty()) {
-                        authViewModel.login(email, password)
+                    if (validateInputs(name, email, phone, password, confirmPassword)) {
+                        authViewModel.register(name, email, password, phone)
                     }
                 },
                 enabled = !isLoading,
@@ -197,7 +272,7 @@ fun LoginScreen(
                     )
                 } else {
                     Text(
-                        text = "Masuk",
+                        text = "Daftar",
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold,
                         fontFamily = Poppins
@@ -207,22 +282,22 @@ fun LoginScreen(
             
             Spacer(modifier = Modifier.height(16.dp))
             
-            // Text untuk register
+            // Text untuk login
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Belum punya akun?",
+                    text = "Sudah punya akun?",
                     fontSize = 14.sp,
                     fontFamily = Poppins,
                     color = Color.Gray
                 )
                 
-                TextButton(onClick = { navController.navigate(Routes.REGISTER) }) {
+                TextButton(onClick = { navController.navigate(Routes.LOGIN) }) {
                     Text(
-                        text = "Daftar",
+                        text = "Masuk",
                         color = Color(0xFF5ED0C5),
                         fontWeight = FontWeight.Bold,
                         fontSize = 14.sp,
@@ -247,3 +322,37 @@ fun LoginScreen(
         )
     }
 }
+
+/**
+ * Validasi input register
+ */
+private fun validateInputs(
+    name: String,
+    email: String,
+    phone: String,
+    password: String,
+    confirmPassword: String
+): Boolean {
+    // Check if all fields are filled
+    if (name.isBlank() || email.isBlank() || phone.isBlank() || password.isBlank() || confirmPassword.isBlank()) {
+        return false
+    }
+    
+    // Check email format
+    val emailRegex = Regex("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$")
+    if (!email.matches(emailRegex)) {
+        return false
+    }
+    
+    // Check if passwords match
+    if (password != confirmPassword) {
+        return false
+    }
+    
+    // Check minimum password length
+    if (password.length < 6) {
+        return false
+    }
+    
+    return true
+} 

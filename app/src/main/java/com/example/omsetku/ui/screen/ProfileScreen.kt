@@ -18,14 +18,21 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.omsetku.R
 import com.example.omsetku.Navigation.Routes
+import com.example.omsetku.viewmodels.AuthViewModel
 
 @Composable
-fun ProfileScreen(navController: NavController) {
+fun ProfileScreen(
+    navController: NavController,
+    authViewModel: AuthViewModel = viewModel()
+) {
     // State untuk mengontrol dialog konfirmasi logout
     var showLogoutDialog by remember { mutableStateOf(false) }
+    val isLoading by authViewModel.isLoading.collectAsState()
+    val user by authViewModel.currentUser.collectAsState()
     
     Column(
         modifier = Modifier
@@ -77,7 +84,7 @@ fun ProfileScreen(navController: NavController) {
                     )
                     Spacer(modifier = Modifier.width(16.dp))
                     Text(
-                        text = "Nama Pengguna",
+                        text = user?.name ?: "Nama Pengguna",
                         fontWeight = FontWeight.Medium,
                         fontSize = 16.sp
                     )
@@ -112,10 +119,11 @@ fun ProfileScreen(navController: NavController) {
     // Dialog konfirmasi logout
     if (showLogoutDialog) {
         LogoutConfirmationDialog(
+            isLoading = isLoading,
             onDismiss = { showLogoutDialog = false },
             onConfirm = {
+                authViewModel.logout()
                 showLogoutDialog = false
-                // Kembali ke Login screen dengan menghapus semua screen dari backstack
                 navController.navigate(Routes.LOGIN) {
                     popUpTo(navController.graph.startDestinationId) { inclusive = true }
                 }
@@ -126,6 +134,7 @@ fun ProfileScreen(navController: NavController) {
 
 @Composable
 fun LogoutConfirmationDialog(
+    isLoading: Boolean,
     onDismiss: () -> Unit,
     onConfirm: () -> Unit
 ) {
@@ -164,18 +173,26 @@ fun LogoutConfirmationDialog(
                 // Tombol Ya - untuk konfirmasi logout
                 Button(
                     onClick = onConfirm,
+                    enabled = !isLoading,
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF62DCC8)),
                     shape = RoundedCornerShape(8.dp),
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(48.dp)
                 ) {
-                    Text(
-                        text = "Ya",
-                        fontWeight = FontWeight.Medium,
-                        fontSize = 14.sp,
-                        color = Color.White
-                    )
+                    if (isLoading) {
+                        CircularProgressIndicator(
+                            color = Color.White,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    } else {
+                        Text(
+                            text = "Ya",
+                            fontWeight = FontWeight.Medium,
+                            fontSize = 14.sp,
+                            color = Color.White
+                        )
+                    }
                 }
                 
                 Spacer(modifier = Modifier.height(12.dp))
@@ -183,6 +200,7 @@ fun LogoutConfirmationDialog(
                 // Tombol Batal - untuk membatalkan logout
                 OutlinedButton(
                     onClick = onDismiss,
+                    enabled = !isLoading,
                     shape = RoundedCornerShape(8.dp),
                     border = BorderStroke(1.dp, Color(0xFF62DCC8)),
                     modifier = Modifier

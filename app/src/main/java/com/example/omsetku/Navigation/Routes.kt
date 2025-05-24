@@ -3,8 +3,7 @@ package com.example.omsetku.Navigation
 object Routes {
     const val HOME = "home"
     const val LOGIN = "login"
-    const val SIGNUP = "signup"
-    const val OTP = "otp"
+    const val REGISTER = "register"
     const val BUSINESS_SETUP = "business_setup"
     const val CASHIER = "cashier"
     const val TRANSACTION = "transaction"
