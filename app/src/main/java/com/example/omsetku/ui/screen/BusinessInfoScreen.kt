@@ -23,6 +23,7 @@ import androidx.navigation.NavController
 import com.example.omsetku.Navigation.Routes
 import com.example.omsetku.R
 import com.example.omsetku.ui.components.Poppins
+import com.example.omsetku.ui.components.FormField
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.omsetku.viewmodels.BusinessViewModel
 
@@ -256,36 +257,5 @@ fun BusinessInfoScreen(
                     .padding(top = 8.dp)
             )
         }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun FormField(label: String, value: String, onValueChange: (String) -> Unit) {
-    Column(modifier = Modifier.fillMaxWidth()) {
-        Text(
-            text = label,
-            fontSize = 14.sp,
-            fontWeight = FontWeight.Medium,
-            fontFamily = Poppins,
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
-        
-        OutlinedTextField(
-            value = value,
-            onValueChange = onValueChange,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp),
-            shape = RoundedCornerShape(8.dp),
-            colors = OutlinedTextFieldDefaults.colors(
-                unfocusedBorderColor = Color.LightGray,
-                focusedBorderColor = Color(0xFF5ED0C5)
-            ),
-            textStyle = TextStyle(
-                fontSize = 14.sp,
-                fontFamily = Poppins
-            )
-        )
     }
 } 

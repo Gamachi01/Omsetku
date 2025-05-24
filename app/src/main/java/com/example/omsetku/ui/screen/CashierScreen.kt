@@ -457,12 +457,12 @@ fun ProductDialog(
             color = Color.White,
             modifier = Modifier
                 .fillMaxWidth(0.95f)
-                .fillMaxHeight(0.85f)
+                .wrapContentHeight()
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = 20.dp, end = 20.dp, top = 20.dp, bottom = 12.dp)
+                    .padding(start = 20.dp, end = 20.dp, top = 20.dp, bottom = 8.dp)
                     .verticalScroll(rememberScrollState())
             ) {
                 Row(
@@ -947,45 +947,45 @@ fun ProductCard(
                 if (isEditMode) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Center,
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         // Edit Button
                         IconButton(
                             onClick = onEdit,
                             modifier = Modifier
-                                .size(28.dp)
+                                .size(24.dp)
                                 .background(PrimaryVariant.copy(alpha = 0.2f), CircleShape)
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Edit,
                                 contentDescription = "Edit",
                                 tint = PrimaryVariant,
-                                modifier = Modifier.size(12.dp)
+                                modifier = Modifier.size(10.dp)
                             )
                         }
                         
-                        Spacer(modifier = Modifier.width(50.dp))
+                        Spacer(modifier = Modifier.width(40.dp))
                         
                         // Delete Button
                         IconButton(
                             onClick = onDelete,
                             modifier = Modifier
-                                .size(28.dp)
+                                .size(24.dp)
                                 .background(Color.Red.copy(alpha = 0.2f), CircleShape)
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Delete,
                                 contentDescription = "Delete",
                                 tint = Color.Red,
-                                modifier = Modifier.size(12.dp)
+                                modifier = Modifier.size(10.dp)
                             )
                         }
                     }
                 } else {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Center,
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         // Minus Button
@@ -997,7 +997,7 @@ fun ProductCard(
                                 }
                             },
                             modifier = Modifier
-                                .size(28.dp)
+                                .size(24.dp)
                                 .background(
                                     color = if (quantity > 0) PrimaryVariant else Color.LightGray,
                                     shape = CircleShape
@@ -1007,7 +1007,7 @@ fun ProductCard(
                                 painter = painterResource(id = R.drawable.ic_remove),
                                 contentDescription = "Decrease",
                                 tint = Color.White,
-                                modifier = Modifier.size(12.dp)
+                                modifier = Modifier.size(10.dp)
                             )
                         }
                         
@@ -1017,7 +1017,7 @@ fun ProductCard(
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Bold,
                             fontFamily = Poppins,
-                            modifier = Modifier.width(50.dp),
+                            modifier = Modifier.width(32.dp),
                             textAlign = TextAlign.Center
                         )
                         
@@ -1045,14 +1045,14 @@ fun ProductCard(
                                 onQuantityChanged(quantity)
                             },
                             modifier = Modifier
-                                .size(28.dp)
+                                .size(24.dp)
                                 .background(PrimaryVariant, CircleShape)
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Add,
                                 contentDescription = "Increase",
                                 tint = Color.White,
-                                modifier = Modifier.size(12.dp)
+                                modifier = Modifier.size(10.dp)
                             )
                         }
                     }
