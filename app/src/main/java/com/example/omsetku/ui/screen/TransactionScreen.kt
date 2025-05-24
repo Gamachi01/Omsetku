@@ -294,7 +294,7 @@ fun TransactionScreen(
     
     // Tampilkan dialog sukses
     if (showSuccessDialog) {
-        SuccessDialog(
+        TransactionSuccessDialog(
             onDismiss = { showSuccessDialog = false }
         )
     }
@@ -355,7 +355,7 @@ fun LabeledFieldBox(
 }
 
 @Composable
-fun SuccessDialog(onDismiss: () -> Unit) {
+fun TransactionSuccessDialog(onDismiss: () -> Unit) {
     Dialog(onDismissRequest = onDismiss) {
         Box(
             modifier = Modifier
