@@ -26,7 +26,6 @@ import com.example.omsetku.ui.components.Poppins
 import com.example.omsetku.viewmodels.AuthViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 
@@ -36,21 +35,30 @@ fun EditProfileScreen(
     navController: NavController,
     authViewModel: AuthViewModel = viewModel()
 ) {
-    var nama by remember { mutableStateOf("John Doe") }
-    var email by remember { mutableStateOf("johndoe@example.com") }
-    var noTelepon by remember { mutableStateOf("081234567890") }
+    // Mengambil data user dari AuthViewModel
+    val currentUser by authViewModel.currentUser.collectAsState()
+    
+    // State untuk field form
+    var nama by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("") }
+    var noTelepon by remember { mutableStateOf("") }
     var jenisKelamin by remember { mutableStateOf("Laki-laki") }
     var jabatan by remember { mutableStateOf("Pemilik Usaha") }
+    
+    // Update state dari currentUser saat user data berubah
+    LaunchedEffect(currentUser) {
+        currentUser?.let { user ->
+            nama = user.name
+            email = user.email
+            noTelepon = user.phone
+            jenisKelamin = user.gender.ifEmpty { "Laki-laki" }
+            jabatan = user.position.ifEmpty { "Pemilik Usaha" }
+        }
+    }
     
     val scrollState = rememberScrollState()
     val isLoading by authViewModel.isLoading.collectAsState()
     val error by authViewModel.error.collectAsState()
-    
-    // Efek untuk memuat data profil saat screen dibuka
-    LaunchedEffect(Unit) {
-        // Di implementasi nyata, kita akan mengambil data dari repository
-        // Untuk contoh ini, kita gunakan data statis
-    }
     
     Column(
         modifier = Modifier
@@ -258,7 +266,14 @@ fun EditProfileScreen(
         // Tombol simpan
         Button(
             onClick = { 
-                // Di implementasi nyata, kita akan menyimpan data ke repository
+                // Panggil fungsi savePersonalData untuk menyimpan perubahan
+                authViewModel.savePersonalData(
+                    fullName = nama,
+                    gender = jenisKelamin,
+                    position = jabatan,
+                    address = "",  // Field alamat tidak ada di EditProfileScreen
+                    phoneNumber = noTelepon
+                )
                 navController.navigate(Routes.PROFILE)
             },
             modifier = Modifier

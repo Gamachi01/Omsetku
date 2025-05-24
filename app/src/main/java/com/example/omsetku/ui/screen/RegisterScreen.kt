@@ -47,9 +47,9 @@ fun RegisterScreen(
     // Efek untuk navigasi jika user sudah registrasi
     LaunchedEffect(isRegistered) {
         if (isRegistered) {
-            // Reset status registrasi dan arahkan ke form bisnis
+            // Reset status registrasi dan arahkan ke form data diri
             authViewModel.resetRegistrationStatus()
-            navController.navigate(Routes.BUSINESS_FORM) {
+            navController.navigate(Routes.PERSONAL_DATA) {
                 popUpTo(Routes.SIGNUP) {
                     inclusive = true
                 }

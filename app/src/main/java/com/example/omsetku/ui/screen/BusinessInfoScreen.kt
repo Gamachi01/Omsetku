@@ -23,15 +23,42 @@ import androidx.navigation.NavController
 import com.example.omsetku.Navigation.Routes
 import com.example.omsetku.R
 import com.example.omsetku.ui.components.Poppins
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.omsetku.viewmodels.BusinessViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BusinessInfoScreen(navController: NavController) {
+fun BusinessInfoScreen(
+    navController: NavController,
+    businessViewModel: BusinessViewModel = viewModel()
+) {
+    // State untuk data bisnis
     var namaUsaha by remember { mutableStateOf("") }
     var jenisUsaha by remember { mutableStateOf("") }
     var alamatUsaha by remember { mutableStateOf("") }
     var emailUsaha by remember { mutableStateOf("") }
     var teleponUsaha by remember { mutableStateOf("") }
+    
+    // Ambil data bisnis dari ViewModel
+    val currentBusiness by businessViewModel.currentBusiness.collectAsState()
+    val isLoading by businessViewModel.isLoading.collectAsState()
+    val error by businessViewModel.error.collectAsState()
+    
+    // Update form state dari data bisnis saat ini
+    LaunchedEffect(currentBusiness) {
+        currentBusiness?.let { business ->
+            namaUsaha = business.name
+            jenisUsaha = business.type
+            alamatUsaha = business.address
+            emailUsaha = business.email ?: ""
+            teleponUsaha = business.phone ?: ""
+        }
+    }
+    
+    // Memuat data bisnis saat screen dibuka
+    LaunchedEffect(Unit) {
+        businessViewModel.loadBusinessData()
+    }
     
     val scrollState = rememberScrollState()
     
@@ -74,114 +101,191 @@ fun BusinessInfoScreen(navController: NavController) {
         
         Spacer(modifier = Modifier.height(24.dp))
         
-        // Logo usaha
-        Box(
-            modifier = Modifier.fillMaxWidth(),
-            contentAlignment = Alignment.Center
-        ) {
+        // Loading indicator
+        if (isLoading) {
             Box(
-                modifier = Modifier
-                    .size(100.dp)
-                    .clip(CircleShape)
-                    .border(1.dp, Color(0xFF5ED0C5), CircleShape)
-                    .background(Color.White),
+                modifier = Modifier.fillMaxWidth(),
                 contentAlignment = Alignment.Center
             ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.usaha_icon),
-                    contentDescription = "Logo Usaha",
-                    modifier = Modifier.size(40.dp),
-                    tint = Color(0xFF5ED0C5)
+                CircularProgressIndicator(
+                    color = Color(0xFF5ED0C5),
+                    modifier = Modifier.size(48.dp)
                 )
+            }
+        } else {
+            // Logo usaha
+            Box(
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.Center
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(100.dp)
+                        .clip(CircleShape)
+                        .border(1.dp, Color(0xFF5ED0C5), CircleShape)
+                        .background(Color.White),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.usaha_icon),
+                        contentDescription = "Logo Usaha",
+                        modifier = Modifier.size(40.dp),
+                        tint = Color(0xFF5ED0C5)
+                    )
+                }
+            }
+            
+            Text(
+                text = "Logo",
+                fontSize = 14.sp,
+                fontFamily = Poppins,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp),
+                color = Color.Gray,
+                fontWeight = FontWeight.Medium,
+                textAlign = androidx.compose.ui.text.style.TextAlign.Center
+            )
+            
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            // Form fields
+            FormField(label = "Nama Usaha", value = namaUsaha, onValueChange = { namaUsaha = it })
+            
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            // Dropdown untuk jenis usaha
+            Column(modifier = Modifier.fillMaxWidth()) {
+                Text(
+                    text = "Jenis Usaha",
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium,
+                    fontFamily = Poppins,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+                
+                OutlinedTextField(
+                    value = jenisUsaha,
+                    onValueChange = { jenisUsaha = it },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp),
+                    shape = RoundedCornerShape(8.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        unfocusedBorderColor = Color.LightGray,
+                        focusedBorderColor = Color(0xFF5ED0C5)
+                    ),
+                    textStyle = TextStyle(
+                        fontSize = 14.sp,
+                        fontFamily = Poppins
+                    ),
+                    readOnly = false,
+                    trailingIcon = {
+                        Icon(
+                            painter = painterResource(id = R.drawable.go_icon),
+                            contentDescription = "Dropdown",
+                            modifier = Modifier.size(20.dp),
+                            tint = Color.Gray
+                        )
+                    }
+                )
+            }
+            
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            FormField(label = "Alamat Usaha", value = alamatUsaha, onValueChange = { alamatUsaha = it })
+            
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            FormField(label = "Email Usaha", value = emailUsaha, onValueChange = { emailUsaha = it })
+            
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            FormField(label = "Telepon Usaha", value = teleponUsaha, onValueChange = { teleponUsaha = it })
+            
+            Spacer(modifier = Modifier.weight(1f, fill = true))
+            
+            // Tombol simpan
+            Button(
+                onClick = { 
+                    currentBusiness?.let { business ->
+                        businessViewModel.updateBusinessData(
+                            businessId = business.id,
+                            name = namaUsaha,
+                            type = jenisUsaha,
+                            address = alamatUsaha,
+                            email = emailUsaha,
+                            phone = teleponUsaha
+                        )
+                    }
+                    navController.navigate(Routes.PROFILE)
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 24.dp, bottom = 16.dp)
+                    .height(48.dp),
+                shape = RoundedCornerShape(8.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF5ED0C5)),
+                enabled = !isLoading && currentBusiness != null
+            ) {
+                if (isLoading) {
+                    CircularProgressIndicator(
+                        color = Color.White,
+                        modifier = Modifier.size(24.dp)
+                    )
+                } else {
+                    Text(
+                        text = "Simpan",
+                        fontFamily = Poppins,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 16.sp
+                    )
+                }
             }
         }
         
-        Text(
-            text = "Logo",
-            fontSize = 14.sp,
-            fontFamily = Poppins,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp),
-            color = Color.Gray,
-            fontWeight = FontWeight.Medium,
-            textAlign = androidx.compose.ui.text.style.TextAlign.Center
-        )
-        
-        Spacer(modifier = Modifier.height(16.dp))
-        
-        // Form fields
-        FormField(label = "Nama Usaha", value = namaUsaha, onValueChange = { namaUsaha = it })
-        
-        Spacer(modifier = Modifier.height(16.dp))
-        
-        // Dropdown untuk jenis usaha
-        Column(modifier = Modifier.fillMaxWidth()) {
+        // Error message
+        if (error != null) {
             Text(
-                text = "Jenis Usaha",
+                text = error ?: "",
+                color = Color.Red,
                 fontSize = 14.sp,
-                fontWeight = FontWeight.Medium,
                 fontFamily = Poppins,
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
-            
-            OutlinedTextField(
-                value = jenisUsaha,
-                onValueChange = { jenisUsaha = it },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(56.dp),
-                shape = RoundedCornerShape(8.dp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    unfocusedBorderColor = Color.LightGray,
-                    focusedBorderColor = Color(0xFF5ED0C5)
-                ),
-                textStyle = TextStyle(
-                    fontSize = 14.sp,
-                    fontFamily = Poppins
-                ),
-                readOnly = true,
-                trailingIcon = {
-                    Icon(
-                        painter = painterResource(id = R.drawable.go_icon),
-                        contentDescription = "Dropdown",
-                        modifier = Modifier.size(20.dp),
-                        tint = Color.Gray
-                    )
-                }
+                    .padding(top = 8.dp)
             )
         }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun FormField(label: String, value: String, onValueChange: (String) -> Unit) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Text(
+            text = label,
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Medium,
+            fontFamily = Poppins,
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
         
-        Spacer(modifier = Modifier.height(16.dp))
-        
-        FormField(label = "Alamat Usaha", value = alamatUsaha, onValueChange = { alamatUsaha = it })
-        
-        Spacer(modifier = Modifier.height(16.dp))
-        
-        FormField(label = "Email Usaha", value = emailUsaha, onValueChange = { emailUsaha = it })
-        
-        Spacer(modifier = Modifier.height(16.dp))
-        
-        FormField(label = "Telepon Usaha", value = teleponUsaha, onValueChange = { teleponUsaha = it })
-        
-        Spacer(modifier = Modifier.weight(1f, fill = true))
-        
-        // Tombol simpan
-        Button(
-            onClick = { navController.navigate(Routes.PROFILE) },
+        OutlinedTextField(
+            value = value,
+            onValueChange = onValueChange,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 24.dp, bottom = 16.dp)
-                .height(48.dp),
+                .height(56.dp),
             shape = RoundedCornerShape(8.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF5ED0C5))
-        ) {
-            Text(
-                text = "Simpan",
-                fontFamily = Poppins,
-                fontWeight = FontWeight.Bold,
-                fontSize = 16.sp
+            colors = OutlinedTextFieldDefaults.colors(
+                unfocusedBorderColor = Color.LightGray,
+                focusedBorderColor = Color(0xFF5ED0C5)
+            ),
+            textStyle = TextStyle(
+                fontSize = 14.sp,
+                fontFamily = Poppins
             )
-        }
+        )
     }
 } 

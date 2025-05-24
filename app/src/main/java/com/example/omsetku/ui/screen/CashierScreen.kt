@@ -455,12 +455,14 @@ fun ProductDialog(
         Surface(
             shape = RoundedCornerShape(16.dp),
             color = Color.White,
-            modifier = Modifier.fillMaxHeight(0.9f)
+            modifier = Modifier
+                .fillMaxWidth(0.95f)
+                .fillMaxHeight(0.85f)
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(20.dp)
+                    .padding(start = 20.dp, end = 20.dp, top = 20.dp, bottom = 12.dp)
                     .verticalScroll(rememberScrollState())
             ) {
                 Row(
@@ -952,31 +954,31 @@ fun ProductCard(
                         IconButton(
                             onClick = onEdit,
                             modifier = Modifier
-                                .size(30.dp)
-                                .background(Color.LightGray.copy(alpha = 0.5f), CircleShape)
+                                .size(28.dp)
+                                .background(PrimaryVariant.copy(alpha = 0.2f), CircleShape)
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Edit,
                                 contentDescription = "Edit",
-                                tint = Color.DarkGray,
-                                modifier = Modifier.size(14.dp)
+                                tint = PrimaryVariant,
+                                modifier = Modifier.size(12.dp)
                             )
                         }
                         
-                        Spacer(modifier = Modifier.width(40.dp))
+                        Spacer(modifier = Modifier.width(50.dp))
                         
                         // Delete Button
                         IconButton(
                             onClick = onDelete,
                             modifier = Modifier
-                                .size(30.dp)
+                                .size(28.dp)
                                 .background(Color.Red.copy(alpha = 0.2f), CircleShape)
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Delete,
                                 contentDescription = "Delete",
                                 tint = Color.Red,
-                                modifier = Modifier.size(14.dp)
+                                modifier = Modifier.size(12.dp)
                             )
                         }
                     }
@@ -995,7 +997,7 @@ fun ProductCard(
                                 }
                             },
                             modifier = Modifier
-                                .size(30.dp)
+                                .size(28.dp)
                                 .background(
                                     color = if (quantity > 0) PrimaryVariant else Color.LightGray,
                                     shape = CircleShape
@@ -1005,7 +1007,7 @@ fun ProductCard(
                                 painter = painterResource(id = R.drawable.ic_remove),
                                 contentDescription = "Decrease",
                                 tint = Color.White,
-                                modifier = Modifier.size(14.dp)
+                                modifier = Modifier.size(12.dp)
                             )
                         }
                         
@@ -1015,7 +1017,7 @@ fun ProductCard(
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Bold,
                             fontFamily = Poppins,
-                            modifier = Modifier.width(40.dp),
+                            modifier = Modifier.width(50.dp),
                             textAlign = TextAlign.Center
                         )
                         
@@ -1043,14 +1045,14 @@ fun ProductCard(
                                 onQuantityChanged(quantity)
                             },
                             modifier = Modifier
-                                .size(30.dp)
+                                .size(28.dp)
                                 .background(PrimaryVariant, CircleShape)
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Add,
                                 contentDescription = "Increase",
                                 tint = Color.White,
-                                modifier = Modifier.size(14.dp)
+                                modifier = Modifier.size(12.dp)
                             )
                         }
                     }
