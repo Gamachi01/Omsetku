@@ -12,17 +12,39 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.omsetku.R
 import com.example.omsetku.ui.components.Poppins
 import com.example.omsetku.ui.theme.PrimaryVariant
+import com.example.omsetku.viewmodels.TaxViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TaxSettingsScreen(navController: NavController) {
-    var taxEnabled by remember { mutableStateOf(false) }
-    var taxRate by remember { mutableStateOf("") }
-    var isTaxSaved by remember { mutableStateOf(false) }
+fun TaxSettingsScreen(
+    navController: NavController,
+    taxViewModel: TaxViewModel = viewModel()
+) {
+    // Mengambil data dari ViewModel
+    val taxSettings by taxViewModel.taxSettings.collectAsState()
+    val isLoading by taxViewModel.isLoading.collectAsState()
+    val error by taxViewModel.error.collectAsState()
+    
+    // State lokal untuk UI
+    var taxEnabled by remember { mutableStateOf(taxSettings.enabled) }
+    var taxRate by remember { mutableStateOf(taxSettings.rate.toString()) }
+    var isTaxSaved by remember { mutableStateOf(true) }
+    
+    // Effect untuk update state lokal saat taxSettings berubah
+    LaunchedEffect(taxSettings) {
+        taxEnabled = taxSettings.enabled
+        taxRate = if (taxSettings.rate > 0) taxSettings.rate.toString() else ""
+    }
+    
+    // Effect untuk memuat pengaturan pajak saat screen dibuka
+    LaunchedEffect(Unit) {
+        taxViewModel.loadTaxSettings()
+    }
     
     Column(
         modifier = Modifier
@@ -78,6 +100,9 @@ fun TaxSettingsScreen(navController: NavController) {
                 onCheckedChange = { 
                     taxEnabled = it
                     if (!it) {
+                        // Jika pajak dimatikan, langsung update ke ViewModel
+                        taxViewModel.updateTaxSettings(enabled = false, rate = 0)
+                    } else {
                         isTaxSaved = false
                     }
                 },
@@ -203,6 +228,12 @@ fun TaxSettingsScreen(navController: NavController) {
                 Button(
                     onClick = { 
                         if (taxRate.isNotEmpty()) {
+                            val rateValue = taxRate.toIntOrNull() ?: 0
+                            // Update ke ViewModel
+                            taxViewModel.updateTaxSettings(
+                                enabled = true,
+                                rate = rateValue
+                            )
                             isTaxSaved = true
                         }
                     },
@@ -212,16 +243,36 @@ fun TaxSettingsScreen(navController: NavController) {
                     shape = RoundedCornerShape(8.dp),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = PrimaryVariant
-                    )
+                    ),
+                    enabled = !isLoading && taxRate.isNotEmpty()
                 ) {
-                    Text(
-                        text = "Simpan",
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Medium,
-                        fontFamily = Poppins
-                    )
+                    if (isLoading) {
+                        CircularProgressIndicator(
+                            color = Color.White,
+                            modifier = Modifier.size(24.dp),
+                            strokeWidth = 2.dp
+                        )
+                    } else {
+                        Text(
+                            text = "Simpan",
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Medium,
+                            fontFamily = Poppins
+                        )
+                    }
                 }
             }
+        }
+        
+        // Error message
+        if (error != null) {
+            Text(
+                text = error ?: "",
+                color = Color.Red,
+                fontSize = 14.sp,
+                fontFamily = Poppins,
+                modifier = Modifier.padding(top = 16.dp)
+            )
         }
     }
 } 

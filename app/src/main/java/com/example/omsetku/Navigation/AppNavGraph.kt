@@ -7,11 +7,13 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.omsetku.ui.screen.*
 import com.example.omsetku.viewmodels.CartViewModel
+import com.example.omsetku.viewmodels.TaxViewModel
 
 @Composable
 fun AppNavGraph(
     navController: NavHostController,
-    cartViewModel: CartViewModel
+    cartViewModel: CartViewModel,
+    taxViewModel: TaxViewModel
 ) {
     NavHost(navController = navController, startDestination = Routes.LOGIN) {
         composable(Routes.LOGIN) {
@@ -48,7 +50,11 @@ fun AppNavGraph(
             ReportScreen(navController)
         }
         composable(Routes.TRANSACTION_DETAIL) {
-            TransactionDetailScreen(navController, cartViewModel = cartViewModel)
+            TransactionDetailScreen(
+                navController = navController,
+                cartViewModel = cartViewModel,
+                taxViewModel = taxViewModel
+            )
         }
         composable(Routes.EDIT_PROFILE) {
             EditProfileScreen(navController)
@@ -57,7 +63,7 @@ fun AppNavGraph(
             BusinessInfoScreen(navController)
         }
         composable(Routes.TAX_SETTINGS) {
-            TaxSettingsScreen(navController)
+            TaxSettingsScreen(navController, taxViewModel = taxViewModel)
         }
     }
 }
