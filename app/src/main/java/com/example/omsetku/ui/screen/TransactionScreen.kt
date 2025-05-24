@@ -286,50 +286,9 @@ fun TransactionScreen(
                     )
                 }
             }
-            
-            Spacer(modifier = Modifier.height(24.dp))
-            
-            // Riwayat Transaksi Terbaru
-            Text(
-                text = "Transaksi Terbaru",
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.Black,
-                fontFamily = Poppins,
-                modifier = Modifier.fillMaxWidth(),
-                textAlign = TextAlign.Left
-            )
-            
-            Spacer(modifier = Modifier.height(8.dp))
-            
-            // Tampilkan daftar transaksi jika tidak kosong
-            if (transactions.isNotEmpty()) {
-                TransactionList(transactions = transactions)
-            } else if (!isLoading) {
-                // Tampilkan pesan jika transaksi kosong
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(
-                        containerColor = Color(0xFFF5F5F5)
-                    ),
-                    shape = RoundedCornerShape(8.dp)
-                ) {
-                    Text(
-                        text = "Belum ada transaksi",
-                        color = Color.Gray,
-                        fontSize = 14.sp,
-                        fontFamily = Poppins,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(24.dp)
-                    )
-                }
-            }
         }
     }
 }
-
 
 @Composable
 fun TransactionButton(
