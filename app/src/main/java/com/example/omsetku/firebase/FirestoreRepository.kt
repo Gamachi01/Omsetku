@@ -1,5 +1,6 @@
 package com.example.omsetku.firebase
 
+import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
@@ -26,7 +27,12 @@ class FirestoreRepository {
      * Mendapatkan ID user saat ini yang sedang login
      */
     private fun getCurrentUserId(): String {
-        return auth.currentUser?.uid ?: throw Exception("User belum login")
+        return try {
+            auth.currentUser?.uid ?: throw Exception("User belum login")
+        } catch (e: Exception) {
+            Log.e("FirestoreRepository", "Error getting current user: ${e.message}")
+            throw Exception("User belum login atau sesi telah berakhir")
+        }
     }
     
     /**
@@ -57,8 +63,14 @@ class FirestoreRepository {
      * Mendapatkan data user berdasarkan ID
      */
     suspend fun getUserData(userId: String = getCurrentUserId()): Map<String, Any> {
-        val document = userCollection.document(userId).get().await()
-        return document.data ?: throw Exception("User data tidak ditemukan")
+        try {
+            val document = userCollection.document(userId).get().await()
+            return document.data ?: throw Exception("User data tidak ditemukan")
+        } catch (e: Exception) {
+            Log.e("FirestoreRepository", "Error getting user data: ${e.message}")
+            // Kembalikan data kosong dengan ID saja daripada crash
+            return mapOf("id" to userId, "error" to (e.message ?: "Unknown error"))
+        }
     }
     
     /**
@@ -216,51 +228,62 @@ class FirestoreRepository {
         endDate: Long? = null,
         type: String? = null
     ): List<Map<String, Any>> {
-        val userId = getCurrentUserId()
-        
         try {
-            // Gunakan query yang paling sederhana mungkin
-            var query = transactionCollection.whereEqualTo("userId", userId)
-            
-            // Filter berdasarkan tipe transaksi
-            if (type != null) {
-                query = query.whereEqualTo("type", type)
+            val userId = try {
+                getCurrentUserId()
+            } catch (e: Exception) {
+                Log.e("FirestoreRepository", "Failed to get current user: ${e.message}")
+                return emptyList() // Return list kosong daripada crash
             }
             
-            // Hilangkan pengurutan dengan Query.Direction untuk menghindari kebutuhan indeks
-            val snapshot = query.get().await()
-            
-            return snapshot.documents.mapNotNull { doc ->
-                try {
-                    val data = doc.data
-                    data?.let {
-                        it["id"] = doc.id
-                        
-                        // Filter startDate dan endDate secara manual dengan penanganan error
-                        try {
-                            val date = (it["date"] as? Number)?.toLong() ?: 0L
-                            val inRange = (startDate == null || date >= startDate) && 
-                                          (endDate == null || date <= endDate)
+            try {
+                // Gunakan query yang paling sederhana mungkin
+                var query = transactionCollection.whereEqualTo("userId", userId)
+                
+                // Filter berdasarkan tipe transaksi
+                if (type != null) {
+                    query = query.whereEqualTo("type", type)
+                }
+                
+                // Hilangkan pengurutan dengan Query.Direction untuk menghindari kebutuhan indeks
+                val snapshot = query.get().await()
+                
+                return snapshot.documents.mapNotNull { doc ->
+                    try {
+                        val data = doc.data
+                        data?.let {
+                            it["id"] = doc.id
                             
-                            if (inRange) it else null
-                        } catch (e: Exception) {
-                            // Jika tanggal tidak bisa diproses, masih tampilkan transaksi
-                            it
+                            // Filter startDate dan endDate secara manual dengan penanganan error
+                            try {
+                                val date = (it["date"] as? Number)?.toLong() ?: 0L
+                                val inRange = (startDate == null || date >= startDate) && 
+                                              (endDate == null || date <= endDate)
+                                
+                                if (inRange) it else null
+                            } catch (e: Exception) {
+                                // Jika tanggal tidak bisa diproses, masih tampilkan transaksi
+                                it
+                            }
                         }
+                    } catch (e: Exception) {
+                        // Abaikan dokumen yang bermasalah
+                        null
                     }
-                } catch (e: Exception) {
-                    // Abaikan dokumen yang bermasalah
-                    null
-                }
-            }.sortedByDescending { 
-                try { 
-                    (it["date"] as? Number)?.toLong() ?: 0L 
-                } catch (e: Exception) { 
-                    0L 
-                }
-            } // Urutkan di dalam aplikasi alih-alih di query
+                }.sortedByDescending { 
+                    try { 
+                        (it["date"] as? Number)?.toLong() ?: 0L 
+                    } catch (e: Exception) { 
+                        0L 
+                    }
+                } // Urutkan di dalam aplikasi alih-alih di query
+            } catch (e: Exception) {
+                // Jika terjadi error, kembalikan list kosong daripada crash
+                Log.e("FirestoreRepository", "Error querying transactions: ${e.message}")
+                return emptyList()
+            }
         } catch (e: Exception) {
-            // Jika terjadi error, kembalikan list kosong daripada crash
+            Log.e("FirestoreRepository", "Fatal error in getUserTransactions: ${e.message}")
             return emptyList()
         }
     }

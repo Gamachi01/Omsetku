@@ -49,15 +49,19 @@ fun HomeScreen(
     val scrollState = rememberScrollState()
 
     // State dari ViewModel
-    val transactions by transactionViewModel.transactions.collectAsState()
-    val incomeAmount by transactionViewModel.incomeAmount.collectAsState()
-    val expenseAmount by transactionViewModel.expenseAmount.collectAsState()
-    val isLoading by transactionViewModel.isLoading.collectAsState()
-    val error by transactionViewModel.error.collectAsState()
+    val transactions by transactionViewModel.transactions.collectAsState(initial = emptyList())
+    val incomeAmount by transactionViewModel.incomeAmount.collectAsState(initial = 0)
+    val expenseAmount by transactionViewModel.expenseAmount.collectAsState(initial = 0)
+    val isLoading by transactionViewModel.isLoading.collectAsState(initial = true)
+    val error by transactionViewModel.error.collectAsState(initial = null)
     
     // Effect untuk memuat data transaksi saat screen dibuka
-    LaunchedEffect(Unit) {
-        transactionViewModel.loadTransactions()
+    LaunchedEffect(key1 = Unit) {
+        try {
+            transactionViewModel.loadTransactions()
+        } catch (e: Exception) {
+            // Tangkap exception disini untuk mencegah crash
+        }
     }
 
     Scaffold(
@@ -77,51 +81,55 @@ fun HomeScreen(
             )
         }
     ) { paddingValues ->
-        Box(
+        // Gunakan Column biasa dengan ScrollableContent untuk menghindari LazyColumn dalam verticalScroll
+        Column(
             modifier = modifier
                 .fillMaxSize()
                 .padding(paddingValues)
+                .padding(horizontal = 16.dp)
         ) {
+            // Header: Omsetku dan icon profil
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 16.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Omsetku",
+                    fontSize = 30.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = PrimaryVariant,
+                    fontFamily = Poppins
+                )
+                Box(
+                    modifier = Modifier
+                        .size(44.dp)
+                        .clip(CircleShape)
+                        .background(
+                            color = PrimaryLight,
+                            shape = CircleShape
+                        )
+                        .clickable { navController.navigate(Routes.PROFILE) },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.profile_icon),
+                        contentDescription = "Profile Icon",
+                        modifier = Modifier.size(28.dp)
+                    )
+                }
+            }
+
+            // Tambahkan Column yang dapat di-scroll untuk konten utama
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp)
+                    .weight(1f)
                     .verticalScroll(scrollState),
-                verticalArrangement = Arrangement.spacedBy(6.dp)
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                // Header: Omsetku dan icon profil
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = "Omsetku",
-                        fontSize = 30.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = PrimaryVariant,
-                        fontFamily = Poppins
-                    )
-                    Box(
-                        modifier = Modifier
-                            .size(44.dp)
-                            .clip(CircleShape)
-                            .background(
-                                color = PrimaryLight,
-                                shape = CircleShape
-                            )
-                            .clickable { navController.navigate(Routes.PROFILE) },
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Image(
-                            painter = painterResource(id = R.drawable.profile_icon),
-                            contentDescription = "Profile Icon",
-                            modifier = Modifier.size(28.dp)
-                        )
-                    }
-                }
-                Spacer(modifier = Modifier.height(4.dp))
-
                 // Saldo Card
                 Card(
                     modifier = Modifier
@@ -151,13 +159,13 @@ fun HomeScreen(
                                 modifier = Modifier.size(24.dp)
                             )
                         } else {
-                        Text(
-                            text = "Rp %,d".format(incomeAmount - expenseAmount).replace(',', '.'),
-                            fontSize = 26.sp,
-                            fontWeight = FontWeight.ExtraBold,
-                            color = PrimaryColor,
-                            fontFamily = Poppins
-                        )
+                            Text(
+                                text = "Rp %,d".format(incomeAmount - expenseAmount).replace(',', '.'),
+                                fontSize = 26.sp,
+                                fontWeight = FontWeight.ExtraBold,
+                                color = PrimaryColor,
+                                fontFamily = Poppins
+                            )
                         }
                         
                         Spacer(modifier = Modifier.height(12.dp))
@@ -306,17 +314,19 @@ fun HomeScreen(
                 }
                 // Transactions list
                 else {
-                    // Menampilkan daftar transaksi tanpa panel ekspansi
-                    LazyColumn(
-                        modifier = Modifier
-                            .fillMaxWidth(),
-                        contentPadding = PaddingValues(vertical = 8.dp),
+                    // Menampilkan daftar transaksi sebagai Column biasa bukan LazyColumn
+                    // untuk menghindari masalah LazyColumn di dalam verticalScroll
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        items(transactions) { transaction ->
+                        transactions.forEach { transaction ->
                             TransactionItem(transaction)
                         }
                     }
+                    
+                    // Tambahkan Spacer di bagian bawah untuk padding
+                    Spacer(modifier = Modifier.height(80.dp))
                 }
             }
         }
