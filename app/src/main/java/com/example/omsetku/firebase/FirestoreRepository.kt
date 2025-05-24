@@ -218,56 +218,90 @@ class FirestoreRepository {
     ): List<Map<String, Any>> {
         val userId = getCurrentUserId()
         
-        // Gunakan query yang paling sederhana mungkin
-        var query = transactionCollection.whereEqualTo("userId", userId)
-        
-        // Filter berdasarkan tipe transaksi
-        if (type != null) {
-            query = query.whereEqualTo("type", type)
-        }
-        
-        // Hilangkan pengurutan dengan Query.Direction untuk menghindari kebutuhan indeks
-        val snapshot = query.get().await()
-        
-        return snapshot.documents.mapNotNull { doc ->
-            val data = doc.data
-            data?.let {
-                it["id"] = doc.id
-                
-                // Filter startDate dan endDate secara manual
-                val date = (it["date"] as? Number)?.toLong() ?: 0L
-                val inRange = (startDate == null || date >= startDate) && 
-                              (endDate == null || date <= endDate)
-                
-                if (inRange) it else null
+        try {
+            // Gunakan query yang paling sederhana mungkin
+            var query = transactionCollection.whereEqualTo("userId", userId)
+            
+            // Filter berdasarkan tipe transaksi
+            if (type != null) {
+                query = query.whereEqualTo("type", type)
             }
-        }.sortedByDescending { it["date"] as? Long ?: 0L } // Urutkan di dalam aplikasi alih-alih di query
+            
+            // Hilangkan pengurutan dengan Query.Direction untuk menghindari kebutuhan indeks
+            val snapshot = query.get().await()
+            
+            return snapshot.documents.mapNotNull { doc ->
+                try {
+                    val data = doc.data
+                    data?.let {
+                        it["id"] = doc.id
+                        
+                        // Filter startDate dan endDate secara manual dengan penanganan error
+                        try {
+                            val date = (it["date"] as? Number)?.toLong() ?: 0L
+                            val inRange = (startDate == null || date >= startDate) && 
+                                          (endDate == null || date <= endDate)
+                            
+                            if (inRange) it else null
+                        } catch (e: Exception) {
+                            // Jika tanggal tidak bisa diproses, masih tampilkan transaksi
+                            it
+                        }
+                    }
+                } catch (e: Exception) {
+                    // Abaikan dokumen yang bermasalah
+                    null
+                }
+            }.sortedByDescending { 
+                try { 
+                    (it["date"] as? Number)?.toLong() ?: 0L 
+                } catch (e: Exception) { 
+                    0L 
+                }
+            } // Urutkan di dalam aplikasi alih-alih di query
+        } catch (e: Exception) {
+            // Jika terjadi error, kembalikan list kosong daripada crash
+            return emptyList()
+        }
     }
     
     /**
      * Mendapatkan total pemasukan dan pengeluaran dalam periode tertentu
      */
     suspend fun getTransactionSummary(startDate: Long, endDate: Long): Map<String, Long> {
-        val transactions = getUserTransactions(startDate, endDate)
-        
-        var totalIncome = 0L
-        var totalExpense = 0L
-        
-        transactions.forEach { transaction ->
-            val amount = (transaction["amount"] as? Number)?.toLong() ?: 0
-            val type = transaction["type"] as? String
+        try {
+            val transactions = getUserTransactions(startDate, endDate)
             
-            when (type) {
-                "INCOME" -> totalIncome += amount
-                "EXPENSE" -> totalExpense += amount
+            var totalIncome = 0L
+            var totalExpense = 0L
+            
+            transactions.forEach { transaction ->
+                try {
+                    val amount = (transaction["amount"] as? Number)?.toLong() ?: 0
+                    val type = transaction["type"] as? String
+                    
+                    when {
+                        type.equals("INCOME", ignoreCase = true) -> totalIncome += amount
+                        type.equals("EXPENSE", ignoreCase = true) -> totalExpense += amount
+                    }
+                } catch (e: Exception) {
+                    // Abaikan transaksi yang error
+                }
             }
+            
+            return mapOf(
+                "totalIncome" to totalIncome,
+                "totalExpense" to totalExpense,
+                "balance" to (totalIncome - totalExpense)
+            )
+        } catch (e: Exception) {
+            // Kembalikan default map jika terjadi error
+            return mapOf(
+                "totalIncome" to 0L,
+                "totalExpense" to 0L,
+                "balance" to 0L
+            )
         }
-        
-        return mapOf(
-            "totalIncome" to totalIncome,
-            "totalExpense" to totalExpense,
-            "balance" to (totalIncome - totalExpense)
-        )
     }
     
     /**
