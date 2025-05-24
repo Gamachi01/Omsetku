@@ -67,7 +67,7 @@ fun TaxSettingsScreen(
                 Icon(
                     painter = painterResource(id = R.drawable.back_icon),
                     contentDescription = "Back",
-                    modifier = Modifier.size(24.dp)
+                    modifier = Modifier.size(20.dp)
                 )
             }
             

@@ -131,7 +131,7 @@ fun OTPScreen(
         
         // Continue Button
         Button(
-            onClick = { navController.navigate(Routes.BUSINESS_SETUP) },
+            onClick = { navController.navigate(Routes.PERSONAL_DATA) },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(54.dp),
