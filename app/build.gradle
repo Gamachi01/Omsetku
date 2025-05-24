@@ -1,8 +1,0 @@
-dependencies {
-    // ... existing code ...
-    
-    // Coil untuk loading gambar
-    implementation "io.coil-kt:coil-compose:2.4.0"
-    
-    // ... existing code ...
-} 
