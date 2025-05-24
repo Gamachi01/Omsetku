@@ -115,7 +115,7 @@ fun HomeScreen(
                     contentAlignment = Alignment.Center
                 ) {
                     Image(
-                        painter = painterResource(id = R.drawable.profile_icon),
+                        painter = painterResource(id = R.drawable.profile_icon_vector),
                         contentDescription = "Profile Icon",
                         modifier = Modifier.size(28.dp)
                     )

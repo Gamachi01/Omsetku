@@ -141,8 +141,8 @@ fun TransactionItem(transaction: Transaction) {
                 ) {
                     Icon(
                         painter = painterResource(
-                            id = if (isIncome) R.drawable.income_icon
-                            else R.drawable.outcome_icon
+                            id = if (isIncome) R.drawable.income_icon_vector
+                            else R.drawable.outcome_icon_vector
                         ),
                         contentDescription = null,
                         tint = if (isIncome) IncomeColor else ExpenseColor,

@@ -17,11 +17,24 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        
+        // Vector drawables support
+        vectorDrawables.useSupportLibrary = true
     }
 
     buildTypes {
         release {
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+        }
+        debug {
+            // Aktifkan minifikasi di debug untuk testing
             isMinifyEnabled = false
+            isShrinkResources = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -37,6 +50,12 @@ android {
     }
     buildFeatures {
         compose = true
+    }
+    
+    // Konfigurasi untuk WebP conversion
+    androidResources {
+        // Mengaktifkan generasi drawable untuk densitas yang berbeda
+        generateLocaleResources = true
     }
 }
 
