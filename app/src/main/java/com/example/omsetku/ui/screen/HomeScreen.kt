@@ -23,6 +23,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.omsetku.R
 import com.example.omsetku.Navigation.Routes
@@ -31,6 +32,7 @@ import com.example.omsetku.ui.components.TransactionList
 import com.example.omsetku.ui.components.Poppins
 import com.example.omsetku.data.Transaction
 import com.example.omsetku.ui.theme.*
+import com.example.omsetku.viewmodels.TransactionViewModel
 import java.text.NumberFormat
 import java.util.*
 
@@ -38,50 +40,23 @@ import java.util.*
 @Composable
 fun HomeScreen(
     navController: NavController,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    transactionViewModel: TransactionViewModel = viewModel()
 ) {
     var selectedItem by remember { mutableStateOf("Home") }
     val scrollState = rememberScrollState()
 
-    // data dummy
-    val transactions = remember {
-        listOf(
-            Transaction("Pemasukan", "Penjualan Produk", 150000, "11 April 2025"),
-            Transaction("Pemasukan", "Penjualan Produk", 75000, "11 April 2025"),
-            Transaction("Pengeluaran", "Beli Bahan Baku", 500000, "10 April 2025"),
-            Transaction("Pemasukan", "Penjualan Produk", 80000, "10 April 2025"),
-            Transaction("Pemasukan", "Penjualan Produk", 120000, "10 April 2025"),
-            Transaction("Pengeluaran", "Gaji Karyawan", 500000, "09 April 2025"),
-            Transaction("Pengeluaran", "Bayar Listrik", 200000, "09 April 2025"),
-            Transaction("Pengeluaran", "Beli Kardus", 100000, "08 April 2025"),
-            Transaction("Pemasukan", "Penjualan Produk", 170000, "08 April 2025"),
-            Transaction("Pemasukan", "Penjualan Online", 200000, "07 April 2025"),
-            Transaction("Pengeluaran", "Beli Plastik", 75000, "07 April 2025"),
-            Transaction("Pemasukan", "Penjualan Produk", 95000, "06 April 2025"),
-            Transaction("Pemasukan", "Penjualan Produk", 110000, "06 April 2025"),
-            Transaction("Pengeluaran", "Biaya Transportasi", 65000, "06 April 2025"),
-            Transaction("Pengeluaran", "Beli Kertas", 30000, "05 April 2025"),
-            Transaction("Pemasukan", "Penjualan Produk", 135000, "05 April 2025"),
-            Transaction("Pemasukan", "Penjualan Online", 155000, "04 April 2025"),
-            Transaction("Pengeluaran", "Bayar Air", 100000, "04 April 2025"),
-            Transaction("Pengeluaran", "Beli Stiker", 45000, "03 April 2025"),
-            Transaction("Pemasukan", "Penjualan Produk", 125000, "03 April 2025"),
-            Transaction("Pemasukan", "Penjualan Produk", 185000, "02 April 2025"),
-            Transaction("Pengeluaran", "Gaji Karyawan", 500000, "02 April 2025"),
-            Transaction("Pengeluaran", "Beli Box", 95000, "01 April 2025"),
-            Transaction("Pemasukan", "Penjualan Produk", 150000, "01 April 2025"),
-            Transaction("Pemasukan", "Penjualan Produk", 90000, "31 Maret 2025"),
-            Transaction("Pengeluaran", "Biaya Iklan", 120000, "31 Maret 2025"),
-            Transaction("Pemasukan", "Penjualan Produk", 80000, "30 Maret 2025"),
-            Transaction("Pengeluaran", "Bayar Internet", 180000, "30 Maret 2025"),
-            Transaction("Pemasukan", "Penjualan Produk", 160000, "29 Maret 2025"),
-            Transaction("Pengeluaran", "Beli Lakban", 30000, "29 Maret 2025"),
-            Transaction("Pemasukan", "Penjualan Produk", 140000, "28 Maret 2025")
-        )
+    // State dari ViewModel
+    val transactions by transactionViewModel.transactions.collectAsState()
+    val incomeAmount by transactionViewModel.incomeAmount.collectAsState()
+    val expenseAmount by transactionViewModel.expenseAmount.collectAsState()
+    val isLoading by transactionViewModel.isLoading.collectAsState()
+    val error by transactionViewModel.error.collectAsState()
+    
+    // Effect untuk memuat data transaksi saat screen dibuka
+    LaunchedEffect(Unit) {
+        transactionViewModel.loadTransactions()
     }
-
-    var incomeAmount by remember { mutableStateOf(2500000) }
-    var expenseAmount by remember { mutableStateOf(1200000) }
 
     Scaffold(
         bottomBar = {
@@ -164,13 +139,20 @@ fun HomeScreen(
                     
                     Spacer(modifier = Modifier.height(6.dp))
                     
-                    Text(
-                        text = "Rp %,d".format(incomeAmount - expenseAmount).replace(',', '.'),
-                        fontSize = 26.sp,
-                        fontWeight = FontWeight.ExtraBold,
-                        color = PrimaryColor,
-                        fontFamily = Poppins
-                    )
+                    if (isLoading) {
+                        CircularProgressIndicator(
+                            color = PrimaryColor,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    } else {
+                        Text(
+                            text = "Rp %,d".format(incomeAmount - expenseAmount).replace(',', '.'),
+                            fontSize = 26.sp,
+                            fontWeight = FontWeight.ExtraBold,
+                            color = PrimaryColor,
+                            fontFamily = Poppins
+                        )
+                    }
                     
                     Spacer(modifier = Modifier.height(12.dp))
                     
@@ -223,8 +205,103 @@ fun HomeScreen(
                 }
             }
 
-            // Hapus text "Transaksi Terbaru" dan langsung tampilkan TransactionList
-            TransactionList(transactions = transactions)
+            // Text "Transaksi Terbaru"
+            Text(
+                text = "Transaksi Terbaru",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.Black,
+                fontFamily = Poppins,
+                modifier = Modifier.fillMaxWidth().padding(top = 8.dp, bottom = 8.dp),
+                textAlign = TextAlign.Left
+            )
+            
+            // Loading state
+            if (isLoading) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(200.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(color = PrimaryColor)
+                }
+            } 
+            // Error message
+            else if (error != null) {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = Color(0xFFFFEFEF)
+                    ),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Text(
+                        text = error ?: "",
+                        color = Color.Red,
+                        fontSize = 14.sp,
+                        fontFamily = Poppins,
+                        modifier = Modifier.padding(16.dp)
+                    )
+                }
+            }
+            // Empty state
+            else if (transactions.isEmpty()) {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = Color(0xFFF5F5F5)
+                    ),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(24.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = "Belum ada transaksi",
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = Color.Gray,
+                            fontFamily = Poppins,
+                            textAlign = TextAlign.Center
+                        )
+                        
+                        Spacer(modifier = Modifier.height(8.dp))
+                        
+                        Text(
+                            text = "Catat transaksi pertamamu di menu Transaksi",
+                            fontSize = 14.sp,
+                            color = Color.Gray,
+                            fontFamily = Poppins,
+                            textAlign = TextAlign.Center
+                        )
+                        
+                        Spacer(modifier = Modifier.height(16.dp))
+                        
+                        Button(
+                            onClick = { navController.navigate(Routes.TRANSACTION) },
+                            shape = RoundedCornerShape(8.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = PrimaryColor
+                            )
+                        ) {
+                            Text(
+                                text = "Catat Transaksi",
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Bold,
+                                fontFamily = Poppins
+                            )
+                        }
+                    }
+                }
+            }
+            // Transactions list
+            else {
+                TransactionList(transactions = transactions)
+            }
         }
     }
 }

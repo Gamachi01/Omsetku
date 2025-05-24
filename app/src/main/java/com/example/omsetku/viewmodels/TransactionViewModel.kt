@@ -2,8 +2,8 @@ package com.example.omsetku.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.omsetku.firebase.FirebaseModule
-import com.example.omsetku.models.Transaction
+import com.example.omsetku.data.Transaction
+import com.example.omsetku.firebase.FirestoreRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -14,46 +14,29 @@ import java.util.Date
 import java.util.Locale
 
 class TransactionViewModel : ViewModel() {
-    private val firestoreRepository = FirebaseModule.firestoreRepository
+    private val repository = FirestoreRepository()
     
-    // State untuk loading
-    private val _isLoading = MutableStateFlow(false)
-    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
-    
-    // State untuk error
-    private val _error = MutableStateFlow<String?>(null)
-    val error: StateFlow<String?> = _error.asStateFlow()
-    
-    // State untuk daftar transaksi
     private val _transactions = MutableStateFlow<List<Transaction>>(emptyList())
     val transactions: StateFlow<List<Transaction>> = _transactions.asStateFlow()
     
-    // State untuk transaksi terpilih (untuk detail)
-    private val _selectedTransaction = MutableStateFlow<Transaction?>(null)
-    val selectedTransaction: StateFlow<Transaction?> = _selectedTransaction.asStateFlow()
+    private val _incomeAmount = MutableStateFlow(0)
+    val incomeAmount: StateFlow<Int> = _incomeAmount.asStateFlow()
     
-    // State untuk summary transaksi
-    private val _transactionSummary = MutableStateFlow<Map<String, Long>>(emptyMap())
-    val transactionSummary: StateFlow<Map<String, Long>> = _transactionSummary.asStateFlow()
+    private val _expenseAmount = MutableStateFlow(0)
+    val expenseAmount: StateFlow<Int> = _expenseAmount.asStateFlow()
     
-    // Filter date range
-    private val _startDate = MutableStateFlow<Long>(getStartOfMonth())
-    val startDate: StateFlow<Long> = _startDate.asStateFlow()
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
     
-    private val _endDate = MutableStateFlow<Long>(getEndOfMonth())
-    val endDate: StateFlow<Long> = _endDate.asStateFlow()
-    
-    // Filter type
-    private val _filterType = MutableStateFlow<String?>(null)
-    val filterType: StateFlow<String?> = _filterType.asStateFlow()
+    private val _error = MutableStateFlow<String?>(null)
+    val error: StateFlow<String?> = _error.asStateFlow()
     
     init {
-        // Load transaksi saat ViewModel dibuat
         loadTransactions()
     }
     
     /**
-     * Memuat daftar transaksi
+     * Memuat daftar transaksi dari Firestore
      */
     fun loadTransactions() {
         viewModelScope.launch {
@@ -61,17 +44,31 @@ class TransactionViewModel : ViewModel() {
             _error.value = null
             
             try {
-                val transactionList = firestoreRepository.getUserTransactions(
-                    startDate = _startDate.value,
-                    endDate = _endDate.value,
-                    type = _filterType.value
-                )
-                _transactions.value = transactionList.map { Transaction.fromMap(it) }
+                // Hitung start date (1 bulan ke belakang) dan end date (hari ini)
+                val calendar = Calendar.getInstance()
+                calendar.add(Calendar.MONTH, -1)
+                val startDate = calendar.timeInMillis
+                val endDate = System.currentTimeMillis()
                 
-                // Load summary
-                loadTransactionSummary()
+                val transactionList = repository.getUserTransactions(startDate, endDate)
+                
+                // Convert dari Map ke Transaction
+                val transactionItems = transactionList.map { transactionMap ->
+                    val date = transactionMap["date"] as? Long ?: 0L
+                    val dateFormat = SimpleDateFormat("dd MMMM yyyy", Locale("id", "ID"))
+                    
+                    Transaction(
+                        type = transactionMap["type"] as? String ?: "",
+                        description = transactionMap["description"] as? String ?: "",
+                        amount = (transactionMap["amount"] as? Number)?.toInt() ?: 0,
+                        date = dateFormat.format(Date(date))
+                    )
+                }
+                
+                _transactions.value = transactionItems
+                calculateAmounts(transactionItems)
             } catch (e: Exception) {
-                _error.value = e.message ?: "Gagal memuat transaksi"
+                _error.value = "Gagal memuat transaksi: ${e.message}"
             } finally {
                 _isLoading.value = false
             }
@@ -79,49 +76,53 @@ class TransactionViewModel : ViewModel() {
     }
     
     /**
-     * Memuat ringkasan transaksi
-     */
-    private fun loadTransactionSummary() {
-        viewModelScope.launch {
-            try {
-                val summary = firestoreRepository.getTransactionSummary(
-                    startDate = _startDate.value,
-                    endDate = _endDate.value
-                )
-                _transactionSummary.value = summary
-            } catch (e: Exception) {
-                _error.value = e.message ?: "Gagal memuat ringkasan transaksi"
-            }
-        }
-    }
-    
-    /**
-     * Menyimpan transaksi baru
+     * Mencatat transaksi baru
      */
     fun saveTransaction(
         type: String,
-        amount: Long,
-        date: Long,
-        category: String,
-        description: String? = null
+        amount: Int,
+        date: String,
+        description: String
     ) {
+        if (amount <= 0) {
+            _error.value = "Nominal harus lebih dari 0"
+            return
+        }
+        
+        if (date.isBlank()) {
+            _error.value = "Tanggal tidak boleh kosong"
+            return
+        }
+        
+        // Konversi format tanggal dari UI ke timestamp
+        val dateFormat = SimpleDateFormat("dd MMMM yyyy", Locale("id", "ID"))
+        val parsedDate = try {
+            dateFormat.parse(date)?.time ?: System.currentTimeMillis()
+        } catch (e: Exception) {
+            System.currentTimeMillis()
+        }
+        
         viewModelScope.launch {
             _isLoading.value = true
             _error.value = null
             
             try {
-                firestoreRepository.saveTransaction(
+                // Simpan ke Firestore
+                repository.saveTransaction(
                     type = type,
-                    amount = amount,
-                    date = date,
-                    category = category,
+                    amount = amount.toLong(),
+                    date = parsedDate,
+                    category = if (type == "INCOME") "Pemasukan" else "Pengeluaran",
                     description = description
                 )
                 
-                // Refresh data
+                // Reload transactions
                 loadTransactions()
+                
+                // Clear error
+                _error.value = null
             } catch (e: Exception) {
-                _error.value = e.message ?: "Gagal menyimpan transaksi"
+                _error.value = "Gagal menyimpan transaksi: ${e.message}"
             } finally {
                 _isLoading.value = false
             }
@@ -129,82 +130,35 @@ class TransactionViewModel : ViewModel() {
     }
     
     /**
-     * Set filter tanggal
+     * Menghitung total pemasukan dan pengeluaran
      */
-    fun setDateRange(startDate: Long, endDate: Long) {
-        _startDate.value = startDate
-        _endDate.value = endDate
-        loadTransactions()
+    private fun calculateAmounts(transactions: List<Transaction>) {
+        var income = 0
+        var expense = 0
+        
+        transactions.forEach { transaction ->
+            if (transaction.type == "Pemasukan" || transaction.type == "INCOME") {
+                income += transaction.amount
+            } else {
+                expense += transaction.amount
+            }
+        }
+        
+        _incomeAmount.value = income
+        _expenseAmount.value = expense
     }
     
     /**
-     * Set filter tipe transaksi
+     * Mendapatkan ringkasan transaksi (untuk HomeScreen)
      */
-    fun setTypeFilter(type: String?) {
-        _filterType.value = type
-        loadTransactions()
+    fun getSummary(): Triple<List<Transaction>, Int, Int> {
+        return Triple(_transactions.value, _incomeAmount.value, _expenseAmount.value)
     }
     
     /**
-     * Memilih transaksi untuk melihat detail
-     */
-    fun selectTransaction(transaction: Transaction) {
-        _selectedTransaction.value = transaction
-    }
-    
-    /**
-     * Membersihkan transaksi terpilih
-     */
-    fun clearSelectedTransaction() {
-        _selectedTransaction.value = null
-    }
-    
-    /**
-     * Reset filter
-     */
-    fun resetFilters() {
-        _startDate.value = getStartOfMonth()
-        _endDate.value = getEndOfMonth()
-        _filterType.value = null
-        loadTransactions()
-    }
-    
-    /**
-     * Clear error message
+     * Clear error
      */
     fun clearError() {
         _error.value = null
-    }
-    
-    /**
-     * Mendapatkan awal bulan untuk filter
-     */
-    private fun getStartOfMonth(): Long {
-        val calendar = Calendar.getInstance()
-        calendar.set(Calendar.DAY_OF_MONTH, 1)
-        calendar.set(Calendar.HOUR_OF_DAY, 0)
-        calendar.set(Calendar.MINUTE, 0)
-        calendar.set(Calendar.SECOND, 0)
-        return calendar.timeInMillis
-    }
-    
-    /**
-     * Mendapatkan akhir bulan untuk filter
-     */
-    private fun getEndOfMonth(): Long {
-        val calendar = Calendar.getInstance()
-        calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH))
-        calendar.set(Calendar.HOUR_OF_DAY, 23)
-        calendar.set(Calendar.MINUTE, 59)
-        calendar.set(Calendar.SECOND, 59)
-        return calendar.timeInMillis
-    }
-    
-    /**
-     * Format tanggal menjadi string
-     */
-    fun formatDate(timestamp: Long): String {
-        val sdf = SimpleDateFormat("dd MMMM yyyy", Locale("id", "ID"))
-        return sdf.format(Date(timestamp))
     }
 } 
