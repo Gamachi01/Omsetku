@@ -31,10 +31,6 @@ class TransactionViewModel : ViewModel() {
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error.asStateFlow()
     
-    init {
-        loadTransactions()
-    }
-    
     /**
      * Memuat daftar transaksi dari Firestore
      */
@@ -50,39 +46,49 @@ class TransactionViewModel : ViewModel() {
                 val startDate = calendar.timeInMillis
                 val endDate = System.currentTimeMillis()
                 
-                val transactionList = repository.getUserTransactions(startDate, endDate)
-                
-                // Convert dari Map ke Transaction dengan penanganan error yang lebih baik
-                val transactionItems = transactionList.mapNotNull { transactionMap ->
-                    try {
-                        val date = transactionMap["date"] as? Long ?: 0L
-                        val dateFormat = SimpleDateFormat("dd MMMM yyyy", Locale("id", "ID"))
-                        val type = transactionMap["type"] as? String ?: ""
-                        val description = transactionMap["description"] as? String ?: ""
-                        
-                        // Konversi amount dengan aman
-                        val amount = when (val amountValue = transactionMap["amount"]) {
-                            is Number -> amountValue.toInt()
-                            is String -> try { amountValue.toInt() } catch (e: Exception) { 0 }
-                            else -> 0
+                // Tangkap exception apapun yang terjadi saat mengambil data
+                try {
+                    val transactionList = repository.getUserTransactions(startDate, endDate)
+                    
+                    // Convert dari Map ke Transaction dengan penanganan error yang lebih baik
+                    val transactionItems = transactionList.mapNotNull { transactionMap ->
+                        try {
+                            val date = transactionMap["date"] as? Long ?: 0L
+                            val dateFormat = SimpleDateFormat("dd MMMM yyyy", Locale("id", "ID"))
+                            val type = transactionMap["type"] as? String ?: ""
+                            val description = transactionMap["description"] as? String ?: ""
+                            
+                            // Konversi amount dengan aman
+                            val amount = when (val amountValue = transactionMap["amount"]) {
+                                is Number -> amountValue.toInt()
+                                is String -> try { amountValue.toInt() } catch (e: Exception) { 0 }
+                                else -> 0
+                            }
+                            
+                            // Perhatikan: Kita menggunakan data.Transaction bukan models.Transaction
+                            Transaction(
+                                type = type,
+                                description = description,
+                                amount = amount,
+                                date = dateFormat.format(Date(date))
+                            )
+                        } catch (e: Exception) {
+                            // Abaikan transaksi yang tidak bisa dikonversi
+                            null
                         }
-                        
-                        // Perhatikan: Kita menggunakan data.Transaction bukan models.Transaction
-                        Transaction(
-                            type = type,
-                            description = description,
-                            amount = amount,
-                            date = dateFormat.format(Date(date))
-                        )
-                    } catch (e: Exception) {
-                        // Abaikan transaksi yang tidak bisa dikonversi
-                        null
                     }
+                    
+                    _transactions.value = transactionItems
+                    calculateAmounts(transactionItems)
+                } catch (e: Exception) {
+                    // Tangkap exception dari getUserTransactions dan tetapkan transactions ke list kosong
+                    _transactions.value = emptyList()
+                    _incomeAmount.value = 0
+                    _expenseAmount.value = 0
+                    _error.value = "Gagal memuat transaksi: ${e.message}"
                 }
-                
-                _transactions.value = transactionItems
-                calculateAmounts(transactionItems)
             } catch (e: Exception) {
+                // Tangkap semua exception lainnya
                 _error.value = "Gagal memuat transaksi: ${e.message}"
             } finally {
                 _isLoading.value = false
@@ -135,10 +141,17 @@ class TransactionViewModel : ViewModel() {
                 )
                 
                 // Reload transactions
-                loadTransactions()
+                try {
+                    loadTransactions()
+                } catch (e: Exception) {
+                    // Jika gagal memuat ulang transaksi, tetap selesaikan proses penyimpanan
+                    _error.value = "Transaksi berhasil disimpan, tapi gagal memuat ulang data: ${e.message}"
+                }
                 
-                // Clear error
-                _error.value = null
+                // Clear error jika sukses
+                if (_error.value == null) {
+                    _error.value = null
+                }
             } catch (e: Exception) {
                 _error.value = "Gagal menyimpan transaksi: ${e.message}"
             } finally {
