@@ -51,17 +51,13 @@ fun DatePickerField(
             SimpleDateFormat("MMMM yyyy", Locale("id", "ID"))
         DatePickerMode.YEARLY -> 
             SimpleDateFormat("yyyy", Locale("id", "ID"))
-    }.apply {
-        // Gunakan TimeZone Indonesia (GMT+7) untuk mencegah pergeseran hari
-        timeZone = TimeZone.getTimeZone("GMT+7")
     }
+
+    // Gunakan TimeZone default sistem
+    val currentTimeZone = TimeZone.getDefault()
     
-    // Kalender untuk menyimpan tanggal yang dipilih
-    val calendar = remember { 
-        Calendar.getInstance().apply {
-            timeZone = TimeZone.getTimeZone("GMT+7")
-        }
-    }
+    // Kalender untuk menyimpan tanggal yang dipilih - gunakan TimeZone default
+    val calendar = remember { Calendar.getInstance() }
     
     // Jika mode WEEKLY_END, gunakan startDate sebagai tanggal minimum
     val initialDate = when {
@@ -80,31 +76,29 @@ fun DatePickerField(
             confirmButton = {
                 TextButton(onClick = {
                     datePickerState.selectedDateMillis?.let { millis ->
+                        // Gunakan Calendar dengan TimeZone Indonesia
                         val selectedCalendar = Calendar.getInstance()
                         selectedCalendar.timeInMillis = millis
                         
-                        // Perbaikan timezone issue - gunakan UTC untuk mencegah pergeseran tanggal
-                        val timeZone = TimeZone.getTimeZone("GMT+7")
-                        selectedCalendar.timeZone = timeZone
-                        
-                        // Set waktu ke tengah hari untuk menghindari masalah pergeseran hari
+                        // Selalu atur waktu ke siang hari untuk menghindari masalah
                         selectedCalendar.set(Calendar.HOUR_OF_DAY, 12)
                         selectedCalendar.set(Calendar.MINUTE, 0)
                         selectedCalendar.set(Calendar.SECOND, 0)
                         selectedCalendar.set(Calendar.MILLISECOND, 0)
                         
+                        // Tambahkan 1 hari untuk mengatasi masalah timezone di Indonesia
+                        selectedCalendar.add(Calendar.DAY_OF_MONTH, 1)
+                        
                         // Jika mode WEEKLY_END, pastikan tanggal yang dipilih adalah seminggu setelah startDate
                         if (mode == DatePickerMode.WEEKLY_END && startDate != null) {
                             val startCalendar = Calendar.getInstance()
                             startCalendar.timeInMillis = startDate
-                            startCalendar.timeZone = timeZone
                             if (selectedCalendar.timeInMillis >= startCalendar.timeInMillis) {
                                 startCalendar.add(Calendar.DAY_OF_MONTH, 7)
                                 selectedCalendar.timeInMillis = startCalendar.timeInMillis
                             }
                         }
                         
-                        // Format menggunakan locale Indonesia
                         val formattedDate = dateFormat.format(selectedCalendar.time)
                         onDateSelected(formattedDate)
                     }
@@ -156,8 +150,16 @@ fun DatePickerField(
             onDismiss = { showMonthPicker = false },
             onMonthSelected = { month, year ->
                 val selectedCalendar = Calendar.getInstance()
-                selectedCalendar.set(Calendar.MONTH, month)
                 selectedCalendar.set(Calendar.YEAR, year)
+                selectedCalendar.set(Calendar.MONTH, month)
+                selectedCalendar.set(Calendar.DAY_OF_MONTH, 15) // Gunakan tanggal tengah bulan
+                
+                // Set waktu ke tengah hari
+                selectedCalendar.set(Calendar.HOUR_OF_DAY, 12)
+                selectedCalendar.set(Calendar.MINUTE, 0)
+                selectedCalendar.set(Calendar.SECOND, 0)
+                selectedCalendar.set(Calendar.MILLISECOND, 0)
+                
                 val formattedDate = dateFormat.format(selectedCalendar.time)
                 onDateSelected(formattedDate)
                 showMonthPicker = false
@@ -172,6 +174,15 @@ fun DatePickerField(
             onYearSelected = { year ->
                 val selectedCalendar = Calendar.getInstance()
                 selectedCalendar.set(Calendar.YEAR, year)
+                selectedCalendar.set(Calendar.MONTH, 6) // Gunakan bulan tengah tahun (Juli)
+                selectedCalendar.set(Calendar.DAY_OF_MONTH, 1)
+                
+                // Set waktu ke tengah hari
+                selectedCalendar.set(Calendar.HOUR_OF_DAY, 12)
+                selectedCalendar.set(Calendar.MINUTE, 0)
+                selectedCalendar.set(Calendar.SECOND, 0)
+                selectedCalendar.set(Calendar.MILLISECOND, 0)
+                
                 val formattedDate = dateFormat.format(selectedCalendar.time)
                 onDateSelected(formattedDate)
                 showYearPicker = false
@@ -241,9 +252,7 @@ fun MonthPickerDialog(
     onDismiss: () -> Unit,
     onMonthSelected: (month: Int, year: Int) -> Unit
 ) {
-    val calendar = Calendar.getInstance().apply {
-        timeZone = TimeZone.getTimeZone("GMT+7")
-    }
+    val calendar = Calendar.getInstance()
     val currentYear = calendar.get(Calendar.YEAR)
     val currentMonth = calendar.get(Calendar.MONTH)
     
@@ -370,9 +379,7 @@ fun YearPickerDialog(
     onDismiss: () -> Unit,
     onYearSelected: (year: Int) -> Unit
 ) {
-    val calendar = Calendar.getInstance().apply {
-        timeZone = TimeZone.getTimeZone("GMT+7")
-    }
+    val calendar = Calendar.getInstance()
     val currentYear = calendar.get(Calendar.YEAR)
     var selectedYear by remember { mutableStateOf(currentYear) }
     var startYear by remember { mutableStateOf(currentYear - 10) }
