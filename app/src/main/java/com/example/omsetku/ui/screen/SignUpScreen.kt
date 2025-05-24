@@ -10,6 +10,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -24,21 +26,42 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.omsetku.Navigation.Routes
 import com.example.omsetku.R
 import com.example.omsetku.ui.components.Poppins
 import com.example.omsetku.ui.theme.PrimaryVariant
+import com.example.omsetku.viewmodels.AuthViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SignUpScreen(navController: NavController = rememberNavController()) {
+fun SignUpScreen(
+    navController: NavController = rememberNavController(),
+    authViewModel: AuthViewModel = viewModel()
+) {
+    var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
+    var phone by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
     var confirmPasswordVisible by remember { mutableStateOf(false) }
+    
+    // State dari AuthViewModel
+    val isLoading by authViewModel.isLoading.collectAsState()
+    val error by authViewModel.error.collectAsState()
+    val isLoggedIn by authViewModel.isLoggedIn.collectAsState()
+    
+    // Efek untuk navigasi jika user sudah login
+    LaunchedEffect(isLoggedIn) {
+        if (isLoggedIn) {
+            navController.navigate(Routes.HOME) {
+                popUpTo(Routes.SIGNUP) { inclusive = true }
+            }
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -75,6 +98,39 @@ fun SignUpScreen(navController: NavController = rememberNavController()) {
         )
 
         Spacer(modifier = Modifier.height(24.dp))
+        
+        // Name Field
+        Text(
+            text = "Nama Lengkap",
+            fontSize = 14.sp,
+            fontFamily = Poppins,
+            color = Color.Black,
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+        
+        OutlinedTextField(
+            value = name,
+            onValueChange = { name = it },
+            placeholder = { Text("Masukkan nama lengkap", fontFamily = Poppins, color = Color.LightGray) },
+            leadingIcon = { 
+                Icon(
+                    imageVector = Icons.Default.Person,
+                    contentDescription = "Name Icon",
+                    tint = Color.Gray
+                ) 
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 16.dp),
+            shape = RoundedCornerShape(8.dp),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = Color.LightGray,
+                unfocusedBorderColor = Color.LightGray,
+                cursorColor = PrimaryVariant
+            ),
+            textStyle = TextStyle(fontFamily = Poppins),
+            singleLine = true
+        )
 
         // Email Field
         Text(
@@ -93,6 +149,39 @@ fun SignUpScreen(navController: NavController = rememberNavController()) {
                 Icon(
                     imageVector = Icons.Default.Email,
                     contentDescription = "Email Icon",
+                    tint = Color.Gray
+                ) 
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 16.dp),
+            shape = RoundedCornerShape(8.dp),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = Color.LightGray,
+                unfocusedBorderColor = Color.LightGray,
+                cursorColor = PrimaryVariant
+            ),
+            textStyle = TextStyle(fontFamily = Poppins),
+            singleLine = true
+        )
+        
+        // Phone Field
+        Text(
+            text = "Nomor Telepon",
+            fontSize = 14.sp,
+            fontFamily = Poppins,
+            color = Color.Black,
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+        
+        OutlinedTextField(
+            value = phone,
+            onValueChange = { phone = it },
+            placeholder = { Text("Masukkan nomor telepon", fontFamily = Poppins, color = Color.LightGray) },
+            leadingIcon = { 
+                Icon(
+                    imageVector = Icons.Default.Phone,
+                    contentDescription = "Phone Icon",
                     tint = Color.Gray
                 ) 
             },
@@ -169,7 +258,7 @@ fun SignUpScreen(navController: NavController = rememberNavController()) {
         OutlinedTextField(
             value = confirmPassword,
             onValueChange = { confirmPassword = it },
-            placeholder = { Text("konfirmasi password", fontFamily = Poppins, color = Color.LightGray) },
+            placeholder = { Text("ulangi password", fontFamily = Poppins, color = Color.LightGray) },
             leadingIcon = { 
                 Icon(
                     imageVector = Icons.Default.Lock,
@@ -207,20 +296,32 @@ fun SignUpScreen(navController: NavController = rememberNavController()) {
 
         // Sign Up Button
         Button(
-            onClick = { navController.navigate(Routes.OTP) },
+            onClick = { 
+                if (validateInputs(name, email, phone, password, confirmPassword)) {
+                    authViewModel.register(name, email, password, phone)
+                }
+            },
+            enabled = !isLoading,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp),
             shape = RoundedCornerShape(8.dp),
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF62DCC8))
         ) {
-            Text(
-                text = "Sign Up",
-                color = Color.White,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold,
-                fontFamily = Poppins
-            )
+            if (isLoading) {
+                CircularProgressIndicator(
+                    color = Color.White,
+                    modifier = Modifier.size(24.dp)
+                )
+            } else {
+                Text(
+                    text = "Sign Up",
+                    color = Color.White,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = Poppins
+                )
+            }
         }
 
         // Divider
@@ -262,14 +363,14 @@ fun SignUpScreen(navController: NavController = rememberNavController()) {
                 icon = painterResource(id = R.drawable.facebook_icon),
                 text = "Facebook"
             ) {
-                navController.navigate(Routes.HOME)
+                // TODO: Implementasikan Sign Up dengan Facebook
             }
 
             SocialSignUpButton(
                 icon = painterResource(id = R.drawable.google_icon),
                 text = "Google"
             ) {
-                navController.navigate(Routes.HOME)
+                // TODO: Implementasikan Sign Up dengan Google
             }
         }
 
@@ -298,6 +399,20 @@ fun SignUpScreen(navController: NavController = rememberNavController()) {
                 modifier = Modifier.clickable { navController.navigate(Routes.LOGIN) }
             )
         }
+    }
+    
+    // Error dialog jika ada error
+    if (error != null) {
+        AlertDialog(
+            onDismissRequest = { authViewModel.clearError() },
+            title = { Text("Error") },
+            text = { Text(error ?: "") },
+            confirmButton = {
+                TextButton(onClick = { authViewModel.clearError() }) {
+                    Text("OK")
+                }
+            }
+        )
     }
 }
 
@@ -337,6 +452,40 @@ fun SocialSignUpButton(
             )
         }
     }
+}
+
+/**
+ * Validasi input register
+ */
+private fun validateInputs(
+    name: String,
+    email: String,
+    phone: String,
+    password: String,
+    confirmPassword: String
+): Boolean {
+    // Check if all fields are filled
+    if (name.isBlank() || email.isBlank() || phone.isBlank() || password.isBlank() || confirmPassword.isBlank()) {
+        return false
+    }
+    
+    // Check email format
+    val emailRegex = Regex("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$")
+    if (!email.matches(emailRegex)) {
+        return false
+    }
+    
+    // Check if passwords match
+    if (password != confirmPassword) {
+        return false
+    }
+    
+    // Check minimum password length
+    if (password.length < 6) {
+        return false
+    }
+    
+    return true
 }
 
 @Preview(showBackground = true)

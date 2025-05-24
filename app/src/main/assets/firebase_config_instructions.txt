@@ -1,0 +1,58 @@
+PETUNJUK KONFIGURASI FIREBASE UNTUK OMSETKU
+
+1. Buat Proyek Firebase:
+   - Kunjungi https://console.firebase.google.com/
+   - Klik "Add project" dan ikuti langkah-langkah untuk membuat proyek baru
+   - Berikan nama "Omsetku" atau nama lain yang Anda inginkan
+
+2. Tambahkan Aplikasi Android:
+   - Di halaman Project Overview, klik ikon Android
+   - Masukkan package name aplikasi: com.example.omsetku
+   - (Optional) Berikan nickname untuk aplikasi
+   - Klik "Register app"
+
+3. Unduh file google-services.json:
+   - Firebase akan menghasilkan file konfigurasi google-services.json
+   - Unduh file ini dan tempatkan di direktori app/ proyek Android Anda
+   - File ini SANGAT PENTING dan berisi semua informasi koneksi ke Firebase
+
+4. Aktifkan Layanan yang Diperlukan:
+   - Authentication: 
+     * Buka "Authentication" -> "Sign-in method"
+     * Aktifkan metode yang diinginkan (Email/Password direkomendasikan untuk awal)
+   
+   - Firestore Database:
+     * Buka "Firestore Database"
+     * Klik "Create database" dan mulai dalam mode yang sesuai
+     * Disarankan mulai dalam "test mode" untuk pengembangan
+
+   - Storage:
+     * Buka "Storage"
+     * Klik "Get started" dan ikuti langkah-langkah konfigurasi
+
+5. Aturan Keamanan:
+   - Untuk masing-masing layanan, pastikan aturan keamanan dikonfigurasi sesuai kebutuhan
+   - Untuk pengembangan, Anda bisa menggunakan rules yang lebih permisif
+   - Untuk produksi, selalu gunakan aturan keamanan yang ketat
+
+CONTOH STRUKTUR FILE google-services.json:
+{
+  "project_info": {
+    "project_number": "XXXXXXXXXXXXX",
+    "project_id": "omsetku-XXXXX",
+    "storage_bucket": "omsetku-XXXXX.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:XXXXXXXXXXXXX:android:XXXXXXXXXXXXX",
+        "android_client_info": {
+          "package_name": "com.example.omsetku"
+        }
+      },
+      "oauth_client": [ ... ],
+      "api_key": [ ... ],
+      "services": { ... }
+    }
+  ]
+} 

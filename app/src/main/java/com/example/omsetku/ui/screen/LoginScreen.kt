@@ -4,7 +4,9 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
@@ -22,21 +24,38 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.omsetku.Navigation.Routes
 import com.example.omsetku.R
 import com.example.omsetku.ui.components.Poppins
 import com.example.omsetku.ui.theme.PrimaryVariant
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import com.example.omsetku.viewmodels.AuthViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LoginScreen(navController: NavController = rememberNavController()) {
+fun LoginScreen(
+    navController: NavController = rememberNavController(),
+    authViewModel: AuthViewModel = viewModel()
+) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
+    
+    // State dari AuthViewModel
+    val isLoading by authViewModel.isLoading.collectAsState()
+    val error by authViewModel.error.collectAsState()
+    val isLoggedIn by authViewModel.isLoggedIn.collectAsState()
+    
+    // Efek untuk navigasi jika user sudah login
+    LaunchedEffect(isLoggedIn) {
+        if (isLoggedIn) {
+            navController.navigate(Routes.HOME) {
+                popUpTo(Routes.LOGIN) { inclusive = true }
+            }
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -71,9 +90,9 @@ fun LoginScreen(navController: NavController = rememberNavController()) {
             color = Color.Gray,
             fontFamily = Poppins
         )
-
+        
         Spacer(modifier = Modifier.height(24.dp))
-
+        
         // Email Field
         Text(
             text = "Email",
@@ -106,7 +125,7 @@ fun LoginScreen(navController: NavController = rememberNavController()) {
             textStyle = TextStyle(fontFamily = Poppins),
             singleLine = true
         )
-
+        
         // Password Field
         Text(
             text = "Password",
@@ -127,6 +146,20 @@ fun LoginScreen(navController: NavController = rememberNavController()) {
                     tint = Color.Gray
                 ) 
             },
+            trailingIcon = {
+                IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                    Icon(
+                        painter = painterResource(
+                            id = if (passwordVisible) 
+                                    R.drawable.password_icon
+                                else 
+                                    R.drawable.password_icon
+                        ),
+                        contentDescription = if (passwordVisible) "Hide Password" else "Show Password",
+                        tint = Color.Gray
+                    )
+                }
+            },
             visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
             modifier = Modifier
                 .fillMaxWidth()
@@ -140,23 +173,35 @@ fun LoginScreen(navController: NavController = rememberNavController()) {
             textStyle = TextStyle(fontFamily = Poppins),
             singleLine = true
         )
-
+        
         // Login Button
         Button(
-            onClick = { navController.navigate(Routes.HOME) },
+            onClick = { 
+                if (email.isNotEmpty() && password.isNotEmpty()) {
+                    authViewModel.login(email, password)
+                }
+            },
+            enabled = !isLoading,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp),
             shape = RoundedCornerShape(8.dp),
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF62DCC8))
         ) {
-            Text(
-                text = "Login",
-                color = Color.White,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold,
-                fontFamily = Poppins
-            )
+            if (isLoading) {
+                CircularProgressIndicator(
+                    color = Color.White,
+                    modifier = Modifier.size(24.dp)
+                )
+            } else {
+                Text(
+                    text = "Login",
+                    color = Color.White,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = Poppins
+                )
+            }
         }
 
         // Divider
@@ -198,14 +243,14 @@ fun LoginScreen(navController: NavController = rememberNavController()) {
                 icon = painterResource(id = R.drawable.facebook_icon),
                 text = "Facebook"
             ) {
-                navController.navigate(Routes.HOME)
+                // TODO: Implementasikan Login dengan Facebook
             }
 
             SocialLoginButton(
                 icon = painterResource(id = R.drawable.google_icon),
                 text = "Google"
             ) {
-                navController.navigate(Routes.HOME)
+                // TODO: Implementasikan Login dengan Google
             }
         }
 
@@ -239,6 +284,20 @@ fun LoginScreen(navController: NavController = rememberNavController()) {
                 }
             )
         }
+    }
+    
+    // Error dialog jika ada error
+    if (error != null) {
+        AlertDialog(
+            onDismissRequest = { authViewModel.clearError() },
+            title = { Text("Error") },
+            text = { Text(error ?: "") },
+            confirmButton = {
+                TextButton(onClick = { authViewModel.clearError() }) {
+                    Text("OK")
+                }
+            }
+        )
     }
 }
 
