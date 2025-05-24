@@ -147,6 +147,19 @@ fun CashierScreen(
                             tint = Color.Gray
                         )
                     },
+                    trailingIcon = {
+                        if (searchQuery.isNotEmpty()) {
+                            IconButton(
+                                onClick = { searchQuery = "" }
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Close,
+                                    contentDescription = "Clear search",
+                                    tint = Color.Gray
+                                )
+                            }
+                        }
+                    },
                     shape = RoundedCornerShape(8.dp),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = Color.LightGray,
@@ -703,12 +716,15 @@ fun ImageCropperDialog(
         Surface(
             shape = RoundedCornerShape(16.dp),
             color = Color.White,
-            modifier = Modifier.fillMaxSize(0.9f)
+            modifier = Modifier
+                .fillMaxWidth(0.95f)
+                .fillMaxHeight(0.8f)
         ) {
             Column(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp)
+                    .fillMaxWidth()
+                    .padding(horizontal = 20.dp, vertical = 16.dp)
+                    .verticalScroll(rememberScrollState())
             ) {
                 // Header
                 Row(
@@ -929,45 +945,45 @@ fun ProductCard(
                 if (isEditMode) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceEvenly,
+                        horizontalArrangement = Arrangement.Center,
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         // Edit Button
                         IconButton(
                             onClick = onEdit,
                             modifier = Modifier
-                                .size(32.dp)
+                                .size(30.dp)
                                 .background(Color.LightGray.copy(alpha = 0.5f), CircleShape)
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Edit,
                                 contentDescription = "Edit",
                                 tint = Color.DarkGray,
-                                modifier = Modifier.size(16.dp)
+                                modifier = Modifier.size(14.dp)
                             )
                         }
                         
-                        Spacer(modifier = Modifier.width(16.dp))
+                        Spacer(modifier = Modifier.width(40.dp))
                         
                         // Delete Button
                         IconButton(
                             onClick = onDelete,
                             modifier = Modifier
-                                .size(32.dp)
+                                .size(30.dp)
                                 .background(Color.Red.copy(alpha = 0.2f), CircleShape)
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Delete,
                                 contentDescription = "Delete",
                                 tint = Color.Red,
-                                modifier = Modifier.size(16.dp)
+                                modifier = Modifier.size(14.dp)
                             )
                         }
                     }
                 } else {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceEvenly,
+                        horizontalArrangement = Arrangement.Center,
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         // Minus Button
@@ -979,7 +995,7 @@ fun ProductCard(
                                 }
                             },
                             modifier = Modifier
-                                .size(32.dp)
+                                .size(30.dp)
                                 .background(
                                     color = if (quantity > 0) PrimaryVariant else Color.LightGray,
                                     shape = CircleShape
@@ -989,7 +1005,7 @@ fun ProductCard(
                                 painter = painterResource(id = R.drawable.ic_remove),
                                 contentDescription = "Decrease",
                                 tint = Color.White,
-                                modifier = Modifier.size(16.dp)
+                                modifier = Modifier.size(14.dp)
                             )
                         }
                         
@@ -1027,14 +1043,14 @@ fun ProductCard(
                                 onQuantityChanged(quantity)
                             },
                             modifier = Modifier
-                                .size(32.dp)
+                                .size(30.dp)
                                 .background(PrimaryVariant, CircleShape)
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Add,
                                 contentDescription = "Increase",
                                 tint = Color.White,
-                                modifier = Modifier.size(16.dp)
+                                modifier = Modifier.size(14.dp)
                             )
                         }
                     }

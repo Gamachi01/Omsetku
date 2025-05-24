@@ -43,6 +43,13 @@ class AuthViewModel : ViewModel() {
     private val _businessDataSaved = MutableStateFlow(false)
     val businessDataSaved: StateFlow<Boolean> = _businessDataSaved.asStateFlow()
     
+    // State untuk menampilkan dialog error
+    private val _showErrorDialog = MutableStateFlow(false)
+    val showErrorDialog: StateFlow<Boolean> = _showErrorDialog
+    
+    private val _errorDialogMessage = MutableStateFlow("")
+    val errorDialogMessage: StateFlow<String> = _errorDialogMessage
+    
     init {
         // Cek apakah user sudah login saat ViewModel dibuat
         checkLoginStatus()
@@ -77,6 +84,18 @@ class AuthViewModel : ViewModel() {
      * Mendaftarkan user baru
      */
     fun register(name: String, email: String, password: String, phone: String) {
+        if (email.isEmpty() || password.isEmpty()) {
+            _error.value = "Semua field harus diisi"
+            return
+        }
+        
+        if (password != confirmPassword) {
+            _error.value = "Password dan konfirmasi password tidak sama"
+            _errorDialogMessage.value = "Password dan konfirmasi password tidak sama"
+            _showErrorDialog.value = true
+            return
+        }
+        
         viewModelScope.launch {
             _isLoading.value = true
             _error.value = null
@@ -261,5 +280,9 @@ class AuthViewModel : ViewModel() {
      */
     fun clearError() {
         _error.value = null
+    }
+    
+    fun dismissErrorDialog() {
+        _showErrorDialog.value = false
     }
 } 

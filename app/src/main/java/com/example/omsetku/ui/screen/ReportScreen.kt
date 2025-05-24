@@ -111,7 +111,7 @@ fun ReportScreen(navController: NavController) {
                 textAlign = TextAlign.Center,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 16.dp, bottom = 16.dp)
+                    .padding(bottom = 16.dp)
             )
             
             Spacer(modifier = Modifier.height(8.dp))
@@ -122,18 +122,12 @@ fun ReportScreen(navController: NavController) {
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Box(
-                    modifier = Modifier
-                        .size(24.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.transactioncalender),
-                        contentDescription = "Tanggal",
-                        modifier = Modifier.size(18.dp),
-                        tint = Color.DarkGray
-                    )
-                }
+                Icon(
+                    painter = painterResource(id = R.drawable.transactioncalender),
+                    contentDescription = "Tanggal",
+                    modifier = Modifier.size(18.dp),
+                    tint = Color.DarkGray
+                )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
                     text = periodeText,

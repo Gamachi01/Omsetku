@@ -23,17 +23,33 @@ import androidx.navigation.NavController
 import com.example.omsetku.Navigation.Routes
 import com.example.omsetku.R
 import com.example.omsetku.ui.components.Poppins
+import com.example.omsetku.viewmodels.AuthViewModel
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EditProfileScreen(navController: NavController) {
-    var nama by remember { mutableStateOf("") }
-    var email by remember { mutableStateOf("") }
-    var noTelepon by remember { mutableStateOf("") }
-    var jenisKelamin by remember { mutableStateOf("") }
-    var jabatan by remember { mutableStateOf("") }
+fun EditProfileScreen(
+    navController: NavController,
+    authViewModel: AuthViewModel = viewModel()
+) {
+    var nama by remember { mutableStateOf("John Doe") }
+    var email by remember { mutableStateOf("johndoe@example.com") }
+    var noTelepon by remember { mutableStateOf("081234567890") }
+    var jenisKelamin by remember { mutableStateOf("Laki-laki") }
+    var jabatan by remember { mutableStateOf("Pemilik Usaha") }
     
     val scrollState = rememberScrollState()
+    val isLoading by authViewModel.isLoading.collectAsState()
+    val error by authViewModel.error.collectAsState()
+    
+    // Efek untuk memuat data profil saat screen dibuka
+    LaunchedEffect(Unit) {
+        // Di implementasi nyata, kita akan mengambil data dari repository
+        // Untuk contoh ini, kita gunakan data statis
+    }
     
     Column(
         modifier = Modifier
@@ -112,6 +128,9 @@ fun EditProfileScreen(navController: NavController) {
         Spacer(modifier = Modifier.height(16.dp))
         
         // Dropdown untuk jenis kelamin
+        var expandedGender by remember { mutableStateOf(false) }
+        val genderOptions = listOf("Laki-laki", "Perempuan")
+        
         Column(modifier = Modifier.fillMaxWidth()) {
             Text(
                 text = "Jenis Kelamin",
@@ -121,36 +140,55 @@ fun EditProfileScreen(navController: NavController) {
                 modifier = Modifier.padding(bottom = 8.dp)
             )
             
-            OutlinedTextField(
-                value = jenisKelamin,
-                onValueChange = { jenisKelamin = it },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp),
-                shape = RoundedCornerShape(8.dp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    unfocusedBorderColor = Color.LightGray,
-                    focusedBorderColor = Color(0xFF5ED0C5)
-                ),
-                textStyle = TextStyle(
-                    fontSize = 14.sp,
-                    fontFamily = Poppins
-                ),
-                readOnly = true,
-                trailingIcon = {
-                    Icon(
-                        painter = painterResource(id = R.drawable.go_icon),
-                        contentDescription = "Dropdown",
-                        modifier = Modifier.size(20.dp),
-                        tint = Color.Gray
-                    )
+            ExposedDropdownMenuBox(
+                expanded = expandedGender,
+                onExpandedChange = { expandedGender = it }
+            ) {
+                OutlinedTextField(
+                    value = jenisKelamin,
+                    onValueChange = {},
+                    readOnly = true,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp)
+                        .menuAnchor(),
+                    shape = RoundedCornerShape(8.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        unfocusedBorderColor = Color.LightGray,
+                        focusedBorderColor = Color(0xFF5ED0C5)
+                    ),
+                    textStyle = TextStyle(
+                        fontSize = 14.sp,
+                        fontFamily = Poppins
+                    ),
+                    trailingIcon = {
+                        ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedGender)
+                    }
+                )
+                
+                ExposedDropdownMenu(
+                    expanded = expandedGender,
+                    onDismissRequest = { expandedGender = false }
+                ) {
+                    genderOptions.forEach { option ->
+                        DropdownMenuItem(
+                            text = { Text(option, fontFamily = Poppins) },
+                            onClick = {
+                                jenisKelamin = option
+                                expandedGender = false
+                            }
+                        )
+                    }
                 }
-            )
+            }
         }
         
         Spacer(modifier = Modifier.height(16.dp))
         
         // Dropdown untuk jabatan
+        var expandedPosition by remember { mutableStateOf(false) }
+        val positionOptions = listOf("Pemilik Usaha", "Manager", "Karyawan", "Lainnya")
+        
         Column(modifier = Modifier.fillMaxWidth()) {
             Text(
                 text = "Jabatan",
@@ -160,51 +198,89 @@ fun EditProfileScreen(navController: NavController) {
                 modifier = Modifier.padding(bottom = 8.dp)
             )
             
-            OutlinedTextField(
-                value = jabatan,
-                onValueChange = { jabatan = it },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp),
-                shape = RoundedCornerShape(8.dp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    unfocusedBorderColor = Color.LightGray,
-                    focusedBorderColor = Color(0xFF5ED0C5)
-                ),
-                textStyle = TextStyle(
-                    fontSize = 14.sp,
-                    fontFamily = Poppins
-                ),
-                readOnly = true,
-                trailingIcon = {
-                    Icon(
-                        painter = painterResource(id = R.drawable.go_icon),
-                        contentDescription = "Dropdown",
-                        modifier = Modifier.size(20.dp),
-                        tint = Color.Gray
-                    )
+            ExposedDropdownMenuBox(
+                expanded = expandedPosition,
+                onExpandedChange = { expandedPosition = it }
+            ) {
+                OutlinedTextField(
+                    value = jabatan,
+                    onValueChange = {},
+                    readOnly = true,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp)
+                        .menuAnchor(),
+                    shape = RoundedCornerShape(8.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        unfocusedBorderColor = Color.LightGray,
+                        focusedBorderColor = Color(0xFF5ED0C5)
+                    ),
+                    textStyle = TextStyle(
+                        fontSize = 14.sp,
+                        fontFamily = Poppins
+                    ),
+                    trailingIcon = {
+                        ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedPosition)
+                    }
+                )
+                
+                ExposedDropdownMenu(
+                    expanded = expandedPosition,
+                    onDismissRequest = { expandedPosition = false }
+                ) {
+                    positionOptions.forEach { option ->
+                        DropdownMenuItem(
+                            text = { Text(option, fontFamily = Poppins) },
+                            onClick = {
+                                jabatan = option
+                                expandedPosition = false
+                            }
+                        )
+                    }
                 }
-            )
+            }
         }
         
         Spacer(modifier = Modifier.weight(1f, fill = true))
         
+        // Tampilkan error jika ada
+        if (error != null) {
+            Text(
+                text = error ?: "",
+                color = Color.Red,
+                fontSize = 14.sp,
+                fontFamily = Poppins,
+                modifier = Modifier.padding(vertical = 8.dp)
+            )
+        }
+        
         // Tombol simpan
         Button(
-            onClick = { navController.navigate(Routes.PROFILE) },
+            onClick = { 
+                // Di implementasi nyata, kita akan menyimpan data ke repository
+                navController.navigate(Routes.PROFILE)
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 24.dp, bottom = 16.dp)
                 .height(48.dp),
             shape = RoundedCornerShape(8.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF5ED0C5))
+            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF5ED0C5)),
+            enabled = !isLoading
         ) {
-            Text(
-                text = "Simpan",
-                fontFamily = Poppins,
-                fontWeight = FontWeight.Bold,
-                fontSize = 16.sp
-            )
+            if (isLoading) {
+                CircularProgressIndicator(
+                    color = Color.White,
+                    modifier = Modifier.size(24.dp)
+                )
+            } else {
+                Text(
+                    text = "Simpan",
+                    fontFamily = Poppins,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 16.sp
+                )
+            }
         }
     }
 }
