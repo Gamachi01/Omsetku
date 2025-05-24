@@ -88,6 +88,9 @@ fun TransactionList(transactions: List<Transaction>) {
     }
 }
 
+/**
+ * Komponen untuk menampilkan item transaksi individual
+ */
 @Composable
 fun TransactionItem(transaction: Transaction) {
     val isIncome = transaction.type == "Pemasukan" || transaction.type == "INCOME"

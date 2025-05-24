@@ -5,6 +5,8 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -28,7 +30,7 @@ import androidx.navigation.NavController
 import com.example.omsetku.R
 import com.example.omsetku.Navigation.Routes
 import com.example.omsetku.ui.components.BottomNavBar
-import com.example.omsetku.ui.components.TransactionList
+import com.example.omsetku.ui.components.TransactionItem
 import com.example.omsetku.ui.components.Poppins
 import com.example.omsetku.data.Transaction
 import com.example.omsetku.ui.theme.*
@@ -205,14 +207,14 @@ fun HomeScreen(
                 }
             }
 
-            // Text "Transaksi Terbaru"
+            // Text "Transaksi Terakhir"
             Text(
-                text = "Transaksi Terbaru",
+                text = "Transaksi Terakhir",
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.Black,
                 fontFamily = Poppins,
-                modifier = Modifier.fillMaxWidth().padding(top = 8.dp, bottom = 8.dp),
+                modifier = Modifier.fillMaxWidth().padding(top = 16.dp, bottom = 8.dp),
                 textAlign = TextAlign.Left
             )
             
@@ -300,7 +302,17 @@ fun HomeScreen(
             }
             // Transactions list
             else {
-                TransactionList(transactions = transactions)
+                // Menampilkan daftar transaksi tanpa panel ekspansi
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    contentPadding = PaddingValues(vertical = 8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(transactions) { transaction ->
+                        TransactionItem(transaction)
+                    }
+                }
             }
         }
     }
