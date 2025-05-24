@@ -241,10 +241,24 @@ fun TransactionScreen(
                         return@Button
                     }
                     
-                    // Konversi nominal dari string ke int
+                    // Konversi nominal dari string ke int dengan penanganan error yang lebih baik
                     val amount = try {
-                        nominal.replace(".", "").replace(",", "").toInt()
+                        // Bersihkan semua karakter non-numerik (kecuali digit)
+                        val cleanNominal = nominal.replace(Regex("[^0-9]"), "")
+                        if (cleanNominal.isBlank()) {
+                            0
+                        } else {
+                            cleanNominal.toInt()
+                        }
                     } catch (e: Exception) {
+                        // Jika gagal konversi, tampilkan error
+                        transactionViewModel.clearError()
+                        return@Button
+                    }
+                    
+                    // Validasi amount
+                    if (amount <= 0) {
+                        // Tampilkan error lokal
                         transactionViewModel.clearError()
                         return@Button
                     }

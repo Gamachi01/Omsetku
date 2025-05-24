@@ -52,17 +52,32 @@ class TransactionViewModel : ViewModel() {
                 
                 val transactionList = repository.getUserTransactions(startDate, endDate)
                 
-                // Convert dari Map ke Transaction
-                val transactionItems = transactionList.map { transactionMap ->
-                    val date = transactionMap["date"] as? Long ?: 0L
-                    val dateFormat = SimpleDateFormat("dd MMMM yyyy", Locale("id", "ID"))
-                    
-                    Transaction(
-                        type = transactionMap["type"] as? String ?: "",
-                        description = transactionMap["description"] as? String ?: "",
-                        amount = (transactionMap["amount"] as? Number)?.toInt() ?: 0,
-                        date = dateFormat.format(Date(date))
-                    )
+                // Convert dari Map ke Transaction dengan penanganan error yang lebih baik
+                val transactionItems = transactionList.mapNotNull { transactionMap ->
+                    try {
+                        val date = transactionMap["date"] as? Long ?: 0L
+                        val dateFormat = SimpleDateFormat("dd MMMM yyyy", Locale("id", "ID"))
+                        val type = transactionMap["type"] as? String ?: ""
+                        val description = transactionMap["description"] as? String ?: ""
+                        
+                        // Konversi amount dengan aman
+                        val amount = when (val amountValue = transactionMap["amount"]) {
+                            is Number -> amountValue.toInt()
+                            is String -> try { amountValue.toInt() } catch (e: Exception) { 0 }
+                            else -> 0
+                        }
+                        
+                        // Perhatikan: Kita menggunakan data.Transaction bukan models.Transaction
+                        Transaction(
+                            type = type,
+                            description = description,
+                            amount = amount,
+                            date = dateFormat.format(Date(date))
+                        )
+                    } catch (e: Exception) {
+                        // Abaikan transaksi yang tidak bisa dikonversi
+                        null
+                    }
                 }
                 
                 _transactions.value = transactionItems
@@ -140,7 +155,11 @@ class TransactionViewModel : ViewModel() {
         var expense = 0
         
         transactions.forEach { transaction ->
-            if (transaction.type == "Pemasukan" || transaction.type == "INCOME") {
+            // Periksa semua kemungkinan nilai tipe transaksi dengan case-insensitive
+            val isIncome = transaction.type.equals("INCOME", ignoreCase = true) || 
+                          transaction.type.equals("Pemasukan", ignoreCase = true)
+            
+            if (isIncome) {
                 income += transaction.amount
             } else {
                 expense += transaction.amount

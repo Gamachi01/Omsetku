@@ -93,7 +93,9 @@ fun TransactionList(transactions: List<Transaction>) {
  */
 @Composable
 fun TransactionItem(transaction: Transaction) {
-    val isIncome = transaction.type == "Pemasukan" || transaction.type == "INCOME"
+    // Periksa semua kemungkinan nilai tipe transaksi
+    val isIncome = transaction.type.equals("INCOME", ignoreCase = true) || 
+                   transaction.type.equals("Pemasukan", ignoreCase = true)
     
     val transactionColor = if (isIncome) 
         IncomeColor 
