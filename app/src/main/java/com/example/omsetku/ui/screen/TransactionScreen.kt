@@ -7,6 +7,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
@@ -16,12 +17,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.omsetku.Navigation.Routes
 import com.example.omsetku.R
 import com.example.omsetku.ui.components.BottomNavBar
 import com.example.omsetku.ui.components.DatePickerField
 import com.example.omsetku.ui.components.Poppins
+import com.example.omsetku.ui.components.TransactionList
+import com.example.omsetku.viewmodels.TransactionViewModel
 
 enum class TransactionType {
     INCOME, EXPENSE
@@ -29,14 +33,39 @@ enum class TransactionType {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TransactionScreen(navController: NavController) {
+fun TransactionScreen(
+    navController: NavController,
+    transactionViewModel: TransactionViewModel = viewModel()
+) {
     var selectedItem by remember { mutableStateOf("Transaction") }
     var selectedType by remember { mutableStateOf(TransactionType.INCOME) }
     var tanggal by remember { mutableStateOf("") }
     var nominal by remember { mutableStateOf("") }
     var deskripsi by remember { mutableStateOf("") }
+    
+    // Status pesan sukses dan loading
+    var showSuccessMessage by remember { mutableStateOf(false) }
+    
+    // State dari ViewModel
+    val transactions by transactionViewModel.transactions.collectAsState()
+    val isLoading by transactionViewModel.isLoading.collectAsState()
+    val error by transactionViewModel.error.collectAsState()
 
     val scrollState = rememberScrollState()
+    
+    // Effect untuk reset form setelah sukses menyimpan
+    LaunchedEffect(showSuccessMessage) {
+        if (showSuccessMessage) {
+            // Reset form setelah 2 detik
+            kotlinx.coroutines.delay(2000)
+            showSuccessMessage = false
+        }
+    }
+    
+    // Effect untuk memuat data transaksi saat screen dibuka
+    LaunchedEffect(Unit) {
+        transactionViewModel.loadTransactions()
+    }
 
     Scaffold(
         bottomBar = {
@@ -162,11 +191,80 @@ fun TransactionScreen(navController: NavController) {
                     }
                 )
             }
+            
+            // Error message
+            if (error != null) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = error ?: "",
+                    color = Color.Red,
+                    fontSize = 14.sp,
+                    fontFamily = Poppins,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+            
+            // Success message
+            if (showSuccessMessage) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = Color(0xFFE6F7F5)
+                    ),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Text(
+                        text = "Transaksi berhasil disimpan",
+                        color = Color(0xFF5ED0C5),
+                        fontSize = 14.sp,
+                        fontFamily = Poppins,
+                        modifier = Modifier.padding(12.dp)
+                    )
+                }
+            }
 
-            Spacer(modifier = Modifier.weight(1f))
+            Spacer(modifier = Modifier.height(16.dp))
 
             Button(
-                onClick = { /* Simpan data */ },
+                onClick = { 
+                    // Validasi input
+                    if (tanggal.isBlank()) {
+                        // Tampilkan error lokal 
+                        transactionViewModel.clearError()
+                        return@Button
+                    }
+                    
+                    if (nominal.isBlank()) {
+                        // Tampilkan error lokal
+                        transactionViewModel.clearError()
+                        return@Button
+                    }
+                    
+                    // Konversi nominal dari string ke int
+                    val amount = try {
+                        nominal.replace(".", "").replace(",", "").toInt()
+                    } catch (e: Exception) {
+                        transactionViewModel.clearError()
+                        return@Button
+                    }
+                    
+                    // Simpan transaksi
+                    transactionViewModel.saveTransaction(
+                        type = if (selectedType == TransactionType.INCOME) "INCOME" else "EXPENSE",
+                        amount = amount,
+                        date = tanggal,
+                        description = deskripsi
+                    )
+                    
+                    // Reset form jika berhasil
+                    if (transactionViewModel.error.value == null) {
+                        tanggal = ""
+                        nominal = ""
+                        deskripsi = ""
+                        showSuccessMessage = true
+                    }
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 24.dp)
@@ -174,12 +272,59 @@ fun TransactionScreen(navController: NavController) {
                 shape = RoundedCornerShape(8.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF5ED0C5))
             ) {
-                Text(
-                    "Simpan", 
-                    fontWeight = FontWeight.Bold, 
-                    fontFamily = Poppins,
-                    fontSize = 16.sp
-                )
+                if (isLoading) {
+                    CircularProgressIndicator(
+                        color = Color.White,
+                        modifier = Modifier.size(24.dp)
+                    )
+                } else {
+                    Text(
+                        "Simpan", 
+                        fontWeight = FontWeight.Bold, 
+                        fontFamily = Poppins,
+                        fontSize = 16.sp
+                    )
+                }
+            }
+            
+            Spacer(modifier = Modifier.height(24.dp))
+            
+            // Riwayat Transaksi Terbaru
+            Text(
+                text = "Transaksi Terbaru",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.Black,
+                fontFamily = Poppins,
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Left
+            )
+            
+            Spacer(modifier = Modifier.height(8.dp))
+            
+            // Tampilkan daftar transaksi jika tidak kosong
+            if (transactions.isNotEmpty()) {
+                TransactionList(transactions = transactions)
+            } else if (!isLoading) {
+                // Tampilkan pesan jika transaksi kosong
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = Color(0xFFF5F5F5)
+                    ),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Text(
+                        text = "Belum ada transaksi",
+                        color = Color.Gray,
+                        fontSize = 14.sp,
+                        fontFamily = Poppins,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(24.dp)
+                    )
+                }
             }
         }
     }
