@@ -306,7 +306,7 @@ fun HppScreen(
                                 fontFamily = Poppins
                             )
                             Text(
-                                text = selectedProduct.name,
+                                text = selectedProduct?.name ?: "",
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.Medium,
                                 color = Color.Black,
