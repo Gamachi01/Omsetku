@@ -13,8 +13,11 @@ fun AppNavGraph(navController: NavHostController) {
         composable(Routes.LOGIN) {
             LoginScreen(navController)
         }
-        composable(Routes.REGISTER) {
-            RegisterScreen(navController)
+        composable(Routes.SIGNUP) {
+            SignUpScreen(navController)
+        }
+        composable(Routes.OTP) {
+            OTPScreen(navController)
         }
         composable(Routes.BUSINESS_SETUP) {
             BusinessSetupScreen(navController)
