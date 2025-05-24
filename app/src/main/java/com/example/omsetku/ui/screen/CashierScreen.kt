@@ -33,6 +33,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.omsetku.Navigation.Routes
 import com.example.omsetku.R
@@ -41,26 +42,30 @@ import com.example.omsetku.ui.components.Poppins
 import com.example.omsetku.ui.theme.PrimaryVariant
 import androidx.compose.foundation.verticalScroll
 import com.example.omsetku.ui.data.ProductItem
+import com.example.omsetku.viewmodels.ProductViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CashierScreen(
     navController: NavController,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    productViewModel: ProductViewModel = viewModel()
 ) {
     var selectedItem by remember { mutableStateOf("Cashier") }
     var searchQuery by remember { mutableStateOf("") }
     
-    // Menambahkan data produk dummy untuk demo
-    var productList by remember {
-        mutableStateOf<List<ProductItem>>(
-            listOf(
-                ProductItem(1, "Cappucino", 25000, R.drawable.logo),
-                ProductItem(2, "Americano", 20000, R.drawable.logo),
-                ProductItem(3, "Espresso", 15000, R.drawable.logo),
-                ProductItem(4, "Brown Sugar Latte", 15000, R.drawable.logo)
-            )
-        )
+    // Mengambil data produk dari ViewModel
+    val products by productViewModel.products.collectAsState()
+    val isLoading by productViewModel.isLoading.collectAsState()
+    val error by productViewModel.error.collectAsState()
+    
+    // Filter produk berdasarkan pencarian
+    val filteredProducts = remember(products, searchQuery) {
+        if (searchQuery.isBlank()) {
+            products
+        } else {
+            products.filter { it.name.contains(searchQuery, ignoreCase = true) }
+        }
     }
     
     var showAddProductDialog by remember { mutableStateOf(false) }
@@ -71,9 +76,14 @@ fun CashierScreen(
     var showSuccessDialog by remember { mutableStateOf(false) }
     var isEditMode by remember { mutableStateOf(false) }
     
-    val totalItems = productList.sumOf { it.quantity }
+    val totalItems = products.sumOf { it.quantity }
     val hasSelectedItems = totalItems > 0
-    val selectedProducts = productList.filter { it.quantity > 0 }
+    val selectedProducts = products.filter { it.quantity > 0 }
+
+    // Efek untuk memuat produk saat pertama kali
+    LaunchedEffect(Unit) {
+        productViewModel.loadProducts()
+    }
 
     Scaffold(
         bottomBar = {
@@ -160,7 +170,7 @@ fun CashierScreen(
                     // Button Atur Produk
                     OutlinedButton(
                         onClick = { 
-                            if (productList.isNotEmpty()) {
+                            if (products.isNotEmpty()) {
                                 isEditMode = !isEditMode
                             }
                         },
@@ -191,7 +201,17 @@ fun CashierScreen(
                     }
                 }
                 
-                if (productList.isEmpty()) {
+                // Loading Indicator
+                if (isLoading) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator(color = PrimaryVariant)
+                    }
+                } else if (filteredProducts.isEmpty()) {
                     // Empty State
                     Box(
                         modifier = Modifier
@@ -229,14 +249,12 @@ fun CashierScreen(
                         verticalArrangement = Arrangement.spacedBy(12.dp),
                         horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        items(productList) { product ->
+                        items(filteredProducts) { product ->
                             ProductCard(
                                 product = product,
                                 isEditMode = isEditMode,
                                 onQuantityChanged = { newQuantity ->
-                                    productList = productList.map {
-                                        if (it.id == product.id) it.copy(quantity = newQuantity) else it
-                                    }
+                                    productViewModel.updateProductQuantity(product.id, newQuantity)
                                 },
                                 onEdit = {
                                     selectedProduct = product
@@ -250,6 +268,22 @@ fun CashierScreen(
                         }
                     }
                 }
+            }
+            
+            // Error Dialog
+            if (error != null) {
+                AlertDialog(
+                    onDismissRequest = { productViewModel.clearError() },
+                    title = { Text("Error") },
+                    text = { Text(error ?: "") },
+                    confirmButton = {
+                        TextButton(
+                            onClick = { productViewModel.clearError() }
+                        ) {
+                            Text("OK")
+                        }
+                    }
+                )
             }
             
             // Process Transaction Button
@@ -326,13 +360,7 @@ fun CashierScreen(
             initialProduct = null,
             onDismiss = { showAddProductDialog = false },
             onConfirm = { name, price ->
-                val newId = if (productList.isEmpty()) 1 else productList.maxOf { it.id } + 1
-                productList = productList + ProductItem(
-                    id = newId,
-                    name = name,
-                    price = price.toInt(),
-                    imageRes = R.drawable.logo
-                )
+                productViewModel.addProduct(name, price.toInt())
                 showAddProductDialog = false
             }
         )
@@ -345,13 +373,7 @@ fun CashierScreen(
             initialProduct = selectedProduct,
             onDismiss = { showEditProductDialog = false },
             onConfirm = { name, price ->
-                productList = productList.map {
-                    if (it.id == selectedProduct!!.id) {
-                        it.copy(name = name, price = price.toInt())
-                    } else {
-                        it
-                    }
-                }
+                productViewModel.editProduct(selectedProduct!!.id, name, price.toInt())
                 showEditProductDialog = false
                 selectedProduct = null
             }
@@ -367,7 +389,7 @@ fun CashierScreen(
                 productToDelete = null
             },
             onConfirm = {
-                productList = productList.filter { it.id != productToDelete!!.id }
+                productViewModel.deleteProduct(productToDelete!!.id)
                 showDeleteConfirmDialog = false
                 productToDelete = null
             }
