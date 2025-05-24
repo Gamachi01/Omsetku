@@ -25,23 +25,18 @@ class MainActivity : ComponentActivity() {
             Log.e("MainActivity", "Failed to initialize Firebase: ${e.message}", e)
         }
         
-        setContent {
-            try {
+        // Gunakan try-catch hanya untuk debug, bukan di sekitar fungsi composable
+        try {
+            setContent {
                 OmsetkuThemeComposable {
                     Surface(color = MaterialTheme.colorScheme.background) {
                         val navController = rememberNavController()
                         AppNavGraph(navController = navController)
                     }
                 }
-            } catch (e: Exception) {
-                Log.e("MainActivity", "Error in setting content: ${e.message}", e)
-                // Jika terjadi error, coba tampilkan UI minimal
-                OmsetkuThemeComposable {
-                    Surface(color = MaterialTheme.colorScheme.background) {
-                        // Tampilkan UI sederhana jika terjadi error
-                    }
-                }
             }
+        } catch (e: Exception) {
+            Log.e("MainActivity", "Error in setting content: ${e.message}", e)
         }
     }
 }
