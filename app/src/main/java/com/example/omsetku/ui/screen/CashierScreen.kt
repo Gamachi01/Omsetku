@@ -1,10 +1,15 @@
 package com.example.omsetku.ui.screen
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.rememberTransformableState
+import androidx.compose.foundation.gestures.transformable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -23,8 +28,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -44,6 +52,8 @@ import androidx.compose.foundation.verticalScroll
 import com.example.omsetku.ui.data.ProductItem
 import com.example.omsetku.viewmodels.ProductViewModel
 import com.example.omsetku.viewmodels.CartViewModel
+import coil.compose.rememberAsyncImagePainter
+import coil.request.ImageRequest
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -365,7 +375,7 @@ fun CashierScreen(
             isNewProduct = true,
             initialProduct = null,
             onDismiss = { showAddProductDialog = false },
-            onConfirm = { name, price ->
+            onConfirm = { name, price, _ ->
                 productViewModel.addProduct(name, price.toInt())
                 showAddProductDialog = false
             }
@@ -378,7 +388,7 @@ fun CashierScreen(
             isNewProduct = false,
             initialProduct = selectedProduct,
             onDismiss = { showEditProductDialog = false },
-            onConfirm = { name, price ->
+            onConfirm = { name, price, _ ->
                 productViewModel.editProduct(selectedProduct!!.id, name, price.toInt())
                 showEditProductDialog = false
                 selectedProduct = null
@@ -409,20 +419,36 @@ fun ProductDialog(
     isNewProduct: Boolean,
     initialProduct: ProductItem?,
     onDismiss: () -> Unit,
-    onConfirm: (name: String, price: String) -> Unit
+    onConfirm: (name: String, price: String, imageUri: Uri?) -> Unit
 ) {
     var productName by remember { mutableStateOf(initialProduct?.name ?: "") }
     var productPrice by remember { mutableStateOf(initialProduct?.price?.toString() ?: "") }
+    var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
+    var showImageCropper by remember { mutableStateOf(false) }
+    
+    val context = LocalContext.current
+    
+    // Image picker launcher
+    val imagePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        uri?.let {
+            selectedImageUri = it
+            showImageCropper = true
+        }
+    }
     
     Dialog(onDismissRequest = onDismiss) {
         Surface(
             shape = RoundedCornerShape(16.dp),
-            color = Color.White
+            color = Color.White,
+            modifier = Modifier.fillMaxHeight(0.9f)
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(20.dp)
+                    .verticalScroll(rememberScrollState())
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -451,43 +477,76 @@ fun ProductDialog(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(120.dp)
+                        .height(180.dp)
                         .border(
                             width = 1.dp,
                             color = Color.LightGray,
                             shape = RoundedCornerShape(8.dp)
                         )
                         .clip(RoundedCornerShape(8.dp))
-                        .clickable { /* TODO: Handle image upload */ }
-                        .padding(16.dp),
+                        .clickable { imagePickerLauncher.launch("image/*") },
                     contentAlignment = Alignment.Center
                 ) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center,
-                        modifier = Modifier.fillMaxSize()
-                    ) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.arrow_up),
-                            contentDescription = "Upload",
-                            tint = PrimaryVariant,
-                            modifier = Modifier.size(32.dp)
+                    if (selectedImageUri != null) {
+                        // Tampilkan gambar yang dipilih
+                        Image(
+                            painter = rememberAsyncImagePainter(
+                                ImageRequest.Builder(context)
+                                    .data(selectedImageUri)
+                                    .crossfade(true)
+                                    .build()
+                            ),
+                            contentDescription = "Selected Image",
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop
                         )
-                        Spacer(modifier = Modifier.height(6.dp))
-                        Text(
-                            text = "Klik untuk mengupload gambar produk",
-                            fontSize = 12.sp,
-                            fontFamily = Poppins,
-                            color = Color.Black,
-                            textAlign = TextAlign.Center
-                        )
-                        Text(
-                            text = "Support: JPG, JPEG, PNG",
-                            fontSize = 10.sp,
-                            fontFamily = Poppins,
-                            color = Color.Gray,
-                            textAlign = TextAlign.Center
-                        )
+                        
+                        // Overlay untuk edit
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(Color.Black.copy(alpha = 0.3f))
+                                .clickable { imagePickerLauncher.launch("image/*") },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = "Klik untuk mengubah gambar",
+                                color = Color.White,
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Medium,
+                                fontFamily = Poppins
+                            )
+                        }
+                    } else {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center,
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(16.dp)
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.arrow_up),
+                                contentDescription = "Upload",
+                                tint = PrimaryVariant,
+                                modifier = Modifier.size(32.dp)
+                            )
+                            Spacer(modifier = Modifier.height(6.dp))
+                            Text(
+                                text = "Klik untuk mengupload gambar produk",
+                                fontSize = 12.sp,
+                                fontFamily = Poppins,
+                                color = Color.Black,
+                                textAlign = TextAlign.Center
+                            )
+                            Text(
+                                text = "Support: JPG, JPEG, PNG",
+                                fontSize = 10.sp,
+                                fontFamily = Poppins,
+                                color = Color.Gray,
+                                textAlign = TextAlign.Center
+                            )
+                        }
                     }
                 }
                 
@@ -529,7 +588,12 @@ fun ProductDialog(
                 
                 OutlinedTextField(
                     value = productPrice,
-                    onValueChange = { productPrice = it },
+                    onValueChange = { 
+                        // Hanya menerima angka
+                        if (it.isEmpty() || it.all { char -> char.isDigit() }) {
+                            productPrice = it 
+                        }
+                    },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(8.dp),
                     colors = OutlinedTextFieldDefaults.colors(
@@ -578,14 +642,15 @@ fun ProductDialog(
                     }
                     
                     Button(
-                        onClick = { onConfirm(productName, productPrice) },
+                        onClick = { onConfirm(productName, productPrice, selectedImageUri) },
                         modifier = Modifier
                             .weight(1f)
                             .height(48.dp),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = PrimaryVariant
                         ),
-                        shape = RoundedCornerShape(8.dp)
+                        shape = RoundedCornerShape(8.dp),
+                        enabled = productName.isNotBlank() && productPrice.isNotBlank()
                     ) {
                         Text(
                             text = if (isNewProduct) "Tambah Produk" else "Simpan",
@@ -598,6 +663,170 @@ fun ProductDialog(
                         )
                     }
                 }
+            }
+        }
+    }
+    
+    if (showImageCropper && selectedImageUri != null) {
+        ImageCropperDialog(
+            imageUri = selectedImageUri!!,
+            onDismiss = { showImageCropper = false },
+            onCropComplete = { croppedUri ->
+                selectedImageUri = croppedUri
+                showImageCropper = false
+            }
+        )
+    }
+}
+
+@Composable
+fun ImageCropperDialog(
+    imageUri: Uri,
+    onDismiss: () -> Unit,
+    onCropComplete: (Uri) -> Unit
+) {
+    val context = LocalContext.current
+    
+    // State untuk transformasi gambar
+    var scale by remember { mutableStateOf(1f) }
+    var offset by remember { mutableStateOf(Offset.Zero) }
+    var rotation by remember { mutableStateOf(0f) }
+    
+    // State transformable untuk gesture
+    val state = rememberTransformableState { zoomChange, offsetChange, rotationChange ->
+        scale *= zoomChange
+        offset += offsetChange
+        rotation += rotationChange
+    }
+    
+    Dialog(onDismissRequest = onDismiss) {
+        Surface(
+            shape = RoundedCornerShape(16.dp),
+            color = Color.White,
+            modifier = Modifier.fillMaxSize(0.9f)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp)
+            ) {
+                // Header
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 16.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Sesuaikan Gambar",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        fontFamily = Poppins
+                    )
+                    
+                    IconButton(onClick = onDismiss) {
+                        Icon(
+                            imageVector = Icons.Default.Close,
+                            contentDescription = "Close",
+                            tint = Color.Black
+                        )
+                    }
+                }
+                
+                // Image cropper area
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f)
+                        .background(Color.Black),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Image(
+                        painter = rememberAsyncImagePainter(
+                            ImageRequest.Builder(context)
+                                .data(imageUri)
+                                .crossfade(true)
+                                .build()
+                        ),
+                        contentDescription = "Crop Image",
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .graphicsLayer {
+                                scaleX = scale
+                                scaleY = scale
+                                translationX = offset.x
+                                translationY = offset.y
+                                rotationZ = rotation
+                            }
+                            .transformable(state = state),
+                        contentScale = ContentScale.Fit
+                    )
+                    
+                    // Crop overlay
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(32.dp)
+                            .border(2.dp, Color.White, RoundedCornerShape(8.dp))
+                    )
+                }
+                
+                // Controls
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 16.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Button(
+                        onClick = onDismiss,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color.LightGray
+                        ),
+                        shape = RoundedCornerShape(8.dp)
+                    ) {
+                        Text(
+                            text = "Batal",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Medium,
+                            fontFamily = Poppins,
+                            color = Color.Black
+                        )
+                    }
+                    
+                    Button(
+                        onClick = {
+                            // Dalam implementasi nyata, kita akan menyimpan gambar yang sudah di-crop
+                            // Untuk contoh ini, kita hanya meneruskan URI yang sama
+                            onCropComplete(imageUri)
+                        },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = PrimaryVariant
+                        ),
+                        shape = RoundedCornerShape(8.dp)
+                    ) {
+                        Text(
+                            text = "Terapkan",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Medium,
+                            fontFamily = Poppins,
+                            color = Color.White
+                        )
+                    }
+                }
+                
+                // Instruksi
+                Text(
+                    text = "Geser, cubit untuk zoom, dan putar untuk menyesuaikan gambar",
+                    fontSize = 12.sp,
+                    fontFamily = Poppins,
+                    color = Color.Gray,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp)
+                )
             }
         }
     }
@@ -635,15 +864,36 @@ fun ProductCard(
             modifier = Modifier.padding(12.dp)
         ) {
             // Product Image
-            Image(
-                painter = painterResource(id = product.imageRes),
-                contentDescription = product.name,
-                contentScale = ContentScale.Crop,
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(110.dp)
-                    .clip(RoundedCornerShape(8.dp))
-            )
+                    .clip(RoundedCornerShape(8.dp)),
+                contentAlignment = Alignment.Center
+            ) {
+                if (product.imageUrl.isNotEmpty()) {
+                    // Tampilkan gambar dari URL
+                    Image(
+                        painter = rememberAsyncImagePainter(
+                            ImageRequest.Builder(LocalContext.current)
+                                .data(product.imageUrl)
+                                .crossfade(true)
+                                .build()
+                        ),
+                        contentDescription = product.name,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                } else {
+                    // Tampilkan gambar default
+                    Image(
+                        painter = painterResource(id = product.imageRes),
+                        contentDescription = product.name,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
+            }
             
             Spacer(modifier = Modifier.height(8.dp))
             
@@ -670,110 +920,123 @@ fun ProductCard(
             Spacer(modifier = Modifier.height(8.dp))
             
             // Quantity Controls atau Edit/Delete buttons
-            if (isEditMode) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceEvenly,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    IconButton(
-                        onClick = onEdit,
-                        modifier = Modifier
-                            .size(32.dp)
-                            .background(Color.LightGray.copy(alpha = 0.5f), CircleShape)
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(40.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                if (isEditMode) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceEvenly,
+                        modifier = Modifier.fillMaxWidth()
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.Edit,
-                            contentDescription = "Edit",
-                            tint = Color.DarkGray,
-                            modifier = Modifier.size(16.dp)
-                        )
-                    }
-                    
-                    IconButton(
-                        onClick = onDelete,
-                        modifier = Modifier
-                            .size(32.dp)
-                            .background(Color.Red.copy(alpha = 0.2f), CircleShape)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Delete,
-                            contentDescription = "Delete",
-                            tint = Color.Red,
-                            modifier = Modifier.size(16.dp)
-                        )
-                    }
-                }
-            } else {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    // Minus Button
-                    IconButton(
-                        onClick = {
-                            if (quantity > 0) {
-                                quantity--
-                                cartViewModel.updateQuantity(product.id.toString(), quantity)
-                            }
-                        },
-                        modifier = Modifier
-                            .size(32.dp)
-                            .background(
-                                color = if (quantity > 0) PrimaryVariant else Color.LightGray,
-                                shape = CircleShape
+                        // Edit Button
+                        IconButton(
+                            onClick = onEdit,
+                            modifier = Modifier
+                                .size(32.dp)
+                                .background(Color.LightGray.copy(alpha = 0.5f), CircleShape)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Edit,
+                                contentDescription = "Edit",
+                                tint = Color.DarkGray,
+                                modifier = Modifier.size(16.dp)
                             )
-                    ) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_remove),
-                            contentDescription = "Decrease",
-                            tint = Color.White,
-                            modifier = Modifier.size(16.dp)
-                        )
+                        }
+                        
+                        Spacer(modifier = Modifier.width(16.dp))
+                        
+                        // Delete Button
+                        IconButton(
+                            onClick = onDelete,
+                            modifier = Modifier
+                                .size(32.dp)
+                                .background(Color.Red.copy(alpha = 0.2f), CircleShape)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Delete,
+                                contentDescription = "Delete",
+                                tint = Color.Red,
+                                modifier = Modifier.size(16.dp)
+                            )
+                        }
                     }
-                    
-                    // Quantity
-                    Text(
-                        text = quantity.toString(),
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold,
-                        fontFamily = Poppins
-                    )
-                    
-                    // Plus Button
-                    IconButton(
-                        onClick = {
-                            quantity++
-                            if (quantity == 1) {
-                                // Jika baru ditambahkan, gunakan addToCart
-                                cartViewModel.addToCart(
-                                    com.example.omsetku.models.Product(
-                                        id = product.id.toString(),
-                                        name = product.name,
-                                        price = product.price.toLong(),
-                                        imageRes = product.imageRes
-                                    ),
-                                    1
-                                )
-                            } else {
-                                // Jika sudah ada, update quantity
-                                cartViewModel.updateQuantity(product.id.toString(), quantity)
-                            }
-                            
-                            // Panggil callback untuk memberitahu parent
-                            onQuantityChanged(quantity)
-                        },
-                        modifier = Modifier
-                            .size(32.dp)
-                            .background(PrimaryVariant, CircleShape)
+                } else {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceEvenly,
+                        modifier = Modifier.fillMaxWidth()
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.Add,
-                            contentDescription = "Increase",
-                            tint = Color.White,
-                            modifier = Modifier.size(16.dp)
+                        // Minus Button
+                        IconButton(
+                            onClick = {
+                                if (quantity > 0) {
+                                    quantity--
+                                    cartViewModel.updateQuantity(product.id.toString(), quantity)
+                                }
+                            },
+                            modifier = Modifier
+                                .size(32.dp)
+                                .background(
+                                    color = if (quantity > 0) PrimaryVariant else Color.LightGray,
+                                    shape = CircleShape
+                                )
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_remove),
+                                contentDescription = "Decrease",
+                                tint = Color.White,
+                                modifier = Modifier.size(16.dp)
+                            )
+                        }
+                        
+                        // Quantity
+                        Text(
+                            text = quantity.toString(),
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold,
+                            fontFamily = Poppins,
+                            modifier = Modifier.width(40.dp),
+                            textAlign = TextAlign.Center
                         )
+                        
+                        // Plus Button
+                        IconButton(
+                            onClick = {
+                                quantity++
+                                if (quantity == 1) {
+                                    // Jika baru ditambahkan, gunakan addToCart
+                                    cartViewModel.addToCart(
+                                        com.example.omsetku.models.Product(
+                                            id = product.id.toString(),
+                                            name = product.name,
+                                            price = product.price.toLong(),
+                                            imageRes = product.imageRes
+                                        ),
+                                        1
+                                    )
+                                } else {
+                                    // Jika sudah ada, update quantity
+                                    cartViewModel.updateQuantity(product.id.toString(), quantity)
+                                }
+                                
+                                // Panggil callback untuk memberitahu parent
+                                onQuantityChanged(quantity)
+                            },
+                            modifier = Modifier
+                                .size(32.dp)
+                                .background(PrimaryVariant, CircleShape)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Add,
+                                contentDescription = "Increase",
+                                tint = Color.White,
+                                modifier = Modifier.size(16.dp)
+                            )
+                        }
                     }
                 }
             }

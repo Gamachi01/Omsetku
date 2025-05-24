@@ -15,6 +15,7 @@ import com.example.omsetku.Navigation.AppNavGraph
 import com.example.omsetku.ui.theme.OmsetkuTheme
 import com.example.omsetku.viewmodels.CartViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.omsetku.viewmodels.TaxViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -40,11 +41,16 @@ class MainActivity : ComponentActivity() {
                         color = MaterialTheme.colorScheme.background
                     ) {
                         val navController = rememberNavController()
-                        // Buat CartViewModel sekali di sini dan bagikan ke seluruh navigasi
+                        // Buat ViewModel sekali di sini dan bagikan ke seluruh navigasi
                         val cartViewModel: CartViewModel = viewModel()
+                        val taxViewModel: TaxViewModel = viewModel()
                         
                         // Gunakan AppNavGraph jika user sudah login, jika tidak gunakan AppNavigation
-                        AppNavGraph(navController = navController, cartViewModel = cartViewModel)
+                        AppNavGraph(
+                            navController = navController, 
+                            cartViewModel = cartViewModel,
+                            taxViewModel = taxViewModel
+                        )
                     }
                 }
             }

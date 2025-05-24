@@ -13,6 +13,7 @@ data class ProductItem(
     val name: String,
     val price: Int,
     val imageRes: Int,
+    val imageUrl: String = "",
     var quantity: Int = 0
 )
 
