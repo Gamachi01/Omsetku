@@ -16,6 +16,7 @@ class StorageRepository {
     
     // Referensi storage
     private val productImagesRef = storage.reference.child("product_images")
+    private val businessLogosRef = storage.reference.child("business_logos")
     
     /**
      * Mendapatkan ID user saat ini yang sedang login
@@ -46,6 +47,31 @@ class StorageRepository {
         } catch (e: Exception) {
             Log.e("StorageRepository", "Error uploading image: ${e.message}", e)
             throw Exception("Gagal mengupload gambar: ${e.message}")
+        }
+    }
+    
+    /**
+     * Upload logo bisnis ke Firebase Storage
+     * @param imageUri Uri gambar yang akan diupload sebagai logo
+     * @return URL gambar yang sudah diupload
+     */
+    suspend fun uploadBusinessLogo(imageUri: Uri): String {
+        try {
+            val userId = getCurrentUserId()
+            val filename = "${userId}_business_logo_${UUID.randomUUID()}"
+            val fileRef = businessLogosRef.child(filename)
+            
+            // Upload gambar
+            fileRef.putFile(imageUri).await()
+            
+            // Dapatkan URL download
+            val downloadUrl = fileRef.downloadUrl.await()
+            
+            Log.d("StorageRepository", "Business logo uploaded successfully: $downloadUrl")
+            return downloadUrl.toString()
+        } catch (e: Exception) {
+            Log.e("StorageRepository", "Error uploading business logo: ${e.message}", e)
+            throw Exception("Gagal mengupload logo bisnis: ${e.message}")
         }
     }
     
