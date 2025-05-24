@@ -270,4 +270,43 @@ class FirestoreRepository {
             "balance" to (totalIncome - totalExpense)
         )
     }
+    
+    /**
+     * Memperbarui data produk
+     */
+    suspend fun updateProduct(
+        productId: String,
+        name: String? = null,
+        price: Long? = null,
+        imageUrl: String? = null,
+        description: String? = null
+    ): Boolean {
+        val updateData = hashMapOf<String, Any>()
+        
+        name?.let { updateData["name"] = it }
+        price?.let { updateData["price"] = it }
+        imageUrl?.let { updateData["imageUrl"] = it }
+        description?.let { updateData["description"] = it }
+        
+        if (updateData.isEmpty()) return true
+        
+        return try {
+            productCollection.document(productId).update(updateData).await()
+            true
+        } catch (e: Exception) {
+            false
+        }
+    }
+    
+    /**
+     * Menghapus produk
+     */
+    suspend fun deleteProduct(productId: String): Boolean {
+        return try {
+            productCollection.document(productId).delete().await()
+            true
+        } catch (e: Exception) {
+            false
+        }
+    }
 } 
