@@ -46,7 +46,7 @@ class CartViewModel : ViewModel() {
             _cartItems.value + CartItem(
                 productId = product.id,
                 name = product.name,
-                price = product.price,
+                price = product.price.toInt(),
                 quantity = quantity,
                 imageRes = product.imageRes
             )

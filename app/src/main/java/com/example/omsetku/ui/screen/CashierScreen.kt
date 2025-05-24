@@ -18,6 +18,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -710,7 +711,7 @@ fun ProductCard(
                         onClick = {
                             if (quantity > 0) {
                                 quantity--
-                                cartViewModel.updateQuantity(product.id, quantity)
+                                cartViewModel.updateQuantity(product.id.toString(), quantity)
                             }
                         },
                         modifier = Modifier
@@ -721,7 +722,7 @@ fun ProductCard(
                             )
                     ) {
                         Icon(
-                            painter = painterResource(id = R.drawable.minus_icon),
+                            imageVector = Icons.Default.Remove,
                             contentDescription = "Decrease",
                             tint = Color.White,
                             modifier = Modifier.size(16.dp)
@@ -744,16 +745,16 @@ fun ProductCard(
                                 // Jika baru ditambahkan, gunakan addToCart
                                 cartViewModel.addToCart(
                                     com.example.omsetku.models.Product(
-                                        id = product.id,
+                                        id = product.id.toString(),
                                         name = product.name,
-                                        price = product.price,
+                                        price = product.price.toLong(),
                                         imageRes = product.imageRes
                                     ),
                                     1
                                 )
                             } else {
                                 // Jika sudah ada, update quantity
-                                cartViewModel.updateQuantity(product.id, quantity)
+                                cartViewModel.updateQuantity(product.id.toString(), quantity)
                             }
                         },
                         modifier = Modifier

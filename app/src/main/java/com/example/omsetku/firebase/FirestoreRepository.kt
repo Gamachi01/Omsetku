@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.tasks.await
 import com.example.omsetku.models.TaxSettings
+import com.example.omsetku.models.Transaction
 
 /**
  * Repository yang menangani operasi Firestore Database
@@ -439,6 +440,30 @@ class FirestoreRepository {
             Log.d("FirestoreRepository", "Tax settings saved successfully")
         } catch (e: Exception) {
             Log.e("FirestoreRepository", "Error saving tax settings", e)
+            throw e
+        }
+    }
+
+    /**
+     * Menyimpan data transaksi
+     */
+    suspend fun saveTransaction(transaction: Transaction) {
+        try {
+            val transactionData = mapOf(
+                "id" to transaction.id,
+                "userId" to transaction.userId,
+                "type" to transaction.type,
+                "amount" to transaction.amount,
+                "date" to transaction.date,
+                "category" to transaction.category,
+                "description" to transaction.description,
+                "createdAt" to transaction.createdAt
+            )
+            
+            transactionCollection.document(transaction.id).set(transactionData).await()
+            Log.d("FirestoreRepository", "Transaction saved successfully")
+        } catch (e: Exception) {
+            Log.e("FirestoreRepository", "Error saving transaction", e)
             throw e
         }
     }
