@@ -31,6 +31,10 @@ class AuthViewModel : ViewModel() {
     private val _isLoggedIn = MutableStateFlow(false)
     val isLoggedIn: StateFlow<Boolean> = _isLoggedIn.asStateFlow()
     
+    // State untuk status registrasi berhasil (untuk navigasi ke form bisnis)
+    private val _isRegistered = MutableStateFlow(false)
+    val isRegistered: StateFlow<Boolean> = _isRegistered.asStateFlow()
+    
     init {
         // Cek apakah user sudah login saat ViewModel dibuat
         checkLoginStatus()
@@ -52,6 +56,7 @@ class AuthViewModel : ViewModel() {
                 val userData = firestoreRepository.getUserData(firebaseUser.uid)
                 _currentUser.value = User.fromMap(userData)
                 _isLoggedIn.value = true
+                _isRegistered.value = false // Reset registrasi state
             } catch (e: Exception) {
                 _error.value = e.message ?: "Gagal login"
             } finally {
@@ -89,12 +94,20 @@ class AuthViewModel : ViewModel() {
                     createdAt = System.currentTimeMillis()
                 )
                 _isLoggedIn.value = true
+                _isRegistered.value = true // Set registrasi berhasil untuk navigasi ke form bisnis
             } catch (e: Exception) {
                 _error.value = e.message ?: "Gagal mendaftar"
             } finally {
                 _isLoading.value = false
             }
         }
+    }
+    
+    /**
+     * Reset status registrasi setelah navigasi ke form bisnis
+     */
+    fun resetRegistrationStatus() {
+        _isRegistered.value = false
     }
     
     /**
@@ -108,6 +121,7 @@ class AuthViewModel : ViewModel() {
                 authRepository.logout()
                 _currentUser.value = null
                 _isLoggedIn.value = false
+                _isRegistered.value = false
             } catch (e: Exception) {
                 _error.value = e.message ?: "Gagal logout"
             } finally {

@@ -22,6 +22,9 @@ fun AppNavGraph(navController: NavHostController) {
         composable(Routes.BUSINESS_SETUP) {
             BusinessSetupScreen(navController)
         }
+        composable(Routes.BUSINESS_FORM) {
+            BusinessFormScreen(navController)
+        }
         composable(Routes.HOME) {
             HomeScreen(navController)
         }
