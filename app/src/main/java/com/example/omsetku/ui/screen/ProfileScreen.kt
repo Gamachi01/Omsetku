@@ -35,17 +35,21 @@ fun ProfileScreen(navController: NavController) {
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(vertical = 8.dp)
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 8.dp)
         ) {
             IconButton(
                 onClick = { navController.navigate(Routes.HOME) },
-                modifier = Modifier.size(40.dp)
+                modifier = Modifier
+                    .size(40.dp)
+                    .offset(x = (-12).dp)
             ) {
-            Image(
-                painter = painterResource(id = R.drawable.back_icon),
-                contentDescription = "Back",
+                Image(
+                    painter = painterResource(id = R.drawable.back_icon),
+                    contentDescription = "Back",
                     modifier = Modifier.size(20.dp)
-            )
+                )
             }
         }
 
