@@ -90,12 +90,14 @@ fun TransactionList(transactions: List<Transaction>) {
 
 @Composable
 fun TransactionItem(transaction: Transaction) {
-    val transactionColor = if (transaction.type == "Pemasukan") 
+    val isIncome = transaction.type == "Pemasukan" || transaction.type == "INCOME"
+    
+    val transactionColor = if (isIncome) 
         IncomeColor 
     else 
         ExpenseColor
     
-    val backgroundColor = if (transaction.type == "Pemasukan")
+    val backgroundColor = if (isIncome)
         IncomeColor.copy(alpha = 0.05f)
     else
         ExpenseColor.copy(alpha = 0.05f)
@@ -120,7 +122,7 @@ fun TransactionItem(transaction: Transaction) {
                         .size(32.dp)
                         .clip(RoundedCornerShape(8.dp))
                         .background(
-                            color = if (transaction.type == "Pemasukan") 
+                            color = if (isIncome) 
                                 IncomeColor.copy(alpha = 0.15f) 
                             else 
                                 ExpenseColor.copy(alpha = 0.15f)
@@ -129,18 +131,18 @@ fun TransactionItem(transaction: Transaction) {
                 ) {
                     Icon(
                         painter = painterResource(
-                            id = if (transaction.type == "Pemasukan") R.drawable.income_icon
+                            id = if (isIncome) R.drawable.income_icon
                             else R.drawable.outcome_icon
                         ),
                         contentDescription = null,
-                        tint = if (transaction.type == "Pemasukan") IncomeColor else ExpenseColor,
+                        tint = if (isIncome) IncomeColor else ExpenseColor,
                         modifier = Modifier.size(20.dp)
                     )
                 }
                 Spacer(modifier = Modifier.width(12.dp))
                 Column {
                     Text(
-                        text = transaction.type,
+                        text = if (isIncome) "Pemasukan" else "Pengeluaran",
                         fontWeight = FontWeight.Bold,
                         fontSize = 14.sp,
                         fontFamily = Poppins
@@ -156,10 +158,10 @@ fun TransactionItem(transaction: Transaction) {
             }
             Column(horizontalAlignment = Alignment.End) {
                 Text(
-                    text = (if (transaction.type == "Pemasukan") "+Rp " else "-Rp ") +
+                    text = (if (isIncome) "+Rp " else "-Rp ") +
                             "%,d".format(transaction.amount).replace(',', '.'),
                     fontSize = 14.sp,
-                    color = if (transaction.type == "Pemasukan") IncomeColor else ExpenseColor,
+                    color = transactionColor,
                     fontWeight = FontWeight.Bold,
                     fontFamily = Poppins
                 )
