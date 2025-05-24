@@ -7,7 +7,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -93,7 +93,7 @@ fun TransactionDetailScreen(
                 navigationIcon = {
                     IconButton(onClick = { navController.navigateUp() }) {
                         Icon(
-                            imageVector = Icons.Default.ArrowBack,
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Back"
                         )
                     }
@@ -225,7 +225,7 @@ fun TransactionDetailScreen(
                     }
                     
                     Spacer(modifier = Modifier.height(12.dp))
-                    Divider(color = Color.LightGray, thickness = 1.dp)
+                    HorizontalDivider(color = Color.LightGray, thickness = 1.dp)
                     Spacer(modifier = Modifier.height(12.dp))
                     
                     Row(
