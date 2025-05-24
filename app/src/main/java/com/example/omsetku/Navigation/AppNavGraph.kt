@@ -6,9 +6,13 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.omsetku.ui.screen.*
+import com.example.omsetku.viewmodels.CartViewModel
 
 @Composable
-fun AppNavGraph(navController: NavHostController) {
+fun AppNavGraph(
+    navController: NavHostController,
+    cartViewModel: CartViewModel
+) {
     NavHost(navController = navController, startDestination = Routes.LOGIN) {
         composable(Routes.LOGIN) {
             LoginScreen(navController)
@@ -35,7 +39,7 @@ fun AppNavGraph(navController: NavHostController) {
             TransactionScreen(navController)
         }
         composable(Routes.CASHIER) {
-            CashierScreen(navController)
+            CashierScreen(navController, cartViewModel = cartViewModel)
         }
         composable(Routes.HPP) {
             HppScreen(navController)
@@ -44,7 +48,7 @@ fun AppNavGraph(navController: NavHostController) {
             ReportScreen(navController)
         }
         composable(Routes.TRANSACTION_DETAIL) {
-            TransactionDetailScreen(navController)
+            TransactionDetailScreen(navController, cartViewModel = cartViewModel)
         }
         composable(Routes.EDIT_PROFILE) {
             EditProfileScreen(navController)

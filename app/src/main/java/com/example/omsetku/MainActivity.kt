@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
 import com.google.firebase.FirebaseApp
 import com.example.omsetku.Navigation.AppNavigation
+import com.example.omsetku.Navigation.AppNavGraph
 import com.example.omsetku.ui.theme.OmsetkuTheme
 import com.example.omsetku.viewmodels.CartViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -41,7 +42,9 @@ class MainActivity : ComponentActivity() {
                         val navController = rememberNavController()
                         // Buat CartViewModel sekali di sini dan bagikan ke seluruh navigasi
                         val cartViewModel: CartViewModel = viewModel()
-                        AppNavigation(navController = navController, cartViewModel = cartViewModel)
+                        
+                        // Gunakan AppNavGraph jika user sudah login, jika tidak gunakan AppNavigation
+                        AppNavGraph(navController = navController, cartViewModel = cartViewModel)
                     }
                 }
             }
