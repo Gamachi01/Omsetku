@@ -24,6 +24,7 @@ class FirestoreRepository {
     private val businessCollection = db.collection("businesses")
     private val transactionCollection = db.collection("transactions")
     private val productCollection = db.collection("products")
+    private val hppCollection = db.collection("hpp")
     
     /**
      * Mendapatkan ID user saat ini yang sedang login
@@ -465,6 +466,54 @@ class FirestoreRepository {
         } catch (e: Exception) {
             Log.e("FirestoreRepository", "Error saving transaction", e)
             throw e
+        }
+    }
+
+    /**
+     * Menyimpan data HPP ke Firestore
+     * @param hppData Map yang berisi data HPP yang akan disimpan
+     */
+    suspend fun saveHpp(hppData: Map<String, Any>) {
+        try {
+            hppCollection.add(hppData).await()
+        } catch (e: Exception) {
+            throw Exception("Gagal menyimpan data HPP: ${e.message}")
+        }
+    }
+    
+    /**
+     * Mengambil data HPP untuk produk tertentu
+     * @param productId ID produk yang akan diambil data HPP-nya
+     * @return List of Map yang berisi data HPP
+     */
+    suspend fun getHppByProduct(productId: String): List<Map<String, Any>> {
+        return try {
+            val snapshot = hppCollection
+                .whereEqualTo("productId", productId)
+                .orderBy("tanggalHitung", Query.Direction.DESCENDING)
+                .get()
+                .await()
+            
+            snapshot.documents.mapNotNull { it.data }
+        } catch (e: Exception) {
+            throw Exception("Gagal mengambil data HPP: ${e.message}")
+        }
+    }
+    
+    /**
+     * Mengambil semua data HPP
+     * @return List of Map yang berisi semua data HPP
+     */
+    suspend fun getAllHpp(): List<Map<String, Any>> {
+        return try {
+            val snapshot = hppCollection
+                .orderBy("tanggalHitung", Query.Direction.DESCENDING)
+                .get()
+                .await()
+            
+            snapshot.documents.mapNotNull { it.data }
+        } catch (e: Exception) {
+            throw Exception("Gagal mengambil data HPP: ${e.message}")
         }
     }
 } 
