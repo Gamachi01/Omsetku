@@ -69,6 +69,18 @@ fun DatePickerField(
         initialSelectedDateMillis = initialDate
     )
     
+    // Fungsi untuk membuka dialog picker yang sesuai
+    val openPicker = {
+        when (mode) {
+            DatePickerMode.DAILY, DatePickerMode.WEEKLY_START, DatePickerMode.WEEKLY_END -> 
+                showDatePicker = true
+            DatePickerMode.MONTHLY -> 
+                showMonthPicker = true
+            DatePickerMode.YEARLY -> 
+                showYearPicker = true
+        }
+    }
+    
     // Menampilkan date picker dialog untuk mode DAILY, WEEKLY_START, dan WEEKLY_END
     if (showDatePicker) {
         DatePickerDialog(
@@ -190,61 +202,50 @@ fun DatePickerField(
         )
     }
     
-    // Field tanggal yang dapat diklik
-    OutlinedTextField(
-        value = value,
-        onValueChange = { /* Readonly, tidak perlu implementasi */ },
+    // Buat Box container dengan clickable untuk seluruh area
+    Box(
         modifier = modifier
             .fillMaxWidth()
-            .height(56.dp)
             .clickable(
                 interactionSource = interactionSource,
                 indication = null
-            ) { 
-                when (mode) {
-                    DatePickerMode.DAILY, DatePickerMode.WEEKLY_START, DatePickerMode.WEEKLY_END -> 
-                        showDatePicker = true
-                    DatePickerMode.MONTHLY -> 
-                        showMonthPicker = true
-                    DatePickerMode.YEARLY -> 
-                        showYearPicker = true
-                }
+            ) { openPicker() }
+    ) {
+        // Field tanggal
+        OutlinedTextField(
+            value = value,
+            onValueChange = { /* Readonly, tidak perlu implementasi */ },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(56.dp),
+            readOnly = true,
+            textStyle = TextStyle(fontSize = 14.sp, color = Color.Black, fontFamily = Poppins),
+            placeholder = { 
+                Text(
+                    text = placeholder,
+                    fontSize = 14.sp, 
+                    fontFamily = Poppins,
+                    color = Color.Gray
+                ) 
             },
-        readOnly = true,
-        textStyle = TextStyle(fontSize = 14.sp, color = Color.Black, fontFamily = Poppins),
-        placeholder = { 
-            Text(
-                text = placeholder,
-                fontSize = 14.sp, 
-                fontFamily = Poppins,
-                color = Color.Gray
-            ) 
-        },
-        trailingIcon = {
-            Icon(
-                painter = painterResource(id = R.drawable.transactioncalender),
-                contentDescription = "Kalender",
-                modifier = Modifier
-                    .size(24.dp)
-                    .clickable { 
-                        when (mode) {
-                            DatePickerMode.DAILY, DatePickerMode.WEEKLY_START, DatePickerMode.WEEKLY_END -> 
-                                showDatePicker = true
-                            DatePickerMode.MONTHLY -> 
-                                showMonthPicker = true
-                            DatePickerMode.YEARLY -> 
-                                showYearPicker = true
-                        }
-                    },
-                tint = Color(0xFF5ED0C5)
-            )
-        },
-        shape = RoundedCornerShape(8.dp),
-        colors = OutlinedTextFieldDefaults.colors(
-            unfocusedBorderColor = Color.LightGray,
-            focusedBorderColor = Color(0xFF5ED0C5)
+            trailingIcon = {
+                Icon(
+                    painter = painterResource(id = R.drawable.transactioncalender),
+                    contentDescription = "Kalender",
+                    modifier = Modifier
+                        .size(24.dp)
+                        .clickable { openPicker() },
+                    tint = Color(0xFF5ED0C5)
+                )
+            },
+            shape = RoundedCornerShape(8.dp),
+            colors = OutlinedTextFieldDefaults.colors(
+                unfocusedBorderColor = Color.LightGray,
+                focusedBorderColor = Color(0xFF5ED0C5)
+            ),
+            enabled = false // Agar tidak muncul cursor dan background default disabled
         )
-    )
+    }
 }
 
 @Composable

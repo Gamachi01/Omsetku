@@ -29,8 +29,36 @@ class CartViewModel : ViewModel() {
     private val _transactionSuccess = MutableStateFlow(false)
     val transactionSuccess: StateFlow<Boolean> = _transactionSuccess.asStateFlow()
     
+    // UserID untuk identifikasi keranjang
+    private var currentUserId: String = ""
+    
+    init {
+        // Inisialisasi user ID saat ViewModel dibuat
+        updateCurrentUserId()
+    }
+    
+    // Fungsi untuk update current user ID
+    private fun updateCurrentUserId() {
+        authRepository.getCurrentUser()?.let { user ->
+            if (currentUserId != user.uid) {
+                // Jika user ID berubah, bersihkan keranjang
+                if (currentUserId.isNotEmpty()) {
+                    clearCart()
+                }
+                currentUserId = user.uid
+            }
+        } ?: run {
+            // Jika tidak ada user yang login, kosongkan keranjang
+            currentUserId = ""
+            clearCart()
+        }
+    }
+    
     fun addToCart(product: Product, quantity: Int) {
-        if (quantity <= 0) return
+        // Pastikan user ID terupdate
+        updateCurrentUserId()
+        
+        if (quantity <= 0 || currentUserId.isEmpty()) return
         
         val existingItem = _cartItems.value.find { it.productId == product.id }
         
@@ -58,6 +86,11 @@ class CartViewModel : ViewModel() {
     }
     
     fun updateQuantity(productId: String, quantity: Int) {
+        // Pastikan user ID terupdate
+        updateCurrentUserId()
+        
+        if (currentUserId.isEmpty()) return
+        
         if (quantity <= 0) {
             removeFromCart(productId)
             return
@@ -73,6 +106,11 @@ class CartViewModel : ViewModel() {
     }
     
     fun removeFromCart(productId: String) {
+        // Pastikan user ID terupdate
+        updateCurrentUserId()
+        
+        if (currentUserId.isEmpty()) return
+        
         _cartItems.value = _cartItems.value.filter { it.productId != productId }
     }
     
@@ -94,11 +132,21 @@ class CartViewModel : ViewModel() {
      * @param taxRate Persentase pajak (contoh: 10 untuk 10%)
      */
     fun saveTransaction(taxEnabled: Boolean, taxRate: Int) {
+        // Pastikan user ID terupdate
+        updateCurrentUserId()
+        
         val currentUser = authRepository.getCurrentUser() ?: return
         val items = _cartItems.value
         
         if (items.isEmpty()) {
             _error.value = "Keranjang belanja kosong"
+            return
+        }
+        
+        // Pastikan user ID di keranjang sama dengan user yang sedang login
+        if (currentUserId != currentUser.uid) {
+            _error.value = "Sesi login telah berubah, silakan muat ulang keranjang"
+            clearCart()
             return
         }
         

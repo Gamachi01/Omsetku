@@ -78,8 +78,19 @@ class TransactionViewModel : ViewModel() {
                         }
                     }
                     
-                    _transactions.value = transactionItems
-                    calculateAmounts(transactionItems)
+                    // Urutkan transaksi dari yang terbaru (descending)
+                    val sortedTransactions = transactionItems.sortedByDescending { transaction ->
+                        // Parse tanggal untuk digunakan sebagai kunci pengurutan
+                        try {
+                            val dateFormat = SimpleDateFormat("dd MMMM yyyy", Locale("id", "ID"))
+                            dateFormat.parse(transaction.date)?.time ?: 0L
+                        } catch (e: Exception) {
+                            0L // Jika format tanggal tidak valid, letakkan di paling akhir
+                        }
+                    }
+                    
+                    _transactions.value = sortedTransactions
+                    calculateAmounts(sortedTransactions)
                 } catch (e: Exception) {
                     // Tangkap exception dari getUserTransactions dan tetapkan transactions ke list kosong
                     _transactions.value = emptyList()
