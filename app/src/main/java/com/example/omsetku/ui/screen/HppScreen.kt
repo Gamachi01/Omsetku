@@ -63,10 +63,16 @@ fun HppScreen(
     val persediaanAkhir by hppViewModel.persediaanAkhir.collectAsState()
     val pembelianBersih by hppViewModel.pembelianBersih.collectAsState()
     val biayaOperasionalList by hppViewModel.biayaOperasionalList.collectAsState()
+    val bahanBakuList by hppViewModel.bahanBakuList.collectAsState()
 
     // Efek untuk memuat data produk saat screen dibuka
     LaunchedEffect(Unit) {
         hppViewModel.loadProducts()
+    }
+    
+    // Update active tab di ViewModel ketika tab berubah
+    LaunchedEffect(selectedTab) {
+        hppViewModel.setActiveTab(selectedTab)
     }
     
     Scaffold(
@@ -200,7 +206,33 @@ fun HppScreen(
                     HppBahanBakuContent(
                         products = products,
                         selectedProduct = selectedProduct,
-                        onProductSelected = { hppViewModel.selectProduct(it) }
+                        bahanBakuList = bahanBakuList,
+                        biayaOperasionalList = biayaOperasionalList,
+                        estimasiTerjual = estimasiTerjual.toString(),
+                        onProductSelected = { hppViewModel.selectProduct(it) },
+                        onBahanBakuNamaChanged = { index, value -> 
+                            hppViewModel.updateBahanBakuNama(index, value)
+                        },
+                        onBahanBakuHargaPerUnitChanged = { index, value -> 
+                            hppViewModel.updateBahanBakuHargaPerUnit(index, value)
+                        },
+                        onBahanBakuJumlahDigunakanChanged = { index, value -> 
+                            hppViewModel.updateBahanBakuJumlahDigunakan(index, value)
+                        },
+                        onBahanBakuTotalHargaChanged = { index, value -> 
+                            hppViewModel.updateBahanBakuTotalHarga(index, value)
+                        },
+                        onAddBahanBaku = { hppViewModel.addBahanBaku() },
+                        onRemoveBahanBaku = { hppViewModel.removeBahanBaku(it) },
+                        onBiayaOperasionalNamaChanged = { index, value -> 
+                            hppViewModel.updateBiayaOperasionalNama(index, value)
+                        },
+                        onBiayaOperasionalJumlahChanged = { index, value -> 
+                            hppViewModel.updateBiayaOperasionalJumlah(index, value)
+                        },
+                        onAddBiayaOperasional = { hppViewModel.addBiayaOperasional() },
+                        onRemoveBiayaOperasional = { hppViewModel.removeBiayaOperasional(it) },
+                        onEstimasiTerjualChanged = { hppViewModel.updateEstimasiTerjual(it) }
                     )
                 }
             }
@@ -237,7 +269,7 @@ fun HppScreen(
                 }
             }
             
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(16.dp))
             
             // Tombol Hitung
             Button(
@@ -252,7 +284,7 @@ fun HppScreen(
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF5ED0C5))
             ) {
                 Text(
-                    "Hitung", 
+                    text = "Hitung",
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
                     fontFamily = Poppins
@@ -727,7 +759,21 @@ fun HppStokContent(
 fun HppBahanBakuContent(
     products: List<ProductItem>,
     selectedProduct: ProductItem?,
-    onProductSelected: (ProductItem) -> Unit
+    bahanBakuList: List<HppViewModel.BahanBaku>,
+    biayaOperasionalList: List<HppViewModel.BiayaOperasional>,
+    estimasiTerjual: String,
+    onProductSelected: (ProductItem) -> Unit,
+    onBahanBakuNamaChanged: (Int, String) -> Unit,
+    onBahanBakuHargaPerUnitChanged: (Int, String) -> Unit,
+    onBahanBakuJumlahDigunakanChanged: (Int, String) -> Unit,
+    onBahanBakuTotalHargaChanged: (Int, String) -> Unit,
+    onAddBahanBaku: () -> Unit,
+    onRemoveBahanBaku: (Int) -> Unit,
+    onBiayaOperasionalNamaChanged: (Int, String) -> Unit,
+    onBiayaOperasionalJumlahChanged: (Int, String) -> Unit,
+    onAddBiayaOperasional: () -> Unit,
+    onRemoveBiayaOperasional: (Int) -> Unit,
+    onEstimasiTerjualChanged: (String) -> Unit
 ) {
     var showProductDropdown by remember { mutableStateOf(false) }
     
@@ -805,8 +851,6 @@ fun HppBahanBakuContent(
         Spacer(modifier = Modifier.height(8.dp))
         
         // Bahan Baku List
-        var bahanBakuList by remember { mutableStateOf(listOf(1)) }
-        
         Text(
             text = "Bahan Baku",
             fontSize = 16.sp,
@@ -844,11 +888,7 @@ fun HppBahanBakuContent(
                         
                         if (index > 0) {
                             IconButton(
-                                onClick = {
-                                    bahanBakuList = bahanBakuList.toMutableList().apply {
-                                        removeAt(index)
-                                    }
-                                },
+                                onClick = { onRemoveBahanBaku(index) },
                                 modifier = Modifier.size(32.dp)
                             ) {
                                 Icon(
@@ -876,8 +916,8 @@ fun HppBahanBakuContent(
                             Spacer(modifier = Modifier.height(8.dp))
                             
                             OutlinedTextField(
-                                value = "",
-                                onValueChange = {},
+                                value = bahan.nama,
+                                onValueChange = { onBahanBakuNamaChanged(index, it) },
                                 modifier = Modifier.fillMaxWidth(),
                                 textStyle = TextStyle(fontSize = 14.sp, color = Color.Black, fontFamily = Poppins),
                                 shape = RoundedCornerShape(8.dp),
@@ -901,8 +941,8 @@ fun HppBahanBakuContent(
                             Spacer(modifier = Modifier.height(8.dp))
                             
                             OutlinedTextField(
-                                value = "",
-                                onValueChange = {},
+                                value = bahan.hargaPerUnit,
+                                onValueChange = { onBahanBakuHargaPerUnitChanged(index, it) },
                                 modifier = Modifier.fillMaxWidth(),
                                 textStyle = TextStyle(fontSize = 14.sp, color = Color.Black, fontFamily = Poppins),
                                 placeholder = { Text("Rp", fontSize = 14.sp, fontFamily = Poppins, color = Color.Gray) },
@@ -935,8 +975,8 @@ fun HppBahanBakuContent(
                             Spacer(modifier = Modifier.height(8.dp))
                             
                             OutlinedTextField(
-                                value = "",
-                                onValueChange = {},
+                                value = bahan.jumlahDigunakan,
+                                onValueChange = { onBahanBakuJumlahDigunakanChanged(index, it) },
                                 modifier = Modifier.fillMaxWidth(),
                                 textStyle = TextStyle(fontSize = 14.sp, color = Color.Black, fontFamily = Poppins),
                                 shape = RoundedCornerShape(8.dp),
@@ -960,8 +1000,8 @@ fun HppBahanBakuContent(
                             Spacer(modifier = Modifier.height(8.dp))
                             
                             OutlinedTextField(
-                                value = "",
-                                onValueChange = {},
+                                value = bahan.totalHarga,
+                                onValueChange = { onBahanBakuTotalHargaChanged(index, it) },
                                 modifier = Modifier.fillMaxWidth(),
                                 textStyle = TextStyle(fontSize = 14.sp, color = Color.Black, fontFamily = Poppins),
                                 placeholder = { Text("Rp", fontSize = 14.sp, fontFamily = Poppins, color = Color.Gray) },
@@ -981,9 +1021,7 @@ fun HppBahanBakuContent(
         
         // Tombol Tambah Bahan Baku
         OutlinedButton(
-            onClick = {
-                bahanBakuList = bahanBakuList + 1
-            },
+            onClick = onAddBahanBaku,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 8.dp),
@@ -1009,8 +1047,6 @@ fun HppBahanBakuContent(
         Spacer(modifier = Modifier.height(16.dp))
         
         // Biaya Operasional
-        var biayaOperasionalList by remember { mutableStateOf(listOf(1)) }
-        
         Text(
             text = "Biaya Operasional",
             fontSize = 16.sp,
@@ -1019,7 +1055,7 @@ fun HppBahanBakuContent(
             modifier = Modifier.padding(top = 8.dp, bottom = 8.dp)
         )
         
-        biayaOperasionalList.forEachIndexed { index, _ ->
+        biayaOperasionalList.forEachIndexed { index, biaya ->
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -1028,8 +1064,8 @@ fun HppBahanBakuContent(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 OutlinedTextField(
-                    value = "",
-                    onValueChange = {},
+                    value = biaya.nama,
+                    onValueChange = { onBiayaOperasionalNamaChanged(index, it) },
                     modifier = Modifier
                         .weight(1f)
                         .height(56.dp),
@@ -1043,8 +1079,8 @@ fun HppBahanBakuContent(
                 )
                 
                 OutlinedTextField(
-                    value = "",
-                    onValueChange = {},
+                    value = biaya.jumlah,
+                    onValueChange = { onBiayaOperasionalJumlahChanged(index, it) },
                     modifier = Modifier
                         .weight(1f)
                         .height(56.dp),
@@ -1057,11 +1093,7 @@ fun HppBahanBakuContent(
                     ),
                     trailingIcon = if (index > 0) {
                         {
-                            IconButton(onClick = {
-                                biayaOperasionalList = biayaOperasionalList.toMutableList().apply {
-                                    removeAt(index)
-                                }
-                            }) {
+                            IconButton(onClick = { onRemoveBiayaOperasional(index) }) {
                                 Icon(
                                     imageVector = Icons.Default.Close,
                                     contentDescription = "Remove",
@@ -1076,9 +1108,7 @@ fun HppBahanBakuContent(
         
         // Tombol Tambah Biaya Operasional
         OutlinedButton(
-            onClick = {
-                biayaOperasionalList = biayaOperasionalList + 1
-            },
+            onClick = onAddBiayaOperasional,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 8.dp),
@@ -1105,8 +1135,8 @@ fun HppBahanBakuContent(
         
         HppLabeledFieldBox(label = "Estimasi terjual dalam bulanan") {
             OutlinedTextField(
-                value = "",
-                onValueChange = {},
+                value = estimasiTerjual,
+                onValueChange = onEstimasiTerjualChanged,
                 modifier = Modifier.fillMaxWidth(),
                 textStyle = TextStyle(fontSize = 14.sp, color = Color.Black, fontFamily = Poppins),
                 shape = RoundedCornerShape(8.dp),
