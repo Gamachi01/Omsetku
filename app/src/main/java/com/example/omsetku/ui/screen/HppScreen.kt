@@ -34,6 +34,7 @@ import com.example.omsetku.ui.components.Poppins
 import com.example.omsetku.ui.data.ProductItem
 import com.example.omsetku.viewmodels.HppViewModel
 import kotlinx.coroutines.launch
+import androidx.hilt.navigation.compose.hiltViewModel
 
 enum class HppTab {
     STOK, BAHAN_BAKU
@@ -42,7 +43,7 @@ enum class HppTab {
 @Composable
 fun HppScreen(
     navController: NavController,
-    hppViewModel: HppViewModel = viewModel()
+    hppViewModel: HppViewModel = hiltViewModel()
 ) {
     var selectedItem by remember { mutableStateOf("HPP") }
     var selectedTab by remember { mutableStateOf(HppTab.STOK) }
@@ -64,6 +65,8 @@ fun HppScreen(
     val pembelianBersih by hppViewModel.pembelianBersih.collectAsState()
     val biayaOperasionalList by hppViewModel.biayaOperasionalList.collectAsState()
     val bahanBakuList by hppViewModel.bahanBakuList.collectAsState()
+    val activeTab by hppViewModel.activeTab.collectAsState()
+    val isSaving by hppViewModel.isSaving.collectAsState()
 
     // Efek untuk memuat data produk saat screen dibuka
     LaunchedEffect(Unit) {
@@ -289,6 +292,32 @@ fun HppScreen(
                     fontWeight = FontWeight.Bold,
                     fontFamily = Poppins
                 )
+            }
+            
+            // Tampilkan hasil perhitungan
+            val hpp = hppViewModel.hitungHpp()
+            Text(
+                text = "HPP: Rp ${String.format("%,.2f", hpp)}",
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier.padding(vertical = 16.dp)
+            )
+
+            // Tombol Simpan
+            Button(
+                onClick = { hppViewModel.simpanHpp() },
+                enabled = !isSaving && selectedProduct != null,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp)
+            ) {
+                if (isSaving) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(24.dp),
+                        color = MaterialTheme.colorScheme.onPrimary
+                    )
+                } else {
+                    Text("Simpan HPP")
+                }
             }
             
             Spacer(modifier = Modifier.height(16.dp))

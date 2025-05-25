@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.util.Date
 
 class HppViewModel : ViewModel() {
     private val repository = FirestoreRepository()
@@ -58,6 +59,10 @@ class HppViewModel : ViewModel() {
     // State untuk tab yang aktif
     private val _activeTab = MutableStateFlow(HppTab.STOK)
     val activeTab: StateFlow<HppTab> = _activeTab.asStateFlow()
+    
+    // State untuk status penyimpanan
+    private val _isSaving = MutableStateFlow(false)
+    val isSaving: StateFlow<Boolean> = _isSaving.asStateFlow()
     
     init {
         loadProducts()
@@ -232,6 +237,56 @@ class HppViewModel : ViewModel() {
         
         _totalBiaya.value = totalCost + totalBiayaOperasional
         return hpp
+    }
+    
+    /**
+     * Menyimpan hasil perhitungan HPP ke Firestore
+     */
+    fun simpanHpp() {
+        viewModelScope.launch {
+            _isSaving.value = true
+            _error.value = null
+            
+            try {
+                val selectedProduct = _selectedProduct.value ?: throw Exception("Produk belum dipilih")
+                val hpp = hitungHpp()
+                
+                // Data yang akan disimpan
+                val hppData = mapOf(
+                    "productId" to selectedProduct.id.toString(),
+                    "productName" to selectedProduct.name,
+                    "hppValue" to hpp,
+                    "totalBiaya" to _totalBiaya.value,
+                    "estimasiTerjual" to _estimasiTerjual.value,
+                    "metode" to if (_activeTab.value == HppTab.STOK) "Stok" else "Bahan Baku",
+                    "tanggalHitung" to Date(),
+                    "persediaanAwal" to _persediaanAwal.value,
+                    "persediaanAkhir" to _persediaanAkhir.value,
+                    "pembelianBersih" to _pembelianBersih.value,
+                    "biayaOperasional" to _biayaOperasionalList.value.map { 
+                        mapOf(
+                            "nama" to it.nama,
+                            "jumlah" to it.jumlah
+                        )
+                    },
+                    "bahanBaku" to _bahanBakuList.value.map {
+                        mapOf(
+                            "nama" to it.nama,
+                            "hargaPerUnit" to it.hargaPerUnit,
+                            "jumlahDigunakan" to it.jumlahDigunakan,
+                            "totalHarga" to it.totalHarga
+                        )
+                    }
+                )
+                
+                // Simpan ke Firestore
+                repository.saveHpp(hppData)
+            } catch (e: Exception) {
+                _error.value = "Gagal menyimpan HPP: ${e.message}"
+            } finally {
+                _isSaving.value = false
+            }
+        }
     }
     
     fun clearError() {
