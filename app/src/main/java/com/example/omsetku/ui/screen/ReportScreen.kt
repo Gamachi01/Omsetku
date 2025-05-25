@@ -99,6 +99,7 @@ fun ReportScreen(navController: NavController) {
                 .fillMaxSize()
                 .background(Color.White)
                 .padding(horizontal = 16.dp)
+                .padding(top = 16.dp, bottom = 8.dp)
                 .padding(paddingValues)
                 .verticalScroll(scrollState)
         ) {
@@ -114,8 +115,6 @@ fun ReportScreen(navController: NavController) {
                     .padding(bottom = 16.dp)
             )
             
-            Spacer(modifier = Modifier.height(8.dp))
-
             // Tanggal periode
             Row(
                 modifier = Modifier.fillMaxWidth(),

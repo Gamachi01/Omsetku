@@ -95,7 +95,7 @@ fun TransactionScreen(
                 .fillMaxSize()
                 .verticalScroll(scrollState)
                 .padding(horizontal = 16.dp)
-                .padding(top = 16.dp, bottom = 16.dp)
+                .padding(top = 16.dp, bottom = 8.dp)
                 .padding(paddingValues)
         ) {
             Text(
@@ -105,11 +105,9 @@ fun TransactionScreen(
                 color = Color.Black,
                 fontFamily = Poppins,
                 modifier = Modifier.fillMaxWidth()
-                    .padding(bottom = 8.dp),
+                    .padding(bottom = 16.dp),
                 textAlign = TextAlign.Center
             )
-
-            Spacer(modifier = Modifier.height(20.dp))
 
             Row(
                 modifier = Modifier
