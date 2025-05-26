@@ -33,11 +33,13 @@ android {
     
     buildFeatures {
         compose true
+        buildConfig true
     }
     
     composeOptions {
         kotlinCompilerExtensionVersion '1.4.3'
     }
+    namespace 'com.example.omsetku'
 }
 
 dependencies {
@@ -69,4 +71,8 @@ dependencies {
 // Allow references to generated code
 kapt {
     correctErrorTypes true
+    javacOptions {
+        option("-source", "8")
+        option("-target", "8")
+    }
 } 
