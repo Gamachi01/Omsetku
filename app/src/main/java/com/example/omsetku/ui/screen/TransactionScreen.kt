@@ -1,35 +1,77 @@
 package com.example.omsetku.ui.screen
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.omsetku.ui.components.Poppins
-import com.example.omsetku.R
-import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.window.Dialog
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.omsetku.Navigation.Routes
+import com.example.omsetku.R
 import com.example.omsetku.ui.components.BottomNavBar
+import com.example.omsetku.ui.components.DatePickerField
+import com.example.omsetku.ui.components.Poppins
+import com.example.omsetku.ui.components.TransactionList
+import com.example.omsetku.viewmodels.TransactionViewModel
 
 enum class TransactionType {
     INCOME, EXPENSE
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TransactionScreen(navController: NavController) {
-    var selectedItem by remember { mutableStateOf(Routes.TRANSACTION) }
+fun TransactionScreen(
+    navController: NavController,
+    transactionViewModel: TransactionViewModel = viewModel()
+) {
+    var selectedItem by remember { mutableStateOf("Transaction") }
     var selectedType by remember { mutableStateOf(TransactionType.INCOME) }
     var tanggal by remember { mutableStateOf("") }
     var nominal by remember { mutableStateOf("") }
     var deskripsi by remember { mutableStateOf("") }
+
+    // Status pesan sukses dan loading
+    var showSuccessDialog by remember { mutableStateOf(false) }
+
+    // State dari ViewModel
+    val transactions by transactionViewModel.transactions.collectAsState()
+    val isLoading by transactionViewModel.isLoading.collectAsState()
+    val error by transactionViewModel.error.collectAsState()
+
+    val scrollState = rememberScrollState()
+
+    // Effect untuk reset form setelah sukses menyimpan
+    LaunchedEffect(showSuccessDialog) {
+        if (showSuccessDialog) {
+            // Reset form setelah 2 detik
+            kotlinx.coroutines.delay(2000)
+            showSuccessDialog = false
+        }
+    }
+
+    // Effect untuk memuat data transaksi saat screen dibuka
+    LaunchedEffect(Unit) {
+        transactionViewModel.loadTransactions()
+    }
 
     Scaffold(
         bottomBar = {
@@ -37,9 +79,12 @@ fun TransactionScreen(navController: NavController) {
                 selectedItem = selectedItem,
                 onItemSelected = { item ->
                     selectedItem = item
-                    navController.navigate(item) {
-                        popUpTo(Routes.HOME) { inclusive = false }
-                        launchSingleTop = true
+                    when (item) {
+                        "Home" -> navController.navigate(Routes.HOME)
+                        "Cashier" -> navController.navigate(Routes.CASHIER)
+                        "Transaction" -> { /* Sudah di layar Transaction */ }
+                        "HPP" -> navController.navigate(Routes.HPP)
+                        "Report" -> navController.navigate(Routes.REPORT)
                     }
                 }
             )
@@ -48,7 +93,9 @@ fun TransactionScreen(navController: NavController) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp)
+                .verticalScroll(scrollState)
+                .padding(horizontal = 16.dp)
+                .padding(top = 16.dp, bottom = 8.dp)
                 .padding(paddingValues)
         ) {
             Text(
@@ -56,44 +103,40 @@ fun TransactionScreen(navController: NavController) {
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.Black,
-                fontFamily = Poppins
+                fontFamily = Poppins,
+                modifier = Modifier.fillMaxWidth()
+                    .padding(bottom = 16.dp),
+                textAlign = TextAlign.Center
             )
 
-            Spacer(modifier = Modifier.height(25.dp))
-
             Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(40.dp)
+                    .clip(RoundedCornerShape(8.dp))
             ) {
                 TransactionButton(
                     text = "Pemasukan",
                     isSelected = selectedType == TransactionType.INCOME,
                     onClick = { selectedType = TransactionType.INCOME },
-                    shape = RoundedCornerShape(topStart = 6.dp, bottomStart = 6.dp)
+                    shape = RoundedCornerShape(topStart = 8.dp, bottomStart = 8.dp),
+                    modifier = Modifier.weight(1f)
                 )
                 TransactionButton(
                     text = "Pengeluaran",
                     isSelected = selectedType == TransactionType.EXPENSE,
                     onClick = { selectedType = TransactionType.EXPENSE },
-                    shape = RoundedCornerShape(topEnd = 6.dp, bottomEnd = 6.dp)
+                    shape = RoundedCornerShape(topEnd = 8.dp, bottomEnd = 8.dp),
+                    modifier = Modifier.weight(1f)
                 )
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
             LabeledFieldBox(label = "Tanggal Transaksi") {
-                OutlinedTextField(
+                DatePickerField(
                     value = tanggal,
-                    onValueChange = { tanggal = it },
-                    textStyle = TextStyle(fontSize = 14.sp, color = Color.Black),
-                    modifier = Modifier.fillMaxWidth(),
-                    trailingIcon = {
-                        Icon(
-                            painter = painterResource(id = R.drawable.transactioncalender),
-                            contentDescription = "Kalender",
-                            modifier = Modifier.size(24.dp)
-                        )
-                    }
+                    onDateSelected = { tanggal = it }
                 )
             }
 
@@ -101,9 +144,21 @@ fun TransactionScreen(navController: NavController) {
                 OutlinedTextField(
                     value = nominal,
                     onValueChange = { nominal = it },
-                    textStyle = TextStyle(fontSize = 14.sp, color = Color.Black),
-                    modifier = Modifier.fillMaxWidth(),
-                    placeholder = { Text("Rp", fontSize = 14.sp) }
+                    textStyle = TextStyle(fontSize = 14.sp, color = Color.Black, fontFamily = Poppins),
+                    modifier = Modifier.fillMaxWidth().height(56.dp),
+                    placeholder = {
+                        Text(
+                            "Rp",
+                            fontSize = 14.sp,
+                            fontFamily = Poppins,
+                            color = Color.Gray
+                        )
+                    },
+                    shape = RoundedCornerShape(8.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        unfocusedBorderColor = Color.LightGray,
+                        focusedBorderColor = Color(0xFF5ED0C5)
+                    )
                 )
             }
 
@@ -112,8 +167,15 @@ fun TransactionScreen(navController: NavController) {
                     value = if (selectedType == TransactionType.INCOME) "Pemasukan" else "Pengeluaran",
                     onValueChange = {},
                     enabled = false,
-                    textStyle = TextStyle(fontSize = 14.sp, color = Color.Black),
-                    modifier = Modifier.fillMaxWidth()
+                    textStyle = TextStyle(fontSize = 14.sp, color = Color.Black, fontFamily = Poppins),
+                    modifier = Modifier.fillMaxWidth().height(56.dp),
+                    shape = RoundedCornerShape(8.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        unfocusedBorderColor = Color.LightGray,
+                        focusedBorderColor = Color(0xFF5ED0C5),
+                        disabledBorderColor = Color.LightGray,
+                        disabledTextColor = Color.Black
+                    )
                 )
             }
 
@@ -121,49 +183,143 @@ fun TransactionScreen(navController: NavController) {
                 OutlinedTextField(
                     value = deskripsi,
                     onValueChange = { deskripsi = it },
-                    textStyle = TextStyle(fontSize = 14.sp, color = Color.Black),
+                    textStyle = TextStyle(fontSize = 14.sp, color = Color.Black, fontFamily = Poppins),
+                    modifier = Modifier.fillMaxWidth().height(80.dp),
+                    shape = RoundedCornerShape(8.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        unfocusedBorderColor = Color.LightGray,
+                        focusedBorderColor = Color(0xFF5ED0C5)
+                    ),
+                    placeholder = {
+                        Text(
+                            "Masukkan deskripsi transaksi...",
+                            fontSize = 14.sp,
+                            fontFamily = Poppins,
+                            color = Color.Gray
+                        )
+                    }
+                )
+            }
+
+            // Error message
+            if (error != null) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = error ?: "",
+                    color = Color.Red,
+                    fontSize = 14.sp,
+                    fontFamily = Poppins,
                     modifier = Modifier.fillMaxWidth()
                 )
             }
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
             Button(
-                onClick = { /* Simpan data */ },
+                onClick = {
+                    // Validasi input
+                    if (tanggal.isBlank()) {
+                        // Tampilkan error lokal
+                        transactionViewModel.clearError()
+                        return@Button
+                    }
+
+                    if (nominal.isBlank()) {
+                        // Tampilkan error lokal
+                        transactionViewModel.clearError()
+                        return@Button
+                    }
+
+                    // Konversi nominal dari string ke int dengan penanganan error yang lebih baik
+                    val amount = try {
+                        // Bersihkan semua karakter non-numerik (kecuali digit)
+                        val cleanNominal = nominal.replace(Regex("[^0-9]"), "")
+                        if (cleanNominal.isBlank()) {
+                            0
+                        } else {
+                            cleanNominal.toInt()
+                        }
+                    } catch (e: Exception) {
+                        // Jika gagal konversi, tampilkan error
+                        transactionViewModel.clearError()
+                        return@Button
+                    }
+
+                    // Validasi amount
+                    if (amount <= 0) {
+                        // Tampilkan error lokal
+                        transactionViewModel.clearError()
+                        return@Button
+                    }
+
+                    // Simpan transaksi
+                    transactionViewModel.saveTransaction(
+                        type = if (selectedType == TransactionType.INCOME) "INCOME" else "EXPENSE",
+                        amount = amount,
+                        date = tanggal,
+                        description = deskripsi
+                    )
+
+                    // Reset form jika berhasil
+                    if (transactionViewModel.error.value == null) {
+                        tanggal = ""
+                        nominal = ""
+                        deskripsi = ""
+                        showSuccessDialog = true
+                    }
+                },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(40.dp),
+                    .height(48.dp),
                 shape = RoundedCornerShape(8.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF5ED0C5))
             ) {
-                Text("Simpan", fontWeight = FontWeight.Bold, fontFamily = Poppins)
+                if (isLoading) {
+                    CircularProgressIndicator(
+                        color = Color.White,
+                        modifier = Modifier.size(24.dp)
+                    )
+                } else {
+                    Text(
+                        "Simpan",
+                        fontWeight = FontWeight.Bold,
+                        fontFamily = Poppins,
+                        fontSize = 16.sp
+                    )
+                }
             }
         }
     }
-}
 
+    // Tampilkan dialog sukses
+    if (showSuccessDialog) {
+        TransactionSuccessDialog(
+            onDismiss = { showSuccessDialog = false }
+        )
+    }
+}
 
 @Composable
 fun TransactionButton(
     text: String,
     isSelected: Boolean,
     shape: Shape,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     val selectedColor = Color(0xFF5ED0C5)
     val unselectedColor = Color.White
 
     Button(
         onClick = onClick,
-        modifier = Modifier
-            .height(32.dp)
-            .width(176.dp),
+        modifier = modifier
+            .height(40.dp),
         contentPadding = PaddingValues(vertical = 0.dp),
         shape = shape,
         border = BorderStroke(1.dp, selectedColor),
         colors = ButtonDefaults.buttonColors(
             containerColor = if (isSelected) selectedColor else unselectedColor,
-            contentColor = Color.Black
+            contentColor = if (isSelected) Color.White else Color.Black
         )
     ) {
         Text(
@@ -183,21 +339,72 @@ fun LabeledFieldBox(
 ) {
     Column(
         modifier = modifier
-            .padding(vertical = 8.dp)
-            .width(353.dp)
+            .fillMaxWidth()
+            .padding(vertical = 6.dp)
     ) {
         Text(
             text = label,
-            fontSize = 12.sp,
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Medium,
             fontFamily = Poppins
         )
-        Spacer(modifier = Modifier.height(4.dp))
+        Spacer(modifier = Modifier.height(6.dp))
+        content()
+    }
+}
+
+@Composable
+fun TransactionSuccessDialog(onDismiss: () -> Unit) {
+    Dialog(onDismissRequest = onDismiss) {
         Box(
             modifier = Modifier
-                .width(353.dp)
-                .heightIn(min = 56.dp),
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp, vertical = 16.dp)
+                .clip(RoundedCornerShape(16.dp))
+                .background(Color.White),
+            contentAlignment = Alignment.Center
         ) {
-            content()
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 24.dp, horizontal = 16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(60.dp)
+                        .clip(CircleShape)
+                        .background(Color(0xFF5ED0C5)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Check,
+                        contentDescription = "Success",
+                        tint = Color.White,
+                        modifier = Modifier.size(32.dp)
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Text(
+                    text = "Transaksi Berhasil",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = Poppins,
+                    color = Color.Black
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Text(
+                    text = "Transaksi anda telah tercatat",
+                    fontSize = 14.sp,
+                    fontFamily = Poppins,
+                    color = Color.Gray,
+                    textAlign = TextAlign.Center
+                )
+            }
         }
     }
 }

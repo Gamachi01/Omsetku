@@ -11,6 +11,7 @@ pluginManagement {
         gradlePluginPortal()
     }
 }
+
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
@@ -19,6 +20,9 @@ dependencyResolutionManagement {
     }
 }
 
+// Nama root project
 rootProject.name = "Omsetku"
+
+// Tambahkan modul 'app' dan pastikan jalurnya eksplisit
 include(":app")
- 
+project(":app").projectDir = file("app")

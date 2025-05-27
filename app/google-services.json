@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "343818009725",
+    "project_id": "omsetku-11aa2",
+    "storage_bucket": "omsetku-11aa2.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:343818009725:android:3b50ad9e2addce4dd40514",
+        "android_client_info": {
+          "package_name": "com.example.omsetku"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC-0fj8ppt0D7_qYAMsgUu4uNb0_LztmdA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
