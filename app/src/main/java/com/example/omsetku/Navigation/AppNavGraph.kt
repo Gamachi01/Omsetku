@@ -20,12 +20,15 @@ fun AppNavGraph(
     // Inisialisasi BusinessViewModel
     val businessViewModel: BusinessViewModel = viewModel()
 
-    NavHost(navController = navController, startDestination = Routes.LOGIN) {
+    NavHost(navController = navController, startDestination = Routes.SPLASH) {
+        composable(Routes.SPLASH) {
+            SplashScreen(navController)
+        }
         composable(Routes.LOGIN) {
             LoginScreen(navController)
         }
         composable(Routes.SIGNUP) {
-            RegisterScreen(navController)
+            SignUpScreen(navController)
         }
         composable(Routes.OTP) {
             OTPScreen(navController)
@@ -72,6 +75,15 @@ fun AppNavGraph(
         }
         composable(Routes.TAX_SETTINGS) {
             TaxSettingsScreen(navController, taxViewModel = taxViewModel)
+        }
+        composable(Routes.CHANGE_PASSWORD) {
+            ChangePasswordScreen(navController)
+        }
+        composable(Routes.NOTIFICATIONS) {
+            NotificationScreen(navController)
+        }
+        composable(Routes.HELP_CENTER) {
+            HelpCenterScreen(navController)
         }
     }
 }

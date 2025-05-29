@@ -5,25 +5,17 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Email
-import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Phone
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -32,7 +24,6 @@ import androidx.navigation.compose.rememberNavController
 import com.example.omsetku.Navigation.Routes
 import com.example.omsetku.R
 import com.example.omsetku.ui.components.Poppins
-import com.example.omsetku.ui.theme.PrimaryVariant
 import com.example.omsetku.viewmodels.AuthViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -41,115 +32,65 @@ fun SignUpScreen(
     navController: NavController = rememberNavController(),
     authViewModel: AuthViewModel = viewModel()
 ) {
-    var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
-    var phone by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
     var confirmPasswordVisible by remember { mutableStateOf(false) }
 
-    // State dari AuthViewModel
     val isLoading by authViewModel.isLoading.collectAsState()
     val error by authViewModel.error.collectAsState()
-    val isLoggedIn by authViewModel.isLoggedIn.collectAsState()
-
-    // Efek untuk navigasi jika user sudah login
-    LaunchedEffect(isLoggedIn) {
-        if (isLoggedIn) {
-            navController.navigate(Routes.HOME) {
-                popUpTo(Routes.SIGNUP) { inclusive = true }
-            }
-        }
-    }
+    val scrollState = rememberScrollState()
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White)
-            .verticalScroll(rememberScrollState())
-            .padding(24.dp)
+            .verticalScroll(scrollState)
+            .padding(24.dp),
+        horizontalAlignment = Alignment.Start
     ) {
-        // Sign Up Illustration
+        // Illustration
         Image(
-            painter = painterResource(id = R.drawable.loginillustrations),
+            painter = painterResource(id = R.drawable.register_illustations),
             contentDescription = "Sign Up Illustration",
             modifier = Modifier
                 .fillMaxWidth()
-                .height(220.dp)
-                .padding(vertical = 16.dp)
-        )
-
-        // Welcome Text
-        Text(
-            text = "Ayo Mulai!",
-            fontSize = 28.sp,
-            fontWeight = FontWeight.Bold,
-            fontFamily = Poppins,
-            color = Color.Black,
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
-
-        Text(
-            text = "Silakan masukkan detail Sign Up Anda di bawah ini",
-            fontSize = 15.sp,
-            color = Color.Gray,
-            fontFamily = Poppins
+                .height(200.dp)
         )
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Name Field
+        // Title
         Text(
-            text = "Nama Lengkap",
-            fontSize = 14.sp,
+            text = "Ayo Mulai!",
+            fontSize = 24.sp,
+            fontWeight = FontWeight.Bold,
             fontFamily = Poppins,
-            color = Color.Black,
-            modifier = Modifier.padding(bottom = 8.dp)
+            color = Color.Black
         )
 
-        OutlinedTextField(
-            value = name,
-            onValueChange = { name = it },
-            placeholder = { Text("Masukkan nama lengkap", fontFamily = Poppins, color = Color.LightGray) },
-            leadingIcon = {
-                Icon(
-                    imageVector = Icons.Default.Person,
-                    contentDescription = "Name Icon",
-                    tint = Color.Gray
-                )
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 16.dp),
-            shape = RoundedCornerShape(8.dp),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = Color.LightGray,
-                unfocusedBorderColor = Color.LightGray,
-                cursorColor = PrimaryVariant
-            ),
-            textStyle = TextStyle(fontFamily = Poppins),
-            singleLine = true
+        Text(
+            text = "Silakan masukkan detail Sign Up Anda di bawah ini",
+            fontSize = 14.sp,
+            fontFamily = Poppins,
+            color = Color.Gray,
+            modifier = Modifier.padding(bottom = 24.dp)
         )
 
         // Email Field
-        Text(
-            text = "Email",
-            fontSize = 14.sp,
-            fontFamily = Poppins,
-            color = Color.Black,
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
-
         OutlinedTextField(
             value = email,
             onValueChange = { email = it },
-            placeholder = { Text("contoh@gmail.com", fontFamily = Poppins, color = Color.LightGray) },
+            placeholder = {
+                Text("contoh@gmail.com", fontFamily = Poppins, color = Color.LightGray)
+            },
             leadingIcon = {
                 Icon(
-                    imageVector = Icons.Default.Email,
-                    contentDescription = "Email Icon",
-                    tint = Color.Gray
+                    painter = painterResource(id = R.drawable.email),
+                    contentDescription = null,
+                    tint = Color.Gray,
+                    modifier = Modifier.size(20.dp)
                 )
             },
             modifier = Modifier
@@ -158,77 +99,35 @@ fun SignUpScreen(
             shape = RoundedCornerShape(8.dp),
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = Color.LightGray,
-                unfocusedBorderColor = Color.LightGray,
-                cursorColor = PrimaryVariant
+                unfocusedBorderColor = Color.LightGray
             ),
-            textStyle = TextStyle(fontFamily = Poppins),
-            singleLine = true
-        )
-
-        // Phone Field
-        Text(
-            text = "Nomor Telepon",
-            fontSize = 14.sp,
-            fontFamily = Poppins,
-            color = Color.Black,
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
-
-        OutlinedTextField(
-            value = phone,
-            onValueChange = { phone = it },
-            placeholder = { Text("Masukkan nomor telepon", fontFamily = Poppins, color = Color.LightGray) },
-            leadingIcon = {
-                Icon(
-                    imageVector = Icons.Default.Phone,
-                    contentDescription = "Phone Icon",
-                    tint = Color.Gray
-                )
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 16.dp),
-            shape = RoundedCornerShape(8.dp),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = Color.LightGray,
-                unfocusedBorderColor = Color.LightGray,
-                cursorColor = PrimaryVariant
-            ),
-            textStyle = TextStyle(fontFamily = Poppins),
             singleLine = true
         )
 
         // Password Field
-        Text(
-            text = "Password",
-            fontSize = 14.sp,
-            fontFamily = Poppins,
-            color = Color.Black,
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
-
         OutlinedTextField(
             value = password,
             onValueChange = { password = it },
-            placeholder = { Text("minimal 8 karakter", fontFamily = Poppins, color = Color.LightGray) },
+            placeholder = {
+                Text("minimal 8 karakter", fontFamily = Poppins, color = Color.LightGray)
+            },
             leadingIcon = {
                 Icon(
-                    imageVector = Icons.Default.Lock,
-                    contentDescription = "Password Icon",
-                    tint = Color.Gray
+                    painter = painterResource(id = R.drawable.keypass),
+                    contentDescription = null,
+                    tint = Color.Gray,
+                    modifier = Modifier.size(20.dp)
                 )
             },
             trailingIcon = {
                 IconButton(onClick = { passwordVisible = !passwordVisible }) {
                     Icon(
                         painter = painterResource(
-                            id = if (passwordVisible)
-                                R.drawable.password_icon
-                            else
-                                R.drawable.password_icon
+                            id = if (passwordVisible) R.drawable.visibilityoff else R.drawable.visibilityon
                         ),
-                        contentDescription = if (passwordVisible) "Hide Password" else "Show Password",
-                        tint = Color.Gray
+                        contentDescription = null,
+                        tint = Color.Gray,
+                        modifier = Modifier.size(20.dp)
                     )
                 }
             },
@@ -239,44 +138,35 @@ fun SignUpScreen(
             shape = RoundedCornerShape(8.dp),
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = Color.LightGray,
-                unfocusedBorderColor = Color.LightGray,
-                cursorColor = PrimaryVariant
+                unfocusedBorderColor = Color.LightGray
             ),
-            textStyle = TextStyle(fontFamily = Poppins),
             singleLine = true
         )
 
         // Confirm Password Field
-        Text(
-            text = "Konfirmasi Password",
-            fontSize = 14.sp,
-            fontFamily = Poppins,
-            color = Color.Black,
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
-
         OutlinedTextField(
             value = confirmPassword,
             onValueChange = { confirmPassword = it },
-            placeholder = { Text("ulangi password", fontFamily = Poppins, color = Color.LightGray) },
+            placeholder = {
+                Text("konfirmasi password", fontFamily = Poppins, color = Color.LightGray)
+            },
             leadingIcon = {
                 Icon(
-                    imageVector = Icons.Default.Lock,
-                    contentDescription = "Confirm Password Icon",
-                    tint = Color.Gray
+                    painter = painterResource(id = R.drawable.keypass),
+                    contentDescription = null,
+                    tint = Color.Gray,
+                    modifier = Modifier.size(20.dp)
                 )
             },
             trailingIcon = {
                 IconButton(onClick = { confirmPasswordVisible = !confirmPasswordVisible }) {
                     Icon(
                         painter = painterResource(
-                            id = if (confirmPasswordVisible)
-                                R.drawable.password_icon
-                            else
-                                R.drawable.password_icon
+                            id = if (confirmPasswordVisible) R.drawable.visibilityoff else R.drawable.visibilityon
                         ),
-                        contentDescription = if (confirmPasswordVisible) "Hide Password" else "Show Password",
-                        tint = Color.Gray
+                        contentDescription = null,
+                        tint = Color.Gray,
+                        modifier = Modifier.size(20.dp)
                     )
                 }
             },
@@ -287,26 +177,29 @@ fun SignUpScreen(
             shape = RoundedCornerShape(8.dp),
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = Color.LightGray,
-                unfocusedBorderColor = Color.LightGray,
-                cursorColor = PrimaryVariant
+                unfocusedBorderColor = Color.LightGray
             ),
-            textStyle = TextStyle(fontFamily = Poppins),
             singleLine = true
         )
 
         // Sign Up Button
         Button(
             onClick = {
-                if (validateInputs(name, email, phone, password, confirmPassword)) {
-                    authViewModel.register(name, email, password, phone)
+                if (validateInputs(email, password, confirmPassword)) {
+                    authViewModel.register(
+                        name = email,
+                        email = email,
+                        password = password,
+                        phone = ""
+                    )
                 }
             },
-            enabled = !isLoading,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(50.dp),
+                .height(48.dp),
             shape = RoundedCornerShape(8.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF62DCC8))
+            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF62DCC8)),
+            enabled = !isLoading
         ) {
             if (isLoading) {
                 CircularProgressIndicator(
@@ -324,84 +217,120 @@ fun SignUpScreen(
             }
         }
 
-        // Divider
+        // Divider with text
         Row(
-            verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 24.dp)
+                .padding(vertical = 24.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Divider(
-                color = Color(0xFFDDDDDD),
-                thickness = 1.dp,
-                modifier = Modifier.weight(1f)
-            )
+            Divider(modifier = Modifier.weight(1f), color = Color.LightGray)
             Text(
-                text = " Atau sign up dengan ",
-                style = TextStyle(
-                    color = Color(0xFF999999),
-                    fontFamily = Poppins,
-                    fontSize = 14.sp
-                ),
-                modifier = Modifier.padding(horizontal = 12.dp)
+                text = "Atau sign up dengan",
+                modifier = Modifier.padding(horizontal = 8.dp),
+                color = Color.Gray,
+                fontSize = 12.sp,
+                fontFamily = Poppins
             )
-            Divider(
-                color = Color(0xFFDDDDDD),
-                thickness = 1.dp,
-                modifier = Modifier.weight(1f)
-            )
+            Divider(modifier = Modifier.weight(1f), color = Color.LightGray)
         }
 
-        // Social Login Buttons
+        // Social Buttons
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 24.dp),
-            horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterHorizontally)
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            SocialSignUpButton(
-                icon = painterResource(id = R.drawable.facebook_icon),
-                text = "Facebook"
+            // Facebook Button
+            OutlinedButton(
+                onClick = { /* Facebook Login */ },
+                modifier = Modifier
+                    .weight(1f)
+                    .height(48.dp),
+                shape = RoundedCornerShape(8.dp),
+                colors = ButtonDefaults.outlinedButtonColors(
+                    containerColor = Color.White
+                ),
+                border = ButtonDefaults.outlinedButtonBorder
             ) {
-                // TODO: Implementasikan Sign Up dengan Facebook
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.facebook_icon),
+                        contentDescription = "Facebook",
+                        modifier = Modifier.size(24.dp),
+                        tint = Color.Unspecified
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "Facebook",
+                        fontFamily = Poppins,
+                        color = Color.Black,
+                        fontSize = 14.sp
+                    )
+                }
             }
 
-            SocialSignUpButton(
-                icon = painterResource(id = R.drawable.google_icon),
-                text = "Google"
+            // Google Button
+            OutlinedButton(
+                onClick = { /* Google Login */ },
+                modifier = Modifier
+                    .weight(1f)
+                    .height(48.dp),
+                shape = RoundedCornerShape(8.dp),
+                colors = ButtonDefaults.outlinedButtonColors(
+                    containerColor = Color.White
+                ),
+                border = ButtonDefaults.outlinedButtonBorder
             ) {
-                // TODO: Implementasikan Sign Up dengan Google
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.google_icon),
+                        contentDescription = "Google",
+                        modifier = Modifier.size(24.dp),
+                        tint = Color.Unspecified
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "Google",
+                        fontFamily = Poppins,
+                        color = Color.Black,
+                        fontSize = 14.sp
+                    )
+                }
             }
         }
 
-        // Login Text
+        // Login Link
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 8.dp),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center
         ) {
             Text(
                 text = "Sudah memiliki akun? ",
+                color = Color.Gray,
                 fontSize = 14.sp,
-                fontFamily = Poppins,
-                color = Color.Gray
+                fontFamily = Poppins
             )
             Text(
                 text = "Login",
-                style = TextStyle(
-                    color = Color(0xFF62DCC8),
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 14.sp,
-                    fontFamily = Poppins
-                ),
-                modifier = Modifier.clickable { navController.navigate(Routes.LOGIN) }
+                color = Color(0xFF62DCC8),
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Bold,
+                fontFamily = Poppins,
+                modifier = Modifier.clickable {
+                    navController.navigate(Routes.LOGIN)
+                }
             )
         }
     }
 
-    // Error dialog jika ada error
     if (error != null) {
         AlertDialog(
             onDismissRequest = { authViewModel.clearError() },
@@ -416,80 +345,11 @@ fun SignUpScreen(
     }
 }
 
-@Composable
-fun SocialSignUpButton(
-    icon: androidx.compose.ui.graphics.painter.Painter,
-    text: String,
-    onClick: () -> Unit
-) {
-    Surface(
-        shape = RoundedCornerShape(8.dp),
-        color = Color.White,
-        shadowElevation = 1.dp,
-        modifier = Modifier
-            .width(160.dp)
-            .height(48.dp)
-            .clickable(onClick = onClick)
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center,
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 12.dp)
-        ) {
-            Image(
-                painter = icon,
-                contentDescription = "$text Icon",
-                modifier = Modifier.size(24.dp)
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                text = text,
-                color = Color.Black,
-                fontSize = 14.sp,
-                fontFamily = Poppins
-            )
-        }
-    }
-}
-
-/**
- * Validasi input register
- */
-private fun validateInputs(
-    name: String,
-    email: String,
-    phone: String,
-    password: String,
-    confirmPassword: String
-): Boolean {
-    // Check if all fields are filled
-    if (name.isBlank() || email.isBlank() || phone.isBlank() || password.isBlank() || confirmPassword.isBlank()) {
-        return false
-    }
-
-    // Check email format
+private fun validateInputs(email: String, password: String, confirmPassword: String): Boolean {
+    if (email.isBlank() || password.isBlank() || confirmPassword.isBlank()) return false
     val emailRegex = Regex("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$")
-    if (!email.matches(emailRegex)) {
-        return false
-    }
-
-    // Check if passwords match
-    if (password != confirmPassword) {
-        return false
-    }
-
-    // Check minimum password length
-    if (password.length < 6) {
-        return false
-    }
-
+    if (!email.matches(emailRegex)) return false
+    if (password != confirmPassword) return false
+    if (password.length < 8) return false
     return true
-}
-
-@Preview(showBackground = true)
-@Composable
-private fun SignUpScreenPreview() {
-    SignUpScreen()
 }

@@ -292,4 +292,24 @@ class AuthViewModel : ViewModel() {
     fun dismissErrorDialog() {
         _showErrorDialog.value = false
     }
+
+    /**
+     * Mengubah password user
+     */
+    fun changePassword(currentPassword: String, newPassword: String) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            _error.value = null
+
+            try {
+                // Mengubah password menggunakan AuthRepository
+                authRepository.changePassword(currentPassword, newPassword)
+                _error.value = "Password berhasil diubah"
+            } catch (e: Exception) {
+                _error.value = e.message ?: "Gagal mengubah password"
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
 }

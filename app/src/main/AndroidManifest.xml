@@ -14,7 +14,7 @@
         android:usesCleartextTraffic="true">
 
         <activity
-            android:name=".SplashScreenActivity"
+            android:name=".MainActivity"
             android:exported="true"
             android:theme="@style/Theme.Omsetku">
             <intent-filter>
@@ -24,9 +24,9 @@
         </activity>
 
         <activity
-            android:name=".MainActivity"
-            android:exported="true"
-            android:theme="@style/Theme.Omsetku">
+            android:name=".SplashScreenActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Omsetku.NoActionBar">
         </activity>
 
         <meta-data

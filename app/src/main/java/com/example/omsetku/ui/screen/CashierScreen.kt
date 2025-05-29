@@ -90,6 +90,8 @@ fun CashierScreen(
     var productToDelete by remember { mutableStateOf<ProductItem?>(null) }
     var showSuccessDialog by remember { mutableStateOf(false) }
     var isEditMode by remember { mutableStateOf(false) }
+    var isAddProductSelected by remember { mutableStateOf(false) }
+    var isManageProductSelected by remember { mutableStateOf(false) }
 
     // Selalu update totalItems ketika cartItems berubah
     val totalItems = remember(cartItems) { cartViewModel.getTotalItems() }
@@ -176,55 +178,57 @@ fun CashierScreen(
                 ) {
                     // Button Tambah Produk
                     Button(
-                        onClick = { showAddProductDialog = true },
+                        onClick = { 
+                            showAddProductDialog = true
+                            isAddProductSelected = true
+                            isManageProductSelected = false
+                        },
                         modifier = Modifier
                             .weight(1f)
                             .height(48.dp),
                         shape = RoundedCornerShape(8.dp),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = PrimaryVariant
-                        )
+                            containerColor = if (isAddProductSelected) Color.White else PrimaryVariant
+                        ),
+                        border = if (isAddProductSelected) BorderStroke(1.dp, PrimaryVariant) else null
                     ) {
                         Text(
                             text = "Tambah Produk",
                             fontSize = 14.sp,
-                            fontWeight = FontWeight.Medium,
+                            fontWeight = FontWeight.Bold,
                             fontFamily = Poppins,
                             maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
+                            overflow = TextOverflow.Ellipsis,
+                            color = if (isAddProductSelected) PrimaryVariant else Color.White
                         )
                     }
 
                     // Button Atur Produk
-                    OutlinedButton(
+                    Button(
                         onClick = {
                             if (products.isNotEmpty()) {
                                 isEditMode = !isEditMode
                             }
+                            isManageProductSelected = true
+                            isAddProductSelected = false
                         },
                         modifier = Modifier
                             .weight(1f)
                             .height(48.dp),
-                        colors = ButtonDefaults.outlinedButtonColors(
-                            contentColor = if (isEditMode) Color.White else Color(0xFF62DCC8),
-                            containerColor = if (isEditMode) Color(0xFF62DCC8) else Color.White
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = if (isManageProductSelected) Color.White else PrimaryVariant
                         ),
-                        border = BorderStroke(1.dp, Color(0xFF62DCC8)),
+                        border = if (isManageProductSelected) BorderStroke(1.dp, PrimaryVariant) else null,
                         shape = RoundedCornerShape(8.dp)
                     ) {
-                        Icon(
-                            painter = painterResource(R.drawable.point_of_sale),
-                            contentDescription = "Atur Produk",
-                            tint = if (isEditMode) Color.White else Color(0xFF62DCC8),
-                            modifier = Modifier.size(16.dp)
-                        )
-                        Spacer(modifier = Modifier.width(4.dp))
                         Text(
                             text = "Atur Produk",
-                            fontSize = 13.sp,
-                            fontWeight = FontWeight.Medium,
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Bold,
                             fontFamily = Poppins,
-                            color = if (isEditMode) Color.White else Color(0xFF62DCC8)
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            color = if (isManageProductSelected) PrimaryVariant else Color.White
                         )
                     }
                 }

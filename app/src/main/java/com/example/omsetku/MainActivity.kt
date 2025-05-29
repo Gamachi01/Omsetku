@@ -16,46 +16,30 @@ import com.example.omsetku.ui.theme.OmsetkuTheme
 import com.example.omsetku.viewmodels.CartViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.omsetku.viewmodels.TaxViewModel
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        // Pastikan Firebase sudah diinisialisasi sebelum melanjutkan
-        try {
-            if (FirebaseApp.getApps(this).isEmpty()) {
-                FirebaseApp.initializeApp(this)
-                Log.d("MainActivity", "Firebase initialized in MainActivity")
-            }
-        } catch (e: Exception) {
-            Log.e("MainActivity", "Failed to initialize Firebase: ${e.message}", e)
-        }
-
-        // Gunakan try-catch hanya untuk debug, bukan di sekitar fungsi composable
-        try {
-            setContent {
-                OmsetkuTheme {
-                    // A surface container using the 'background' color from the theme
-                    Surface(
-                        modifier = Modifier.fillMaxSize(),
-                        color = MaterialTheme.colorScheme.background
-                    ) {
-                        val navController = rememberNavController()
-                        // Buat ViewModel sekali di sini dan bagikan ke seluruh navigasi
-                        val cartViewModel: CartViewModel = viewModel()
-                        val taxViewModel: TaxViewModel = viewModel()
-
-                        // Gunakan AppNavGraph jika user sudah login, jika tidak gunakan AppNavigation
-                        AppNavGraph(
-                            navController = navController,
-                            cartViewModel = cartViewModel,
-                            taxViewModel = taxViewModel
-                        )
-                    }
+        FirebaseApp.initializeApp(this)
+        setContent {
+            OmsetkuTheme {
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background
+                ) {
+                    val navController = rememberNavController()
+                    val cartViewModel: CartViewModel = viewModel()
+                    val taxViewModel: TaxViewModel = viewModel()
+                    
+                    AppNavGraph(
+                        navController = navController,
+                        cartViewModel = cartViewModel,
+                        taxViewModel = taxViewModel
+                    )
                 }
             }
-        } catch (e: Exception) {
-            Log.e("MainActivity", "Error in setting content: ${e.message}", e)
         }
     }
 }

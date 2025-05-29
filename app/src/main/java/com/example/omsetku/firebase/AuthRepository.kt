@@ -78,4 +78,35 @@ class AuthRepository {
     suspend fun sendPasswordResetEmail(email: String) {
         auth.sendPasswordResetEmail(email).await()
     }
+
+    /**
+     * Mengubah password user
+     */
+    suspend fun changePassword(currentPassword: String, newPassword: String): FirebaseUser {
+        return suspendCoroutine { continuation ->
+            val user = auth.currentUser
+            val email = user?.email
+
+            if (user == null || email == null) {
+                continuation.resumeWithException(Exception("User tidak ditemukan"))
+                return@suspendCoroutine
+            }
+
+            // Re-authenticate user
+            auth.signInWithEmailAndPassword(email, currentPassword)
+                .addOnSuccessListener {
+                    // Update password
+                    user.updatePassword(newPassword)
+                        .addOnSuccessListener {
+                            continuation.resume(user)
+                        }
+                        .addOnFailureListener { e ->
+                            continuation.resumeWithException(Exception("Gagal mengubah password: ${e.message}"))
+                        }
+                }
+                .addOnFailureListener { e ->
+                    continuation.resumeWithException(Exception("Password saat ini salah"))
+                }
+        }
+    }
 }

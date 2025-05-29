@@ -106,12 +106,12 @@ fun ProfileScreen(
         ))
 
         MenuSection(title = "Akun", navController = navController, items = listOf(
-            MenuItem("Ubah Kata Sandi", R.drawable.password_icon),
-            MenuItem("Notifikasi", R.drawable.notifikasi_icon)
+            MenuItem("Ubah Kata Sandi", R.drawable.password_icon, onClick = { navController.navigate(Routes.CHANGE_PASSWORD) }),
+            MenuItem("Notifikasi", R.drawable.notifikasi_icon, onClick = { navController.navigate(Routes.NOTIFICATIONS) })
         ))
 
         MenuSection(title = "Lainnya", navController = navController, items = listOf(
-            MenuItem("Pusat Bantuan", R.drawable.help_icon),
+            MenuItem("Pusat Bantuan", R.drawable.help_icon, onClick = { navController.navigate(Routes.HELP_CENTER) }),
             MenuItem("Log Out", R.drawable.logout_icon, onClick = { showLogoutDialog = true })
         ))
     }
