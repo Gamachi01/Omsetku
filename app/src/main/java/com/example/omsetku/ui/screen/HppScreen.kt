@@ -154,7 +154,7 @@ fun HppScreen(
                             StandardTextField(
                                 value = selectedText,
                                 onValueChange = {},
-                                label = "Pilih Produk",
+                                // label = "Pilih Produk", // Label disediakan oleh FormField
                                 readOnly = true,
                                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
                                 modifier = Modifier
