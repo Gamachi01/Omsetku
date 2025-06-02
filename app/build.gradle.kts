@@ -104,6 +104,9 @@ dependencies {
     // Coil (image loading)
     implementation("io.coil-kt:coil-compose:2.4.0")
 
+    // Animation
+    implementation("androidx.compose.animation:animation:1.5.4")
+
     // Testing
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
