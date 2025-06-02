@@ -60,7 +60,6 @@ fun HppScreen(
     var selectedItem by remember { mutableStateOf("HPP") }
     val scrollState = rememberScrollState()
     val scope = rememberCoroutineScope()
-    // State untuk mengontrol tampilan dialog hasil
     var showResultDialog by remember { mutableStateOf(false) }
 
     // State dari ViewModel
@@ -98,29 +97,35 @@ fun HppScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(16.dp)
+                .padding(horizontal = 16.dp)
                 .verticalScroll(scrollState),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Judul seperti Transaction
+            // Header Section
             Text(
                 text = "Hitung HPP",
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.Black,
                 fontFamily = Poppins,
-                modifier = Modifier.fillMaxWidth().padding(bottom = 4.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 16.dp),
                 textAlign = TextAlign.Center
             )
 
+            // Informasi Produk Card
             Card(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .animateContentSize(),
                 colors = CardDefaults.cardColors(
                     containerColor = Color.White
                 ),
                 elevation = CardDefaults.cardElevation(
                     defaultElevation = 2.dp
-                )
+                ),
+                shape = RoundedCornerShape(12.dp)
             ) {
                 Column(
                     modifier = Modifier
@@ -136,7 +141,7 @@ fun HppScreen(
                         modifier = Modifier.padding(bottom = 16.dp)
                     )
 
-                    // Dropdown Pilih Produk (ExposedDropdownMenuBox, style konsisten)
+                    // Dropdown Pilih Produk
                     FormField(label = "Pilih Produk") {
                         var expanded by remember { mutableStateOf(false) }
                         val selectedText = selectedProduct?.name ?: "Pilih Produk"
@@ -148,10 +153,12 @@ fun HppScreen(
                             StandardTextField(
                                 value = selectedText,
                                 onValueChange = {},
-                                label = "Pilih Produk", // Label ada di dalam floating
+                                label = "Pilih Produk",
                                 readOnly = true,
                                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-                                modifier = Modifier.menuAnchor().fillMaxWidth()
+                                modifier = Modifier
+                                    .menuAnchor()
+                                    .fillMaxWidth()
                             )
                             ExposedDropdownMenu(
                                 expanded = expanded,
@@ -159,7 +166,13 @@ fun HppScreen(
                             ) {
                                 products.forEach { product ->
                                     DropdownMenuItem(
-                                        text = { Text(product.name, fontFamily = Poppins) },
+                                        text = { 
+                                            Text(
+                                                product.name,
+                                                fontFamily = Poppins,
+                                                modifier = Modifier.fillMaxWidth()
+                                            ) 
+                                        },
                                         onClick = {
                                             hppViewModel.selectProduct(product)
                                             expanded = false
@@ -172,69 +185,18 @@ fun HppScreen(
                 }
             }
 
-            // Biaya Operasional
+            // Bahan Baku Card
             Card(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .animateContentSize(),
                 colors = CardDefaults.cardColors(
                     containerColor = Color.White
                 ),
                 elevation = CardDefaults.cardElevation(
                     defaultElevation = 2.dp
-                )
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp)
-                ) {
-                    Text(
-                        text = "Biaya Operasional",
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
-                        fontFamily = Poppins,
-                        color = Color.Black,
-                        modifier = Modifier.padding(bottom = 16.dp)
-                    )
-                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        biayaOperasionalList.forEachIndexed { index, biaya ->
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                StandardTextField(
-                                    value = biaya.nama,
-                                    onValueChange = { hppViewModel.updateBiayaOperasionalNama(index, it) },
-                                    label = "Nama Biaya",
-                                    modifier = Modifier.weight(1f)
-                                )
-                                StandardTextField(
-                                    value = biaya.jumlah,
-                                    onValueChange = { hppViewModel.updateBiayaOperasionalHarga(index, it) },
-                                    label = "Jumlah",
-                                    modifier = Modifier.weight(1f)
-                                )
-                                IconButton(onClick = { hppViewModel.removeBiayaOperasional(index) }) {
-                                    Icon(Icons.Default.Delete, contentDescription = "Hapus", tint = Color.Red)
-                                }
-                            }
-                        }
-                        Button(onClick = { hppViewModel.addBiayaOperasional() }, modifier = Modifier.fillMaxWidth().padding(top = 8.dp), shape = RoundedCornerShape(8.dp), colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF5ED0C5))) {
-                            Text("Tambah Biaya", fontFamily = Poppins, fontWeight = FontWeight.Bold)
-                        }
-                    }
-                }
-            }
-
-            // Bahan Baku
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(
-                    containerColor = Color.White
                 ),
-                elevation = CardDefaults.cardElevation(
-                    defaultElevation = 2.dp
-                )
+                shape = RoundedCornerShape(12.dp)
             ) {
                 Column(
                     modifier = Modifier
@@ -249,60 +211,220 @@ fun HppScreen(
                         color = Color.Black,
                         modifier = Modifier.padding(bottom = 16.dp)
                     )
-                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
                         bahanBakuList.forEachIndexed { index, bahan ->
-                            Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                                StandardTextField(
-                                    value = bahan.nama,
-                                    onValueChange = { hppViewModel.updateBahanBakuNama(index, it) },
-                                    label = "Nama Bahan Baku",
-                                    modifier = Modifier.fillMaxWidth()
-                                )
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                    verticalAlignment = Alignment.CenterVertically
+                            Card(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 4.dp),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = Color(0xFFF5F5F5)
+                                ),
+                                shape = RoundedCornerShape(8.dp)
+                            ) {
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(12.dp),
+                                    verticalArrangement = Arrangement.spacedBy(8.dp)
                                 ) {
                                     StandardTextField(
-                                        value = bahan.hargaPerUnit,
-                                        onValueChange = { hppViewModel.updateBahanBakuHarga(index, it) },
-                                        label = "Harga per Unit",
-                                        modifier = Modifier.weight(1f)
+                                        value = bahan.nama,
+                                        onValueChange = { hppViewModel.updateBahanBakuNama(index, it) },
+                                        label = "Nama Bahan Baku",
+                                        modifier = Modifier.fillMaxWidth()
                                     )
-                                    StandardTextField(
-                                        value = bahan.jumlahDigunakan,
-                                        onValueChange = { hppViewModel.updateBahanBakuJumlah(index, it) },
-                                        label = "Jumlah",
-                                        modifier = Modifier.weight(1f)
-                                    )
-                                    StandardTextField(
-                                        value = bahan.satuan,
-                                        onValueChange = { hppViewModel.updateBahanBakuSatuan(index, it) },
-                                        label = "Satuan",
-                                        modifier = Modifier.weight(1f)
-                                    )
-                                }
-                                IconButton(onClick = { hppViewModel.removeBahanBaku(index) }, modifier = Modifier.align(Alignment.End)) {
-                                    Icon(Icons.Default.Delete, contentDescription = "Hapus", tint = Color.Red)
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        StandardTextField(
+                                            value = bahan.hargaPerUnit,
+                                            onValueChange = { hppViewModel.updateBahanBakuHarga(index, it) },
+                                            label = "Harga per Unit",
+                                            modifier = Modifier.weight(1f)
+                                        )
+                                        StandardTextField(
+                                            value = bahan.jumlahDigunakan,
+                                            onValueChange = { hppViewModel.updateBahanBakuJumlah(index, it) },
+                                            label = "Jumlah",
+                                            modifier = Modifier.weight(1f)
+                                        )
+                                        StandardTextField(
+                                            value = bahan.satuan,
+                                            onValueChange = { hppViewModel.updateBahanBakuSatuan(index, it) },
+                                            label = "Satuan",
+                                            modifier = Modifier.weight(1f)
+                                        )
+                                    }
+                                    IconButton(
+                                        onClick = { hppViewModel.removeBahanBaku(index) },
+                                        modifier = Modifier.align(Alignment.End)
+                                    ) {
+                                        Icon(
+                                            Icons.Default.Delete,
+                                            contentDescription = "Hapus",
+                                            tint = Color.Red
+                                        )
+                                    }
                                 }
                             }
                         }
-                        Button(onClick = { hppViewModel.addBahanBaku() }, modifier = Modifier.fillMaxWidth().padding(top = 8.dp), shape = RoundedCornerShape(8.dp), colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF5ED0C5))) {
-                            Text("Tambah Bahan Baku", fontFamily = Poppins, fontWeight = FontWeight.Bold)
+                        
+                        Button(
+                            onClick = { hppViewModel.addBahanBaku() },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 8.dp),
+                            shape = RoundedCornerShape(8.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color(0xFF5ED0C5)
+                            )
+                        ) {
+                            Row(
+                                horizontalArrangement = Arrangement.Center,
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.padding(vertical = 4.dp)
+                            ) {
+                                Icon(
+                                    Icons.Default.Add,
+                                    contentDescription = "Tambah",
+                                    tint = Color.White
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    "Tambah Bahan Baku",
+                                    fontFamily = Poppins,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color.White
+                                )
+                            }
                         }
                     }
                 }
             }
 
-            // Target Porsi dan Margin Profit di dalam Card terpisah
-             Card(
-                modifier = Modifier.fillMaxWidth(),
+            // Biaya Operasional Card
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .animateContentSize(),
                 colors = CardDefaults.cardColors(
                     containerColor = Color.White
                 ),
                 elevation = CardDefaults.cardElevation(
                     defaultElevation = 2.dp
-                )
+                ),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                ) {
+                    Text(
+                        text = "Biaya Operasional",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        fontFamily = Poppins,
+                        color = Color.Black,
+                        modifier = Modifier.padding(bottom = 16.dp)
+                    )
+                    
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        biayaOperasionalList.forEachIndexed { index, biaya ->
+                            Card(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 4.dp),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = Color(0xFFF5F5F5)
+                                ),
+                                shape = RoundedCornerShape(8.dp)
+                            ) {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(12.dp),
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    StandardTextField(
+                                        value = biaya.nama,
+                                        onValueChange = { hppViewModel.updateBiayaOperasionalNama(index, it) },
+                                        label = "Nama Biaya",
+                                        modifier = Modifier.weight(1f)
+                                    )
+                                    StandardTextField(
+                                        value = biaya.jumlah,
+                                        onValueChange = { hppViewModel.updateBiayaOperasionalHarga(index, it) },
+                                        label = "Jumlah",
+                                        modifier = Modifier.weight(1f)
+                                    )
+                                    IconButton(
+                                        onClick = { hppViewModel.removeBiayaOperasional(index) }
+                                    ) {
+                                        Icon(
+                                            Icons.Default.Delete,
+                                            contentDescription = "Hapus",
+                                            tint = Color.Red
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                        
+                        Button(
+                            onClick = { hppViewModel.addBiayaOperasional() },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 8.dp),
+                            shape = RoundedCornerShape(8.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color(0xFF5ED0C5)
+                            )
+                        ) {
+                            Row(
+                                horizontalArrangement = Arrangement.Center,
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.padding(vertical = 4.dp)
+                            ) {
+                                Icon(
+                                    Icons.Default.Add,
+                                    contentDescription = "Tambah",
+                                    tint = Color.White
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    "Tambah Biaya",
+                                    fontFamily = Poppins,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color.White
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Perhitungan HPP Card
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .animateContentSize(),
+                colors = CardDefaults.cardColors(
+                    containerColor = Color.White
+                ),
+                elevation = CardDefaults.cardElevation(
+                    defaultElevation = 2.dp
+                ),
+                shape = RoundedCornerShape(12.dp)
             ) {
                 Column(
                     modifier = Modifier
@@ -317,14 +439,14 @@ fun HppScreen(
                         fontFamily = Poppins,
                         color = Color.Black
                     )
-                    // Target Porsi
+                    
                     StandardTextField(
                         value = targetPorsi,
                         onValueChange = { hppViewModel.updateTargetPorsi(it) },
                         label = "Target Porsi",
                         modifier = Modifier.fillMaxWidth()
                     )
-                    // Margin Profit
+                    
                     StandardTextField(
                         value = marginProfit,
                         onValueChange = { hppViewModel.updateMarginProfit(it) },
@@ -334,21 +456,24 @@ fun HppScreen(
                 }
             }
 
-            // Button Hitung HPP di luar Card
+            // Button Hitung HPP
             Button(
-                onClick = {
-                    showResultDialog = true
-                },
-                modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp),
+                onClick = { showResultDialog = true },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 16.dp),
                 shape = RoundedCornerShape(8.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF5ED0C5))
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF5ED0C5)
+                )
             ) {
                 Text(
                     text = "Hitung HPP",
                     fontFamily = Poppins,
                     fontWeight = FontWeight.Bold,
                     fontSize = 16.sp,
-                    color = Color.White
+                    color = Color.White,
+                    modifier = Modifier.padding(vertical = 8.dp)
                 )
             }
         }
@@ -358,9 +483,13 @@ fun HppScreen(
     if (showResultDialog) {
         Dialog(onDismissRequest = { showResultDialog = false }) {
             Card(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
                 shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.White)
+                colors = CardDefaults.cardColors(
+                    containerColor = Color.White
+                )
             ) {
                 Column(
                     modifier = Modifier
@@ -371,29 +500,60 @@ fun HppScreen(
                         text = "Hasil Perhitungan HPP",
                         fontFamily = Poppins,
                         fontWeight = FontWeight.Bold,
-                        fontSize = 18.sp,
+                        fontSize = 20.sp,
                         color = Color.Black,
                         modifier = Modifier.padding(bottom = 16.dp)
                     )
 
-                    // Tampilkan Hasil HPP (dari HppViewModel)
-                    Text(
-                        text = "HPP per Porsi: Rp ${hppViewModel.hitungHpp().toInt()}",
-                        fontFamily = Poppins,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Medium,
-                        color = Color.Black,
-                        modifier = Modifier.padding(bottom = 12.dp)
-                    )
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = Color(0xFFF5F5F5)
+                        ),
+                        shape = RoundedCornerShape(8.dp)
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp)
+                        ) {
+                            Text(
+                                text = "HPP per Porsi",
+                                fontFamily = Poppins,
+                                fontSize = 16.sp,
+                                color = Color.Gray
+                            )
+                            Text(
+                                text = "Rp ${hppViewModel.hitungHpp().toInt()}",
+                                fontFamily = Poppins,
+                                fontSize = 24.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFF5ED0C5)
+                            )
+                        }
+                    }
 
                     Spacer(modifier = Modifier.height(24.dp))
 
                     Button(
                         onClick = { showResultDialog = false },
-                        modifier = Modifier.align(Alignment.End),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF5ED0C5))
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 8.dp),
+                        shape = RoundedCornerShape(8.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFF5ED0C5)
+                        )
                     ) {
-                        Text("Tutup", fontFamily = Poppins)
+                        Text(
+                            "Tutup",
+                            fontFamily = Poppins,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White,
+                            modifier = Modifier.padding(vertical = 8.dp)
+                        )
                     }
                 }
             }
