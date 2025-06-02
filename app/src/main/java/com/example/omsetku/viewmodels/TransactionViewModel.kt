@@ -104,7 +104,8 @@ class TransactionViewModel : ViewModel() {
         type: String,
         amount: Int,
         date: String,
-        description: String
+        description: String,
+        category: String
     ) {
         if (amount <= 0) {
             _error.value = "Nominal harus lebih dari 0"
@@ -128,13 +129,11 @@ class TransactionViewModel : ViewModel() {
             _error.value = null
 
             try {
-                val categoryLabel = if (type == "INCOME") "Pemasukan" else "Pengeluaran"
-
                 repository.saveTransaction(
                     type = type,
                     amount = amount.toLong(),
                     date = parsedDate,
-                    category = categoryLabel,
+                    category = category,
                     description = description
                 )
 

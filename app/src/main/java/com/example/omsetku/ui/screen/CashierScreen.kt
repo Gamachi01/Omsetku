@@ -54,8 +54,14 @@ import com.example.omsetku.viewmodels.ProductViewModel
 import com.example.omsetku.viewmodels.CartViewModel
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.with
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.core.tween
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
 @Composable
 fun CashierScreen(
     navController: NavController,
@@ -100,6 +106,19 @@ fun CashierScreen(
     // Efek untuk memuat produk saat pertama kali
     LaunchedEffect(Unit) {
         productViewModel.loadProducts()
+    }
+
+    // Tambahkan efek untuk reset button Tambah Produk setelah dialog ditutup
+    LaunchedEffect(showAddProductDialog) {
+        if (!showAddProductDialog) {
+            isAddProductSelected = false
+        }
+    }
+    // Tambahkan efek untuk reset button Atur Produk setelah mode edit selesai
+    LaunchedEffect(isEditMode) {
+        if (!isEditMode) {
+            isManageProductSelected = false
+        }
     }
 
     Scaffold(
@@ -391,10 +410,14 @@ fun CashierScreen(
         ProductDialog(
             isNewProduct = true,
             initialProduct = null,
-            onDismiss = { showAddProductDialog = false },
+            onDismiss = {
+                showAddProductDialog = false
+                isAddProductSelected = false // reset warna button
+            },
             onConfirm = { name, price, _ ->
                 productViewModel.addProduct(name, price.toInt())
                 showAddProductDialog = false
+                isAddProductSelected = false // reset warna button
             }
         )
     }
@@ -404,11 +427,18 @@ fun CashierScreen(
         ProductDialog(
             isNewProduct = false,
             initialProduct = selectedProduct,
-            onDismiss = { showEditProductDialog = false },
+            onDismiss = {
+                showEditProductDialog = false
+                // reset mode edit jika dialog ditutup
+                isEditMode = false
+                isManageProductSelected = false
+            },
             onConfirm = { name, price, _ ->
                 productViewModel.editProduct(selectedProduct!!.id, name, price.toInt())
                 showEditProductDialog = false
                 selectedProduct = null
+                isEditMode = false
+                isManageProductSelected = false
             }
         )
     }
@@ -854,6 +884,7 @@ fun ImageCropperDialog(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
 @Composable
 fun ProductCard(
     product: ProductItem,
@@ -948,118 +979,125 @@ fun ProductCard(
                     .height(40.dp),
                 contentAlignment = Alignment.Center
             ) {
-                if (isEditMode) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 24.dp)
-                    ) {
-                        // Edit Button
-                        IconButton(
-                            onClick = onEdit,
-                            modifier = Modifier
-                                .size(32.dp)
-                                .background(PrimaryVariant.copy(alpha = 0.2f), CircleShape)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Edit,
-                                contentDescription = "Edit",
-                                tint = PrimaryVariant,
-                                modifier = Modifier.size(16.dp)
-                            )
-                        }
-
-                        // Delete Button
-                        IconButton(
-                            onClick = onDelete,
-                            modifier = Modifier
-                                .size(32.dp)
-                                .background(Color.Red.copy(alpha = 0.2f), CircleShape)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Delete,
-                                contentDescription = "Delete",
-                                tint = Color.Red,
-                                modifier = Modifier.size(16.dp)
-                            )
-                        }
+                AnimatedContent(
+                    targetState = isEditMode,
+                    transitionSpec = {
+                        fadeIn(animationSpec = tween(500)) with fadeOut(animationSpec = tween(500))
                     }
-                } else {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 24.dp)
-                    ) {
-                        // Minus Button
-                        IconButton(
-                            onClick = {
-                                if (quantity > 0) {
-                                    quantity--
-                                    cartViewModel.updateQuantity(product.id.toString(), quantity)
-                                }
-                            },
+                ) { editMode ->
+                    if (editMode) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween,
                             modifier = Modifier
-                                .size(32.dp)
-                                .background(
-                                    color = if (quantity > 0) PrimaryVariant else Color.LightGray,
-                                    shape = CircleShape
+                                .fillMaxWidth()
+                                .padding(horizontal = 24.dp)
+                        ) {
+                            // Edit Button
+                            IconButton(
+                                onClick = onEdit,
+                                modifier = Modifier
+                                    .size(32.dp)
+                                    .background(PrimaryVariant.copy(alpha = 0.2f), CircleShape)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Edit,
+                                    contentDescription = "Edit",
+                                    tint = PrimaryVariant,
+                                    modifier = Modifier.size(16.dp)
                                 )
-                        ) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.ic_remove),
-                                contentDescription = "Decrease",
-                                tint = Color.White,
-                                modifier = Modifier.size(16.dp)
-                            )
+                            }
+
+                            // Delete Button
+                            IconButton(
+                                onClick = onDelete,
+                                modifier = Modifier
+                                    .size(32.dp)
+                                    .background(Color.Red.copy(alpha = 0.2f), CircleShape)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Delete,
+                                    contentDescription = "Delete",
+                                    tint = Color.Red,
+                                    modifier = Modifier.size(16.dp)
+                                )
+                            }
                         }
-
-                        // Quantity
-                        Text(
-                            text = quantity.toString(),
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Bold,
-                            fontFamily = Poppins,
-                            modifier = Modifier.width(35.dp),
-                            textAlign = TextAlign.Center
-                        )
-
-                        // Plus Button
-                        IconButton(
-                            onClick = {
-                                quantity++
-                                if (quantity == 1) {
-                                    // Jika baru ditambahkan, gunakan addToCart
-                                    cartViewModel.addToCart(
-                                        com.example.omsetku.models.Product(
-                                            id = product.id.toString(),
-                                            name = product.name,
-                                            price = product.price.toLong(),
-                                            imageRes = product.imageRes
-                                        ),
-                                        1
-                                    )
-                                } else {
-                                    // Jika sudah ada, update quantity
-                                    cartViewModel.updateQuantity(product.id.toString(), quantity)
-                                }
-
-                                // Panggil callback untuk memberitahu parent
-                                onQuantityChanged(quantity)
-                            },
+                    } else {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween,
                             modifier = Modifier
-                                .size(32.dp)
-                                .background(PrimaryVariant, CircleShape)
+                                .fillMaxWidth()
+                                .padding(horizontal = 24.dp)
                         ) {
-                            Icon(
-                                imageVector = Icons.Default.Add,
-                                contentDescription = "Increase",
-                                tint = Color.White,
-                                modifier = Modifier.size(16.dp)
+                            // Minus Button
+                            IconButton(
+                                onClick = {
+                                    if (quantity > 0) {
+                                        quantity--
+                                        cartViewModel.updateQuantity(product.id.toString(), quantity)
+                                    }
+                                },
+                                modifier = Modifier
+                                    .size(32.dp)
+                                    .background(
+                                        color = if (quantity > 0) PrimaryVariant else Color.LightGray,
+                                        shape = CircleShape
+                                    )
+                            ) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.ic_remove),
+                                    contentDescription = "Decrease",
+                                    tint = Color.White,
+                                    modifier = Modifier.size(16.dp)
+                                )
+                            }
+
+                            // Quantity
+                            Text(
+                                text = quantity.toString(),
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold,
+                                fontFamily = Poppins,
+                                modifier = Modifier.width(35.dp),
+                                textAlign = TextAlign.Center
                             )
+
+                            // Plus Button
+                            IconButton(
+                                onClick = {
+                                    quantity++
+                                    if (quantity == 1) {
+                                        // Jika baru ditambahkan, gunakan addToCart
+                                        cartViewModel.addToCart(
+                                            com.example.omsetku.models.Product(
+                                                id = product.id.toString(),
+                                                name = product.name,
+                                                price = product.price.toLong(),
+                                                imageRes = product.imageRes
+                                            ),
+                                            1
+                                        )
+                                    } else {
+                                        // Jika sudah ada, update quantity
+                                        cartViewModel.updateQuantity(product.id.toString(), quantity)
+                                    }
+
+                                    // Panggil callback untuk memberitahu parent
+                                    onQuantityChanged(quantity)
+                                },
+                                modifier = Modifier
+                                    .size(32.dp)
+                                    .background(PrimaryVariant, CircleShape)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Add,
+                                    contentDescription = "Increase",
+                                    tint = Color.White,
+                                    modifier = Modifier.size(16.dp)
+                                )
+                            }
                         }
                     }
                 }

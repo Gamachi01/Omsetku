@@ -72,7 +72,7 @@ fun ReportScreen(navController: NavController, transactionViewModel: Transaction
     LaunchedEffect(key1 = Unit) {
         try {
             // Muat transaksi untuk periode default (misal: Hari ini)
-            val calendar = Calendar.getInstance()
+            val calendar = Calendar.getInstance(TimeZone.getTimeZone("Asia/Jakarta"))
             val todayStart = calendar.apply { set(Calendar.HOUR_OF_DAY, 0); set(Calendar.MINUTE, 0); set(Calendar.SECOND, 0); set(Calendar.MILLISECOND, 0) }.timeInMillis
             val todayEnd = calendar.apply { set(Calendar.HOUR_OF_DAY, 23); set(Calendar.MINUTE, 59); set(Calendar.SECOND, 59); set(Calendar.MILLISECOND, 999) }.timeInMillis
 
@@ -115,9 +115,9 @@ fun ReportScreen(navController: NavController, transactionViewModel: Transaction
     // --- Bagian Filter, Download, Ringkasan (KEMBALIKAN) ---
     // Menggunakan tanggal sekarang sebagai default
     val today = Calendar.getInstance()
-    val defaultDateFormat = SimpleDateFormat("dd MMMM yyyy", Locale("id", "ID"))
-    val defaultMonthFormat = SimpleDateFormat("MMMM yyyy", Locale("id", "ID"))
-    val defaultYearFormat = SimpleDateFormat("yyyy", Locale("id", "ID"))
+    val defaultDateFormat = SimpleDateFormat("dd MMMM yyyy", Locale("id", "ID")).apply { timeZone = TimeZone.getTimeZone("Asia/Jakarta") }
+    val defaultMonthFormat = SimpleDateFormat("MMMM yyyy", Locale("id", "ID")).apply { timeZone = TimeZone.getTimeZone("Asia/Jakarta") }
+    val defaultYearFormat = SimpleDateFormat("yyyy", Locale("id", "ID")).apply { timeZone = TimeZone.getTimeZone("Asia/Jakarta") }
 
     // Default text awal bulan ini sampai akhir bulan
     val firstDayOfMonth = Calendar.getInstance().apply {
@@ -272,8 +272,8 @@ fun ReportScreen(navController: NavController, transactionViewModel: Transaction
                         showFilterDialog = false
 
                         // Hitung tanggal awal dan akhir berdasarkan hasil filter
-                        val calendar = Calendar.getInstance()
-                        val dateFormat = SimpleDateFormat("dd MMMM yyyy", Locale("id", "ID"))
+                        val calendar = Calendar.getInstance(TimeZone.getTimeZone("Asia/Jakarta"))
+                        val dateFormat = SimpleDateFormat("dd MMMM yyyy", Locale("id", "ID")).apply { timeZone = TimeZone.getTimeZone("Asia/Jakarta") }
                         var startTimestamp: Long? = null
                         var endTimestamp: Long? = null
 
@@ -281,7 +281,7 @@ fun ReportScreen(navController: NavController, transactionViewModel: Transaction
                             FilterPeriode.HARIAN -> {
                                 try {
                                     val date = dateFormat.parse(result.selectedDate)
-                                    val calendar = Calendar.getInstance().apply {
+                                    val calendar = Calendar.getInstance(TimeZone.getTimeZone("Asia/Jakarta")).apply {
                                         time = date ?: Date() // Set ke tanggal yang dipilih (awal hari)
                                         // Set waktu ke akhir hari (23:59:59.999)
                                         set(Calendar.HOUR_OF_DAY, 23)
@@ -304,7 +304,7 @@ fun ReportScreen(navController: NavController, transactionViewModel: Transaction
                             FilterPeriode.BULANAN -> {
                                 try {
                                     // result.selectedMonth dalam format MMMM yyyy
-                                    val monthYearFormat = SimpleDateFormat("MMMM yyyy", Locale("id", "ID"))
+                                    val monthYearFormat = SimpleDateFormat("MMMM yyyy", Locale("id", "ID")).apply { timeZone = TimeZone.getTimeZone("Asia/Jakarta") }
                                     val date = monthYearFormat.parse(result.selectedMonth)
                                     calendar.time = date ?: Date()
                                     calendar.set(Calendar.DAY_OF_MONTH, 1)
@@ -316,7 +316,7 @@ fun ReportScreen(navController: NavController, transactionViewModel: Transaction
                             FilterPeriode.TAHUNAN -> {
                                 try {
                                     // result.selectedYear dalam format yyyy
-                                    val yearFormat = SimpleDateFormat("yyyy", Locale("id", "ID"))
+                                    val yearFormat = SimpleDateFormat("yyyy", Locale("id", "ID")).apply { timeZone = TimeZone.getTimeZone("Asia/Jakarta") }
                                     val date = yearFormat.parse(result.selectedYear)
                                     calendar.time = date ?: Date()
                                     calendar.set(Calendar.DAY_OF_YEAR, 1) // Awal tahun
@@ -916,13 +916,13 @@ fun FilterDialog(
                             onDateSelected = { date ->
                                 onStartDateChanged(date)
                                 // Menyimpan timestamp untuk digunakan pada tanggal akhir
-                                val dateFormat = SimpleDateFormat("dd MMMM yyyy", Locale("id", "ID"))
+                                val dateFormat = SimpleDateFormat("dd MMMM yyyy", Locale("id", "ID")).apply { timeZone = TimeZone.getTimeZone("Asia/Jakarta") }
                                 val parsedDate = dateFormat.parse(date)
                                 startDateTimestamp = parsedDate?.time
 
                                 // Otomatis mengatur tanggal akhir seminggu setelah tanggal awal
                                 if (startDateTimestamp != null) {
-                                    val calendar = Calendar.getInstance()
+                                    val calendar = Calendar.getInstance(TimeZone.getTimeZone("Asia/Jakarta"))
                                     calendar.timeInMillis = startDateTimestamp!!
                                     calendar.add(Calendar.DAY_OF_MONTH, 7)
                                     onEndDateChanged(dateFormat.format(calendar.time))

@@ -41,6 +41,15 @@ fun SignUpScreen(
     val isLoading by authViewModel.isLoading.collectAsState()
     val error by authViewModel.error.collectAsState()
     val scrollState = rememberScrollState()
+    val isRegistered by authViewModel.isRegistered.collectAsState()
+
+    LaunchedEffect(isRegistered) {
+        if (isRegistered) {
+            navController.navigate(Routes.BUSINESS_FORM) {
+                popUpTo(Routes.SIGNUP) { inclusive = true }
+            }
+        }
+    }
 
     Column(
         modifier = Modifier

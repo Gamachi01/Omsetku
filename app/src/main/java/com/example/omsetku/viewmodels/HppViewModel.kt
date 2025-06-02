@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.omsetku.firebase.FirestoreRepository
 import com.example.omsetku.ui.data.ProductItem
-import com.example.omsetku.ui.screen.HppTab
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -51,18 +50,22 @@ class HppViewModel : ViewModel() {
         val nama: String = "",
         val hargaPerUnit: String = "",
         val jumlahDigunakan: String = "",
+        val satuan: String = "",
         val totalHarga: String = ""
     )
     private val _bahanBakuList = MutableStateFlow(listOf(BahanBaku()))
     val bahanBakuList: StateFlow<List<BahanBaku>> = _bahanBakuList.asStateFlow()
 
-    // State untuk tab yang aktif
-    private val _activeTab = MutableStateFlow(HppTab.STOK)
-    val activeTab: StateFlow<HppTab> = _activeTab.asStateFlow()
-
     // State untuk status penyimpanan
     private val _isSaving = MutableStateFlow(false)
     val isSaving: StateFlow<Boolean> = _isSaving.asStateFlow()
+
+    // Tambahan state baru
+    private val _targetPorsi = MutableStateFlow("")
+    val targetPorsi: StateFlow<String> = _targetPorsi.asStateFlow()
+
+    private val _marginProfit = MutableStateFlow("")
+    val marginProfit: StateFlow<String> = _marginProfit.asStateFlow()
 
     init {
         loadProducts()
@@ -171,7 +174,7 @@ class HppViewModel : ViewModel() {
         }
     }
 
-    fun updateBahanBakuHargaPerUnit(index: Int, harga: String) {
+    fun updateBahanBakuHarga(index: Int, harga: String) {
         if (index >= 0 && index < _bahanBakuList.value.size) {
             val bahanList = _bahanBakuList.value.toMutableList()
             bahanList[index] = bahanList[index].copy(hargaPerUnit = harga)
@@ -179,7 +182,7 @@ class HppViewModel : ViewModel() {
         }
     }
 
-    fun updateBahanBakuJumlahDigunakan(index: Int, jumlah: String) {
+    fun updateBahanBakuJumlah(index: Int, jumlah: String) {
         if (index >= 0 && index < _bahanBakuList.value.size) {
             val bahanList = _bahanBakuList.value.toMutableList()
             bahanList[index] = bahanList[index].copy(jumlahDigunakan = jumlah)
@@ -195,48 +198,51 @@ class HppViewModel : ViewModel() {
         }
     }
 
-    fun setActiveTab(tab: HppTab) {
-        _activeTab.value = tab
+    fun updateBahanBakuSatuan(index: Int, satuan: String) {
+        if (index >= 0 && index < _bahanBakuList.value.size) {
+            val bahanList = _bahanBakuList.value.toMutableList()
+            bahanList[index] = bahanList[index].copy(satuan = satuan)
+            _bahanBakuList.value = bahanList
+        }
+    }
+
+    // Fungsi baru untuk biaya operasional (harga)
+    fun updateBiayaOperasionalHarga(index: Int, harga: String) {
+        if (index >= 0 && index < _biayaOperasionalList.value.size) {
+            val biayaList = _biayaOperasionalList.value.toMutableList()
+            biayaList[index] = biayaList[index].copy(jumlah = harga)
+            _biayaOperasionalList.value = biayaList
+        }
     }
 
     fun hitungHpp(): Double {
-        // Konversi input ke angka
-        val persediaanAwalValue = _persediaanAwal.value.replace(".", "").toDoubleOrNull() ?: 0.0
-        val persediaanAkhirValue = _persediaanAkhir.value.replace(".", "").toDoubleOrNull() ?: 0.0
-        val pembelianBersihValue = _pembelianBersih.value.replace(".", "").toDoubleOrNull() ?: 0.0
-
+        // Hitung total biaya bahan baku
+        val totalBiayaBahanBaku = _bahanBakuList.value.sumOf { bahan ->
+            val hargaPerUnit = bahan.hargaPerUnit.replace(".", "").replace(",", ".").toDoubleOrNull() ?: 0.0
+            val jumlahDigunakan = bahan.jumlahDigunakan.replace(".", "").replace(",", ".").toDoubleOrNull() ?: 0.0
+            hargaPerUnit * jumlahDigunakan
+        }
         // Hitung total biaya operasional
         val totalBiayaOperasional = _biayaOperasionalList.value.sumOf {
-            it.jumlah.replace(".", "").toDoubleOrNull() ?: 0.0
+            it.jumlah.replace(".", "").replace(",", ".").toDoubleOrNull() ?: 0.0
         }
+        // Hitung target porsi
+        val targetPorsiValue = _targetPorsi.value.replace(".", "").replace(",", ".").toDoubleOrNull() ?: 0.0
+        // Hitung margin profit
+        val marginProfitValue = _marginProfit.value.replace(".", "").replace(",", ".").toDoubleOrNull() ?: 0.0
 
-        // Hitung total biaya berdasarkan tab yang aktif
-        val totalCost = when (_activeTab.value) {
-            HppTab.STOK -> {
-                // Rumus: Persediaan Awal + Pembelian Bersih - Persediaan Akhir
-                persediaanAwalValue + pembelianBersihValue - persediaanAkhirValue
-            }
-            HppTab.BAHAN_BAKU -> {
-                // Rumus: (Bahan Baku Terpakai × Harga per Unit Bahan Baku) / Jumlah Terjual
-                val totalBahanBaku = _bahanBakuList.value.sumOf { bahan ->
-                    val hargaPerUnit = bahan.hargaPerUnit.replace(".", "").toDoubleOrNull() ?: 0.0
-                    val jumlahDigunakan = bahan.jumlahDigunakan.replace(".", "").toDoubleOrNull() ?: 0.0
-                    hargaPerUnit * jumlahDigunakan
-                }
-                totalBahanBaku
-            }
-        }
+        // Jika target porsi tidak valid, return 0
+        if (targetPorsiValue <= 0) return 0.0
 
-        // Rumus HPP: (Total Cost + Biaya Operasional) / Estimasi Terjual Bulanan
-        val estimasiTerjualValue = _estimasiTerjual.value.toDouble()
-        val hpp = if (estimasiTerjualValue > 0) {
-            (totalCost + totalBiayaOperasional) / estimasiTerjualValue
-        } else {
-            0.0
-        }
+        // Hitung HPP dasar per porsi
+        val hppDasarPerPorsi = (totalBiayaBahanBaku + totalBiayaOperasional) / targetPorsiValue
+        // Hitung HPP final dengan margin profit
+        val hppFinal = hppDasarPerPorsi * (1 + (marginProfitValue / 100.0))
 
-        _totalBiaya.value = totalCost + totalBiayaOperasional
-        return hpp
+        // Simpan total biaya (bahan baku + operasional) jika diperlukan di tempat lain
+        _totalBiaya.value = totalBiayaBahanBaku + totalBiayaOperasional
+
+        return hppFinal
     }
 
     /**
@@ -258,7 +264,7 @@ class HppViewModel : ViewModel() {
                     "hppValue" to hpp,
                     "totalBiaya" to _totalBiaya.value,
                     "estimasiTerjual" to _estimasiTerjual.value,
-                    "metode" to if (_activeTab.value == HppTab.STOK) "Stok" else "Bahan Baku",
+                    "metode" to "Bahan Baku",
                     "tanggalHitung" to Date(),
                     "persediaanAwal" to _persediaanAwal.value,
                     "persediaanAkhir" to _persediaanAkhir.value,
@@ -274,6 +280,7 @@ class HppViewModel : ViewModel() {
                             "nama" to it.nama,
                             "hargaPerUnit" to it.hargaPerUnit,
                             "jumlahDigunakan" to it.jumlahDigunakan,
+                            "satuan" to it.satuan,
                             "totalHarga" to it.totalHarga
                         )
                     }
@@ -291,5 +298,14 @@ class HppViewModel : ViewModel() {
 
     fun clearError() {
         _error.value = null
+    }
+
+    // Update fungsi untuk state baru
+    fun updateTargetPorsi(value: String) {
+        _targetPorsi.value = value
+    }
+
+    fun updateMarginProfit(value: String) {
+        _marginProfit.value = value
     }
 }

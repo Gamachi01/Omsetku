@@ -32,6 +32,9 @@ import com.example.omsetku.ui.components.DatePickerField
 import com.example.omsetku.ui.components.Poppins
 import com.example.omsetku.ui.components.TransactionList
 import com.example.omsetku.viewmodels.TransactionViewModel
+import com.example.omsetku.ui.components.FormField
+import com.example.omsetku.ui.components.StandardTextField
+import com.example.omsetku.ui.components.MultilineTextField
 
 enum class TransactionType {
     INCOME, EXPENSE
@@ -48,6 +51,10 @@ fun TransactionScreen(
     var tanggal by remember { mutableStateOf("") }
     var nominal by remember { mutableStateOf("") }
     var deskripsi by remember { mutableStateOf("") }
+    var kategoriPengeluaran by remember { mutableStateOf("Usaha") }
+    var kategoriLainnya by remember { mutableStateOf("") }
+    var kategoriPemasukan by remember { mutableStateOf("Usaha") }
+    var kategoriPemasukanLainnya by remember { mutableStateOf("") }
 
     // Status pesan sukses dan loading
     var showSuccessDialog by remember { mutableStateOf(false) }
@@ -133,71 +140,113 @@ fun TransactionScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            LabeledFieldBox(label = "Tanggal Transaksi") {
+            FormField(label = "Tanggal Transaksi") {
                 DatePickerField(
                     value = tanggal,
                     onDateSelected = { tanggal = it }
                 )
             }
 
-            LabeledFieldBox(label = "Nominal") {
-                OutlinedTextField(
+            FormField(label = "Nominal") {
+                StandardTextField(
                     value = nominal,
                     onValueChange = { nominal = it },
-                    textStyle = TextStyle(fontSize = 14.sp, color = Color.Black, fontFamily = Poppins),
-                    modifier = Modifier.fillMaxWidth().height(56.dp),
-                    placeholder = {
-                        Text(
-                            "Rp",
-                            fontSize = 14.sp,
-                            fontFamily = Poppins,
-                            color = Color.Gray
+                    placeholder = "Rp"
+                )
+            }
+
+            // Bungkus seluruh bagian Kategori dengan FormField
+            FormField(label = "Kategori") {
+                if (selectedType == TransactionType.EXPENSE) {
+                    // Dropdown kategori: Usaha, Lainnya
+                    var expanded by remember { mutableStateOf(false) }
+                    val kategoriList = listOf("Usaha", "Lainnya")
+                    ExposedDropdownMenuBox(
+                        expanded = expanded,
+                        onExpandedChange = { expanded = !expanded },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        StandardTextField(
+                            value = kategoriPengeluaran,
+                            onValueChange = {},
+                            readOnly = true,
+                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                            modifier = Modifier.menuAnchor()
                         )
-                    },
-                    shape = RoundedCornerShape(8.dp),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        unfocusedBorderColor = Color.LightGray,
-                        focusedBorderColor = Color(0xFF5ED0C5)
-                    )
-                )
+                        ExposedDropdownMenu(
+                            expanded = expanded,
+                            onDismissRequest = { expanded = false }
+                        ) {
+                            kategoriList.forEach { kategori ->
+                                DropdownMenuItem(
+                                    text = { Text(kategori, fontFamily = Poppins) },
+                                    onClick = {
+                                        kategoriPengeluaran = kategori
+                                        expanded = false
+                                    }
+                                )
+                            }
+                        }
+                    }
+                    if (kategoriPengeluaran == "Lainnya") {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        FormField(label = "Nama Kategori Lainnya") {
+                            StandardTextField(
+                                value = kategoriLainnya,
+                                onValueChange = { kategoriLainnya = it },
+                                placeholder = "Masukkan nama kategori"
+                            )
+                        }
+                    }
+                } else {
+                    // Dropdown kategori: Usaha, Lainnya (untuk Pemasukan)
+                    var expanded by remember { mutableStateOf(false) }
+                    val kategoriList = listOf("Usaha", "Lainnya")
+                    ExposedDropdownMenuBox(
+                        expanded = expanded,
+                        onExpandedChange = { expanded = !expanded },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        StandardTextField(
+                            value = kategoriPemasukan,
+                            onValueChange = {},
+                            readOnly = true,
+                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                            modifier = Modifier.menuAnchor()
+                        )
+                        ExposedDropdownMenu(
+                            expanded = expanded,
+                            onDismissRequest = { expanded = false }
+                        ) {
+                            kategoriList.forEach { kategori ->
+                                DropdownMenuItem(
+                                    text = { Text(kategori, fontFamily = Poppins) },
+                                    onClick = {
+                                        kategoriPemasukan = kategori
+                                        expanded = false
+                                    }
+                                )
+                            }
+                        }
+                    }
+                    if (kategoriPemasukan == "Lainnya") {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        FormField(label = "Nama Kategori Lainnya") {
+                            StandardTextField(
+                                value = kategoriPemasukanLainnya,
+                                onValueChange = { kategoriPemasukanLainnya = it },
+                                placeholder = "Masukkan nama kategori"
+                            )
+                        }
+                    }
+                }
             }
 
-            LabeledFieldBox(label = "Kategori") {
-                OutlinedTextField(
-                    value = if (selectedType == TransactionType.INCOME) "Pemasukan" else "Pengeluaran",
-                    onValueChange = {},
-                    enabled = false,
-                    textStyle = TextStyle(fontSize = 14.sp, color = Color.Black, fontFamily = Poppins),
-                    modifier = Modifier.fillMaxWidth().height(56.dp),
-                    shape = RoundedCornerShape(8.dp),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        unfocusedBorderColor = Color.LightGray,
-                        focusedBorderColor = Color(0xFF5ED0C5),
-                        disabledBorderColor = Color.LightGray,
-                        disabledTextColor = Color.Black
-                    )
-                )
-            }
-
-            LabeledFieldBox(label = "Deskripsi") {
-                OutlinedTextField(
+            FormField(label = "Deskripsi") {
+                MultilineTextField(
                     value = deskripsi,
                     onValueChange = { deskripsi = it },
-                    textStyle = TextStyle(fontSize = 14.sp, color = Color.Black, fontFamily = Poppins),
-                    modifier = Modifier.fillMaxWidth().height(80.dp),
-                    shape = RoundedCornerShape(8.dp),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        unfocusedBorderColor = Color.LightGray,
-                        focusedBorderColor = Color(0xFF5ED0C5)
-                    ),
-                    placeholder = {
-                        Text(
-                            "Masukkan deskripsi transaksi...",
-                            fontSize = 14.sp,
-                            fontFamily = Poppins,
-                            color = Color.Gray
-                        )
-                    }
+                    placeholder = "Masukkan deskripsi transaksi..."
                 )
             }
 
@@ -252,12 +301,20 @@ fun TransactionScreen(
                         return@Button
                     }
 
+                    // Tentukan kategori yang akan dikirim
+                    val kategoriFinal = if (selectedType == TransactionType.EXPENSE) {
+                        if (kategoriPengeluaran == "Lainnya") kategoriLainnya else kategoriPengeluaran
+                    } else {
+                        if (kategoriPemasukan == "Lainnya") kategoriPemasukanLainnya else "Pendapatan ${kategoriPemasukan}"
+                    }
+
                     // Simpan transaksi
                     transactionViewModel.saveTransaction(
                         type = if (selectedType == TransactionType.INCOME) "INCOME" else "EXPENSE",
                         amount = amount,
                         date = tanggal,
-                        description = deskripsi
+                        description = deskripsi,
+                        category = kategoriFinal
                     )
 
                     // Reset form jika berhasil
@@ -265,6 +322,10 @@ fun TransactionScreen(
                         tanggal = ""
                         nominal = ""
                         deskripsi = ""
+                        kategoriPengeluaran = "Usaha"
+                        kategoriLainnya = ""
+                        kategoriPemasukan = "Usaha"
+                        kategoriPemasukanLainnya = ""
                         showSuccessDialog = true
                     }
                 },
@@ -328,28 +389,6 @@ fun TransactionButton(
             fontWeight = FontWeight.Bold,
             fontFamily = Poppins
         )
-    }
-}
-
-@Composable
-fun LabeledFieldBox(
-    label: String,
-    modifier: Modifier = Modifier,
-    content: @Composable () -> Unit
-) {
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(vertical = 6.dp)
-    ) {
-        Text(
-            text = label,
-            fontSize = 14.sp,
-            fontWeight = FontWeight.Medium,
-            fontFamily = Poppins
-        )
-        Spacer(modifier = Modifier.height(6.dp))
-        content()
     }
 }
 
