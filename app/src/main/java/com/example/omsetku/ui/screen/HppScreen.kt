@@ -226,51 +226,61 @@ fun HppScreen(
                                 ),
                                 shape = RoundedCornerShape(8.dp)
                             ) {
-                                Column(
+                                Box(
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .padding(12.dp),
-                                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                                        .padding(12.dp)
                                 ) {
-                                    StandardTextField(
-                                        value = bahan.nama,
-                                        onValueChange = { hppViewModel.updateBahanBakuNama(index, it) },
-                                        label = "Nama Bahan Baku",
-                                        modifier = Modifier.fillMaxWidth()
-                                    )
-                                    Row(
+                                    Column(
                                         modifier = Modifier.fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                        verticalAlignment = Alignment.CenterVertically
+                                        verticalArrangement = Arrangement.spacedBy(8.dp)
                                     ) {
                                         StandardTextField(
-                                            value = bahan.hargaPerUnit,
-                                            onValueChange = { hppViewModel.updateBahanBakuHarga(index, it) },
-                                            label = "Harga per Unit",
-                                            modifier = Modifier.weight(1f)
+                                            value = bahan.nama,
+                                            onValueChange = { hppViewModel.updateBahanBakuNama(index, it) },
+                                            label = "Nama Bahan Baku",
+                                            modifier = Modifier.fillMaxWidth()
                                         )
-                                        StandardTextField(
-                                            value = bahan.jumlahDigunakan,
-                                            onValueChange = { hppViewModel.updateBahanBakuJumlah(index, it) },
-                                            label = "Jumlah",
-                                            modifier = Modifier.weight(1f)
-                                        )
-                                        StandardTextField(
-                                            value = bahan.satuan,
-                                            onValueChange = { hppViewModel.updateBahanBakuSatuan(index, it) },
-                                            label = "Satuan",
-                                            modifier = Modifier.weight(1f)
-                                        )
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            StandardTextField(
+                                                value = bahan.hargaPerUnit,
+                                                onValueChange = { hppViewModel.updateBahanBakuHarga(index, it) },
+                                                label = "Harga per Unit",
+                                                modifier = Modifier.weight(1f)
+                                            )
+                                            StandardTextField(
+                                                value = bahan.jumlahDigunakan,
+                                                onValueChange = { hppViewModel.updateBahanBakuJumlah(index, it) },
+                                                label = "Jumlah",
+                                                modifier = Modifier.weight(1f)
+                                            )
+                                            StandardTextField(
+                                                value = bahan.satuan,
+                                                onValueChange = { hppViewModel.updateBahanBakuSatuan(index, it) },
+                                                label = "Satuan",
+                                                modifier = Modifier.weight(1f)
+                                            )
+                                        }
                                     }
-                                    IconButton(
-                                        onClick = { hppViewModel.removeBahanBaku(index) },
-                                        modifier = Modifier.align(Alignment.End)
-                                    ) {
-                                        Icon(
-                                            Icons.Default.Delete,
-                                            contentDescription = "Hapus",
-                                            tint = Color.Red
-                                        )
+                                    
+                                    if (bahanBakuList.size > 1) {
+                                        IconButton(
+                                            onClick = { hppViewModel.removeBahanBaku(index) },
+                                            modifier = Modifier
+                                                .align(Alignment.TopEnd)
+                                                .size(24.dp)
+                                                .padding(top = 0.dp, end = 0.dp)
+                                        ) {
+                                            Icon(
+                                                Icons.Default.Close,
+                                                contentDescription = "Hapus Bahan Baku",
+                                                tint = Color.Red
+                                            )
+                                        }
                                     }
                                 }
                             }
@@ -349,33 +359,43 @@ fun HppScreen(
                                 ),
                                 shape = RoundedCornerShape(8.dp)
                             ) {
-                                Row(
+                                Box(
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .padding(12.dp),
-                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                    verticalAlignment = Alignment.CenterVertically
+                                        .padding(12.dp)
                                 ) {
-                                    StandardTextField(
-                                        value = biaya.nama,
-                                        onValueChange = { hppViewModel.updateBiayaOperasionalNama(index, it) },
-                                        label = "Nama Biaya",
-                                        modifier = Modifier.weight(1f)
-                                    )
-                                    StandardTextField(
-                                        value = biaya.jumlah,
-                                        onValueChange = { hppViewModel.updateBiayaOperasionalHarga(index, it) },
-                                        label = "Jumlah",
-                                        modifier = Modifier.weight(1f)
-                                    )
-                                    IconButton(
-                                        onClick = { hppViewModel.removeBiayaOperasional(index) }
+                                    Column(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        verticalArrangement = Arrangement.spacedBy(8.dp)
                                     ) {
-                                        Icon(
-                                            Icons.Default.Delete,
-                                            contentDescription = "Hapus",
-                                            tint = Color.Red
+                                        StandardTextField(
+                                            value = biaya.nama,
+                                            onValueChange = { hppViewModel.updateBiayaOperasionalNama(index, it) },
+                                            label = "Nama Biaya",
+                                            modifier = Modifier.fillMaxWidth()
                                         )
+                                        StandardTextField(
+                                            value = biaya.jumlah,
+                                            onValueChange = { hppViewModel.updateBiayaOperasionalHarga(index, it) },
+                                            label = "Jumlah",
+                                            modifier = Modifier.fillMaxWidth()
+                                        )
+                                    }
+                                    
+                                    if (biayaOperasionalList.size > 1) {
+                                        IconButton(
+                                            onClick = { hppViewModel.removeBiayaOperasional(index) },
+                                            modifier = Modifier
+                                                .align(Alignment.TopEnd)
+                                                .size(24.dp)
+                                                .padding(top = 0.dp, end = 0.dp)
+                                        ) {
+                                            Icon(
+                                                Icons.Default.Close,
+                                                contentDescription = "Hapus Biaya",
+                                                tint = Color.Red
+                                            )
+                                        }
                                     }
                                 }
                             }
