@@ -151,7 +151,8 @@ fun TransactionScreen(
                 StandardTextField(
                     value = nominal,
                     onValueChange = { nominal = it },
-                    placeholder = "Rp"
+                    placeholder = "Rp",
+                    isRupiah = true
                 )
             }
 
@@ -209,7 +210,7 @@ fun TransactionScreen(
                     ) {
                         StandardTextField(
                             value = kategoriPemasukan,
-                            onValueChange = {},
+                    onValueChange = {},
                             readOnly = true,
                             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
                             modifier = Modifier.menuAnchor()

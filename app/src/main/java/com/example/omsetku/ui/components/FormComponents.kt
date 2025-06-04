@@ -19,6 +19,14 @@ import androidx.compose.ui.unit.sp
 /**
  * Komponen TextField yang konsisten untuk seluruh aplikasi
  */
+fun formatRupiahInput(input: String): String {
+    val clean = input.replace(".", "").replace(",", "")
+    if (clean.isBlank()) return ""
+    return clean.toLongOrNull()?.let {
+        "%,d".format(it).replace(',', '.')
+    } ?: input
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StandardTextField(
@@ -31,11 +39,17 @@ fun StandardTextField(
     enabled: Boolean = true,
     isError: Boolean = false,
     errorMessage: String? = null,
-    trailingIcon: @Composable (() -> Unit)? = null
+    trailingIcon: @Composable (() -> Unit)? = null,
+    isRupiah: Boolean = false
 ) {
+    val displayValue = if (isRupiah) formatRupiahInput(value) else value
+
     OutlinedTextField(
-        value = value,
-        onValueChange = onValueChange,
+        value = displayValue,
+        onValueChange = {
+            if (isRupiah) onValueChange(it.replace("[^0-9]".toRegex(), ""))
+            else onValueChange(it)
+        },
         modifier = modifier
             .fillMaxWidth()
             .height(56.dp),

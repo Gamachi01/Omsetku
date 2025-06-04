@@ -47,6 +47,7 @@ import com.example.omsetku.Navigation.Routes
 import com.example.omsetku.R
 import com.example.omsetku.ui.components.BottomNavBar
 import com.example.omsetku.ui.components.Poppins
+import com.example.omsetku.ui.components.StandardTextField
 import com.example.omsetku.ui.theme.PrimaryVariant
 import androidx.compose.foundation.verticalScroll
 import com.example.omsetku.ui.data.ProductItem
@@ -60,6 +61,9 @@ import androidx.compose.animation.with
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.core.tween
+import kotlinx.coroutines.delay
+import com.example.omsetku.firebase.FirestoreRepository
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
 @Composable
@@ -103,6 +107,13 @@ fun CashierScreen(
     val totalItems = remember(cartItems) { cartViewModel.getTotalItems() }
     val hasSelectedItems = totalItems > 0
 
+    // Tambahkan state untuk dialog profit
+    var showProfitDialog by remember { mutableStateOf(false) }
+    var profitDialogData by remember { mutableStateOf<Pair<Int, List<Pair<String, Int>>>>(0 to emptyList()) }
+    val coroutineScope = rememberCoroutineScope()
+    val firestoreRepository = remember { FirestoreRepository() }
+    var lastShowSuccessDialog by remember { mutableStateOf(false) }
+
     // Efek untuk memuat produk saat pertama kali
     LaunchedEffect(Unit) {
         productViewModel.loadProducts()
@@ -119,6 +130,31 @@ fun CashierScreen(
         if (!isEditMode) {
             isManageProductSelected = false
         }
+    }
+
+    // Deteksi perubahan showSuccessDialog dari true ke false (transaksi sukses)
+    LaunchedEffect(showSuccessDialog) {
+        if (lastShowSuccessDialog && !showSuccessDialog) {
+            // Transaksi sukses baru saja terjadi
+            // Ambil HPP dan hitung profit
+            val cartSnapshot = cartItems.toList()
+            coroutineScope.launch {
+                val profitList = mutableListOf<Pair<String, Int>>()
+                var totalProfit = 0
+                for (item in cartSnapshot) {
+                    val hppList = firestoreRepository.getHppByProduct(item.productId)
+                    val hpp = hppList.firstOrNull()?.get("hppValue") as? Number ?: 0
+                    val profit = (item.price - hpp.toInt()) * item.quantity
+                    profitList.add(item.name to profit)
+                    totalProfit += profit
+                }
+                profitDialogData = totalProfit to profitList
+                showProfitDialog = true
+                delay(2000)
+                showProfitDialog = false
+            }
+        }
+        lastShowSuccessDialog = showSuccessDialog
     }
 
     Scaffold(
@@ -458,6 +494,53 @@ fun CashierScreen(
             }
         )
     }
+
+    // Dialog Profit Alert
+    if (showProfitDialog) {
+        Dialog(onDismissRequest = { showProfitDialog = false }) {
+            Surface(
+                shape = RoundedCornerShape(16.dp),
+                color = Color.White,
+                modifier = Modifier.padding(24.dp)
+            ) {
+                Column(
+                    modifier = Modifier.padding(24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    val (totalProfit, profitList) = profitDialogData
+                    Text(
+                        text = if (totalProfit >= 0) "Profit! Rp${totalProfit}" else "Rugi: -Rp${-totalProfit}",
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = if (totalProfit >= 0) Color(0xFF5ED0C5) else Color.Red,
+                        fontFamily = Poppins
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Column(
+                        horizontalAlignment = Alignment.Start
+                    ) {
+                        profitList.forEach { (name, profit) ->
+                            Text(
+                                text = if (profit >= 0) "$name: Profit Rp${profit}" else "$name: Rugi -Rp${-profit}",
+                                fontSize = 14.sp,
+                                color = if (profit >= 0) Color(0xFF5ED0C5) else Color.Red,
+                                fontFamily = Poppins
+                            )
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Button(
+                        onClick = { showProfitDialog = false },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(8.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF5ED0C5))
+                    ) {
+                        Text("OK", color = Color.White, fontFamily = Poppins, fontWeight = FontWeight.Bold)
+                    }
+                }
+            }
+        }
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -635,29 +718,12 @@ fun ProductDialog(
 
                 Spacer(modifier = Modifier.height(4.dp))
 
-                OutlinedTextField(
+                StandardTextField(
                     value = productPrice,
-                    onValueChange = {
-                        // Hanya menerima angka
-                        if (it.isEmpty() || it.all { char -> char.isDigit() }) {
-                            productPrice = it
-                        }
-                    },
+                    onValueChange = { productPrice = it },
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(8.dp),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = Color.LightGray,
-                        unfocusedBorderColor = Color.LightGray
-                    ),
-                    leadingIcon = {
-                        Text(
-                            text = "Rp",
-                            fontFamily = Poppins,
-                            color = Color.Black,
-                            modifier = Modifier.padding(start = 8.dp)
-                        )
-                    },
-                    singleLine = true
+                    isRupiah = true,
+                    placeholder = "Rp"
                 )
 
                 Spacer(modifier = Modifier.height(24.dp))
