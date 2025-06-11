@@ -41,17 +41,23 @@ class HppViewModel : ViewModel() {
     val pembelianBersih: StateFlow<String> = _pembelianBersih.asStateFlow()
 
     // List untuk menyimpan biaya operasional (nama dan jumlah)
-    data class BiayaOperasional(val nama: String = "", val jumlah: String = "")
+    data class BiayaOperasional(
+        val nama: String = "",
+        val hargaBeli: String = "",
+        val jumlahBeli: String = "",
+        val satuan: String = "",
+        val terpakai: String = ""
+    )
     private val _biayaOperasionalList = MutableStateFlow(listOf(BiayaOperasional()))
     val biayaOperasionalList: StateFlow<List<BiayaOperasional>> = _biayaOperasionalList.asStateFlow()
 
     // Data untuk perhitungan HPP berdasarkan bahan baku
     data class BahanBaku(
         val nama: String = "",
-        val hargaPerUnit: String = "",
-        val jumlahDigunakan: String = "",
+        val hargaBeli: String = "",
+        val jumlahBeli: String = "",
         val satuan: String = "",
-        val totalHarga: String = ""
+        val terpakai: String = ""
     )
     private val _bahanBakuList = MutableStateFlow(listOf(BahanBaku()))
     val bahanBakuList: StateFlow<List<BahanBaku>> = _bahanBakuList.asStateFlow()
@@ -92,7 +98,9 @@ class HppViewModel : ViewModel() {
                         name = productMap["name"] as? String ?: "",
                         price = (productMap["price"] as? Number)?.toInt() ?: 0,
                         imageRes = com.example.omsetku.R.drawable.logo,  // Default image
-                        quantity = 0
+                        imageUrl = productMap["imageUrl"] as? String ?: "",  // Tambah imageUrl
+                        quantity = 0,
+                        hpp = (productMap["hpp"] as? Number)?.toDouble() ?: 0.0  // Tambah hpp
                     )
                 }
 
@@ -145,10 +153,34 @@ class HppViewModel : ViewModel() {
         }
     }
 
-    fun updateBiayaOperasionalJumlah(index: Int, jumlah: String) {
+    fun updateBiayaOperasionalHargaBeli(index: Int, hargaBeli: String) {
         if (index >= 0 && index < _biayaOperasionalList.value.size) {
             val biayaList = _biayaOperasionalList.value.toMutableList()
-            biayaList[index] = biayaList[index].copy(jumlah = jumlah)
+            biayaList[index] = biayaList[index].copy(hargaBeli = hargaBeli)
+            _biayaOperasionalList.value = biayaList
+        }
+    }
+
+    fun updateBiayaOperasionalJumlahBeli(index: Int, jumlahBeli: String) {
+        if (index >= 0 && index < _biayaOperasionalList.value.size) {
+            val biayaList = _biayaOperasionalList.value.toMutableList()
+            biayaList[index] = biayaList[index].copy(jumlahBeli = jumlahBeli)
+            _biayaOperasionalList.value = biayaList
+        }
+    }
+
+    fun updateBiayaOperasionalSatuan(index: Int, satuan: String) {
+        if (index >= 0 && index < _biayaOperasionalList.value.size) {
+            val biayaList = _biayaOperasionalList.value.toMutableList()
+            biayaList[index] = biayaList[index].copy(satuan = satuan)
+            _biayaOperasionalList.value = biayaList
+        }
+    }
+
+    fun updateBiayaOperasionalTerpakai(index: Int, terpakai: String) {
+        if (index >= 0 && index < _biayaOperasionalList.value.size) {
+            val biayaList = _biayaOperasionalList.value.toMutableList()
+            biayaList[index] = biayaList[index].copy(terpakai = terpakai)
             _biayaOperasionalList.value = biayaList
         }
     }
@@ -174,26 +206,18 @@ class HppViewModel : ViewModel() {
         }
     }
 
-    fun updateBahanBakuHarga(index: Int, harga: String) {
+    fun updateBahanBakuHargaBeli(index: Int, hargaBeli: String) {
         if (index >= 0 && index < _bahanBakuList.value.size) {
             val bahanList = _bahanBakuList.value.toMutableList()
-            bahanList[index] = bahanList[index].copy(hargaPerUnit = harga)
+            bahanList[index] = bahanList[index].copy(hargaBeli = hargaBeli)
             _bahanBakuList.value = bahanList
         }
     }
 
-    fun updateBahanBakuJumlah(index: Int, jumlah: String) {
+    fun updateBahanBakuJumlahBeli(index: Int, jumlahBeli: String) {
         if (index >= 0 && index < _bahanBakuList.value.size) {
             val bahanList = _bahanBakuList.value.toMutableList()
-            bahanList[index] = bahanList[index].copy(jumlahDigunakan = jumlah)
-            _bahanBakuList.value = bahanList
-        }
-    }
-
-    fun updateBahanBakuTotalHarga(index: Int, total: String) {
-        if (index >= 0 && index < _bahanBakuList.value.size) {
-            val bahanList = _bahanBakuList.value.toMutableList()
-            bahanList[index] = bahanList[index].copy(totalHarga = total)
+            bahanList[index] = bahanList[index].copy(jumlahBeli = jumlahBeli)
             _bahanBakuList.value = bahanList
         }
     }
@@ -206,43 +230,38 @@ class HppViewModel : ViewModel() {
         }
     }
 
-    // Fungsi baru untuk biaya operasional (harga)
-    fun updateBiayaOperasionalHarga(index: Int, harga: String) {
-        if (index >= 0 && index < _biayaOperasionalList.value.size) {
-            val biayaList = _biayaOperasionalList.value.toMutableList()
-            biayaList[index] = biayaList[index].copy(jumlah = harga)
-            _biayaOperasionalList.value = biayaList
+    fun updateBahanBakuTerpakai(index: Int, terpakai: String) {
+        if (index >= 0 && index < _bahanBakuList.value.size) {
+            val bahanList = _bahanBakuList.value.toMutableList()
+            bahanList[index] = bahanList[index].copy(terpakai = terpakai)
+            _bahanBakuList.value = bahanList
         }
     }
 
     fun hitungHpp(): Double {
         // Hitung total biaya bahan baku
         val totalBiayaBahanBaku = _bahanBakuList.value.sumOf { bahan ->
-            val hargaPerUnit = bahan.hargaPerUnit.replace(".", "").replace(",", ".").toDoubleOrNull() ?: 0.0
-            val jumlahDigunakan = bahan.jumlahDigunakan.replace(".", "").replace(",", ".").toDoubleOrNull() ?: 0.0
+            val hargaPerUnit = bahan.hargaBeli.replace(".", "").replace(",", ".").toDoubleOrNull() ?: 0.0
+            val jumlahDigunakan = bahan.jumlahBeli.replace(".", "").replace(",", ".").toDoubleOrNull() ?: 0.0
             hargaPerUnit * jumlahDigunakan
         }
         // Hitung total biaya operasional
         val totalBiayaOperasional = _biayaOperasionalList.value.sumOf {
-            it.jumlah.replace(".", "").replace(",", ".").toDoubleOrNull() ?: 0.0
+            it.jumlahBeli.replace(".", "").replace(",", ".").toDoubleOrNull() ?: 0.0
         }
         // Hitung target porsi
         val targetPorsiValue = _targetPorsi.value.replace(".", "").replace(",", ".").toDoubleOrNull() ?: 0.0
-        // Hitung margin profit
-        val marginProfitValue = _marginProfit.value.replace(".", "").replace(",", ".").toDoubleOrNull() ?: 0.0
 
         // Jika target porsi tidak valid, return 0
         if (targetPorsiValue <= 0) return 0.0
 
-        // Hitung HPP dasar per porsi
-        val hppDasarPerPorsi = (totalBiayaBahanBaku + totalBiayaOperasional) / targetPorsiValue
-        // Hitung HPP final dengan margin profit
-        val hppFinal = hppDasarPerPorsi * (1 + (marginProfitValue / 100.0))
+        // Hitung HPP per porsi (biaya pokok produksi)
+        val hppPerPorsi = (totalBiayaBahanBaku + totalBiayaOperasional) / targetPorsiValue
 
         // Simpan total biaya (bahan baku + operasional) jika diperlukan di tempat lain
         _totalBiaya.value = totalBiayaBahanBaku + totalBiayaOperasional
 
-        return hppFinal
+        return hppPerPorsi
     }
 
     /**
@@ -272,16 +291,19 @@ class HppViewModel : ViewModel() {
                     "biayaOperasional" to _biayaOperasionalList.value.map {
                         mapOf(
                             "nama" to it.nama,
-                            "jumlah" to it.jumlah
+                            "hargaBeli" to it.hargaBeli,
+                            "jumlahBeli" to it.jumlahBeli,
+                            "satuan" to it.satuan,
+                            "terpakai" to it.terpakai
                         )
                     },
                     "bahanBaku" to _bahanBakuList.value.map {
                         mapOf(
                             "nama" to it.nama,
-                            "hargaPerUnit" to it.hargaPerUnit,
-                            "jumlahDigunakan" to it.jumlahDigunakan,
+                            "hargaBeli" to it.hargaBeli,
+                            "jumlahBeli" to it.jumlahBeli,
                             "satuan" to it.satuan,
-                            "totalHarga" to it.totalHarga
+                            "terpakai" to it.terpakai
                         )
                     }
                 )
@@ -307,5 +329,45 @@ class HppViewModel : ViewModel() {
 
     fun updateMarginProfit(value: String) {
         _marginProfit.value = value
+    }
+
+    /**
+     * Menyimpan HPP ke database
+     */
+    fun saveHpp(productId: Int, hpp: Double) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            _error.value = null
+
+            try {
+                // Dapatkan Firestore ID dari mapping
+                val firestoreId = productId.toString()
+
+                // Update di Firestore
+                val success = repository.updateProduct(
+                    productId = firestoreId,
+                    hpp = hpp
+                )
+
+                if (success) {
+                    // Update di state lokal
+                    val updatedProducts = _products.value.map {
+                        if (it.id == productId) {
+                            it.copy(hpp = hpp)
+                        } else {
+                            it
+                        }
+                    }
+
+                    _products.value = updatedProducts
+                } else {
+                    _error.value = "Gagal menyimpan HPP di database"
+                }
+            } catch (e: Exception) {
+                _error.value = "Gagal menyimpan HPP: ${e.message}"
+            } finally {
+                _isLoading.value = false
+            }
+        }
     }
 }

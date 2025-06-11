@@ -10,6 +10,7 @@ import com.example.omsetku.viewmodels.CartViewModel
 import com.example.omsetku.viewmodels.TaxViewModel
 import com.example.omsetku.viewmodels.BusinessViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.omsetku.viewmodels.HppViewModel
 
 @Composable
 fun AppNavGraph(
@@ -19,6 +20,7 @@ fun AppNavGraph(
 ) {
     // Inisialisasi BusinessViewModel
     val businessViewModel: BusinessViewModel = viewModel()
+    val hppViewModel: HppViewModel = viewModel()
 
     NavHost(navController = navController, startDestination = Routes.SPLASH) {
         composable(Routes.SPLASH) {
@@ -52,7 +54,11 @@ fun AppNavGraph(
             TransactionScreen(navController)
         }
         composable(Routes.CASHIER) {
-            CashierScreen(navController, cartViewModel = cartViewModel)
+            CashierScreen(
+                navController = navController,
+                cartViewModel = cartViewModel,
+                hppViewModel = hppViewModel
+            )
         }
         composable(Routes.HPP) {
             HppScreen(navController)
@@ -64,7 +70,8 @@ fun AppNavGraph(
             TransactionDetailScreen(
                 navController = navController,
                 cartViewModel = cartViewModel,
-                taxViewModel = taxViewModel
+                taxViewModel = taxViewModel,
+                hppViewModel = hppViewModel
             )
         }
         composable(Routes.EDIT_PROFILE) {

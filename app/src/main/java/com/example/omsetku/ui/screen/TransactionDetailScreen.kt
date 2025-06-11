@@ -9,6 +9,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -22,6 +23,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.omsetku.Navigation.Routes
@@ -30,22 +32,31 @@ import com.example.omsetku.models.CartItem
 import com.example.omsetku.ui.components.Poppins
 import com.example.omsetku.ui.theme.PrimaryVariant
 import com.example.omsetku.viewmodels.CartViewModel
+import com.example.omsetku.viewmodels.ProductViewModel
 import com.example.omsetku.viewmodels.TaxViewModel
+import com.example.omsetku.viewmodels.HppViewModel
 import java.text.SimpleDateFormat
 import java.util.*
+import com.example.omsetku.ui.components.ProfitAlertDialog
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.text.input.KeyboardType
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TransactionDetailScreen(
     navController: NavController,
     cartViewModel: CartViewModel,
-    taxViewModel: TaxViewModel = viewModel()
+    taxViewModel: TaxViewModel = viewModel(),
+    productViewModel: ProductViewModel = viewModel(),
+    hppViewModel: HppViewModel = viewModel()
 ) {
     val cartItems by cartViewModel.cartItems.collectAsState()
     val taxSettings by taxViewModel.taxSettings.collectAsState()
     val isLoading by cartViewModel.isLoading.collectAsState()
     val transactionSuccess by cartViewModel.transactionSuccess.collectAsState()
     val error by cartViewModel.error.collectAsState()
+    val products by productViewModel.products.collectAsState()
+    val marginProfit by hppViewModel.marginProfit.collectAsState()
 
     val subtotal = cartViewModel.getSubtotal()
     val taxRate = if (taxSettings.enabled) taxSettings.rate else 0
@@ -59,11 +70,23 @@ fun TransactionDetailScreen(
     val formattedTime = remember { timeFormat.format(Date(currentDate)) }
 
     var showSuccessDialog by remember { mutableStateOf(false) }
+    var showProfitAlert by remember { mutableStateOf(false) }
+    var transactionProfit by remember { mutableStateOf(0.0) }
 
+    // Efek untuk memuat produk saat pertama kali
+    LaunchedEffect(Unit) {
+        productViewModel.loadProducts()
+    }
+
+    // Efek untuk menangani transaksi sukses
     LaunchedEffect(transactionSuccess) {
         if (transactionSuccess) {
-            showSuccessDialog = true
-            cartViewModel.resetTransactionSuccess()
+            val marginProfitValue = marginProfit.toDoubleOrNull() ?: 0.0
+            val totalProfit = cartViewModel.calculateTotalProfit(products, marginProfitValue)
+            if (totalProfit > 0) {
+                transactionProfit = totalProfit
+                showProfitAlert = true
+            }
         }
     }
 
@@ -165,27 +188,36 @@ fun TransactionDetailScreen(
 
             Button(
                 onClick = {
-                    cartViewModel.saveTransaction(taxSettings.enabled, taxSettings.rate)
+                    val marginProfitValue = marginProfit.toDoubleOrNull() ?: 0.0
+                    cartViewModel.saveTransaction(taxSettings.enabled, taxSettings.rate, products, marginProfitValue)
                 },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 24.dp)
-                    .height(54.dp),
-                shape = RoundedCornerShape(8.dp),
+                    .height(56.dp),
+                shape = RoundedCornerShape(30.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = PrimaryVariant),
-                enabled = cartItems.isNotEmpty() && !isLoading
+                elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
             ) {
-                if (isLoading) {
-                    CircularProgressIndicator(
-                        color = Color.White,
-                        modifier = Modifier.size(24.dp),
-                        strokeWidth = 2.dp
-                    )
-                } else {
-                    Text("Konfirmasi", fontSize = 16.sp, fontWeight = FontWeight.Bold, fontFamily = Poppins, color = Color.White)
-                }
+                Text(
+                    "Konfirmasi Transaksi",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = Poppins,
+                    color = Color.White
+                )
             }
         }
+    }
+
+    if (showProfitAlert) {
+        ProfitAlertDialog(
+            profit = transactionProfit,
+            onDismiss = {
+                showProfitAlert = false
+                showSuccessDialog = true
+            }
+        )
     }
 
     if (showSuccessDialog) {
@@ -228,35 +260,73 @@ fun ProductDetailItem(item: CartItem) {
 
 @Composable
 fun SuccessDialog(onDismiss: () -> Unit) {
-    Dialog(onDismissRequest = onDismiss) {
-        Surface(
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(usePlatformDefaultWidth = false)
+    ) {
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
             shape = RoundedCornerShape(16.dp),
-            color = Color.White,
-            modifier = Modifier.fillMaxWidth().padding(16.dp)
+            colors = CardDefaults.cardColors(containerColor = Color.White)
         ) {
             Column(
-                modifier = Modifier.padding(24.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Surface(
-                    modifier = Modifier.size(80.dp),
-                    shape = RoundedCornerShape(40.dp),
-                    color = PrimaryVariant
-                ) {
-                    Box(contentAlignment = Alignment.Center) {
-                        Icon(
-                            imageVector = Icons.Default.Check,
-                            contentDescription = "Check",
-                            tint = Color.White,
-                            modifier = Modifier.size(40.dp)
-                        )
-                    }
-                }
-                Spacer(modifier = Modifier.height(24.dp))
-                Text("Transaksi Berhasil!", fontSize = 18.sp, fontWeight = FontWeight.Bold, fontFamily = Poppins)
-                Spacer(modifier = Modifier.height(8.dp))
-                Text("Transaksi anda telah tercatat.", fontSize = 14.sp, fontFamily = Poppins, color = Color.Gray, textAlign = TextAlign.Center)
+                // Icon Check
+                Icon(
+                    imageVector = Icons.Default.Check,
+                    contentDescription = "Success",
+                    modifier = Modifier.size(48.dp),
+                    tint = Color(0xFF4CAF50)  // Warna hijau
+                )
+
                 Spacer(modifier = Modifier.height(16.dp))
+
+                // Title
+                Text(
+                    text = "Transaksi Berhasil!",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = Poppins,
+                    color = Color.Black
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Description
+                Text(
+                    text = "Transaksi anda telah tercatat.",
+                    fontSize = 16.sp,
+                    fontFamily = Poppins,
+                    color = Color.Gray
+                )
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                // Close Button
+                Button(
+                    onClick = onDismiss,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFF4CAF50)  // Warna hijau
+                    ),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Text(
+                        text = "Lanjutkan",
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Medium,
+                        fontFamily = Poppins,
+                        color = Color.White
+                    )
+                }
             }
         }
     }

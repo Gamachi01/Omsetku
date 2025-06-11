@@ -7,6 +7,7 @@ import com.example.omsetku.models.CartItem
 import com.example.omsetku.models.Product
 import com.example.omsetku.models.Transaction
 import com.example.omsetku.models.TransactionType
+import com.example.omsetku.ui.data.ProductItem
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -78,7 +79,8 @@ class CartViewModel : ViewModel() {
                 name = product.name,
                 price = product.price.toInt(),
                 quantity = quantity,
-                imageRes = product.imageRes
+                imageRes = product.imageRes,
+                hpp = product.hpp
             )
         }
 
@@ -130,8 +132,10 @@ class CartViewModel : ViewModel() {
      * Menyimpan transaksi ke Firestore
      * @param taxEnabled Status pajak aktif/tidak
      * @param taxRate Persentase pajak (contoh: 10 untuk 10%)
+     * @param products List produk untuk menghitung profit
+     * @param marginProfit Persentase margin profit yang diinginkan
      */
-    fun saveTransaction(taxEnabled: Boolean, taxRate: Int) {
+    fun saveTransaction(taxEnabled: Boolean, taxRate: Int, products: List<ProductItem>, marginProfit: Double) {
         // Pastikan user ID terupdate
         updateCurrentUserId()
 
@@ -158,6 +162,9 @@ class CartViewModel : ViewModel() {
                 val tax = if (taxEnabled) (subtotal * taxRate / 100) else 0
                 val total = subtotal + tax
 
+                // Hitung total profit
+                val totalProfit = calculateTotalProfit(products, marginProfit)
+
                 // Buat transaksi baru
                 val transaction = Transaction(
                     id = UUID.randomUUID().toString(),
@@ -172,9 +179,11 @@ class CartViewModel : ViewModel() {
 
                 // Simpan transaksi ke Firestore
                 firestoreRepository.saveTransaction(transaction)
-
-                // Reset state keranjang
+                
+                // Set transaction success sebelum membersihkan keranjang
                 _transactionSuccess.value = true
+                
+                // Reset state keranjang
                 clearCart()
                 _error.value = null
             } catch (e: Exception) {
@@ -203,5 +212,23 @@ class CartViewModel : ViewModel() {
 
     fun clearError() {
         _error.value = null
+    }
+
+    /**
+     * Menghitung total profit dari transaksi berdasarkan margin yang diinginkan
+     */
+    fun calculateTotalProfit(products: List<ProductItem>, marginProfit: Double): Double {
+        return _cartItems.value.sumOf { item ->
+            val product = products.find { it.id.toString() == item.productId }
+            if (product != null) {
+                val hpp = product.hpp
+                val hargaJual = item.price
+                val profitPerItem = hargaJual - hpp
+                val targetProfit = hpp * (marginProfit / 100.0) // Margin profit dalam persen
+                profitPerItem * item.quantity
+            } else {
+                0.0
+            }
+        }
     }
 }
