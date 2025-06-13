@@ -369,9 +369,9 @@ fun CashierScreen(
                                     isEditMode = isEditMode,
                                     onQuantityChanged = { newQuantity ->
                                         if (newQuantity > 0) {
-                                            cartViewModel.updateQuantity(product.id.toString(), newQuantity)
+                                            cartViewModel.updateQuantity(product.firestoreId, newQuantity)
                                         } else {
-                                            cartViewModel.removeFromCart(product.id.toString())
+                                            cartViewModel.removeFromCart(product.firestoreId)
                                         }
                                     },
                                     onEdit = {
@@ -537,7 +537,7 @@ fun ProductCard(
 
     // Update state lokal dari keranjang
     val cartItems by cartViewModel.cartItems.collectAsState()
-    val cartItem = cartItems.find { it.productId == product.id.toString() }
+    val cartItem = cartItems.find { it.productId == product.firestoreId }
 
     // Efek untuk update quantity dari keranjang
     LaunchedEffect(cartItems) {
@@ -649,7 +649,7 @@ fun ProductCard(
                             onClick = {
                                 if (quantity > 0) {
                                     quantity--
-                                    cartViewModel.updateQuantity(product.id.toString(), quantity)
+                                    cartViewModel.updateQuantity(product.firestoreId, quantity)
                                 }
                             },
                                 modifier = Modifier.size(48.dp).clip(CircleShape),
@@ -701,17 +701,9 @@ fun ProductCard(
                             onClick = {
                                 quantity++
                                 if (quantity == 1) {
-                                    cartViewModel.addToCart(
-                                        com.example.omsetku.models.Product(
-                                            id = product.id.toString(),
-                                            name = product.name,
-                                            price = product.price.toLong(),
-                                            imageRes = product.imageRes
-                                        ),
-                                        1
-                                    )
+                                    cartViewModel.addToCart(product, 1)
                                 } else {
-                                    cartViewModel.updateQuantity(product.id.toString(), quantity)
+                                    cartViewModel.updateQuantity(product.firestoreId, quantity)
                                 }
                                 onQuantityChanged(quantity)
                             },

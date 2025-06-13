@@ -37,6 +37,7 @@ import com.example.omsetku.ui.components.HppBiayaOperasionalList
 import com.example.omsetku.ui.components.Poppins
 import com.example.omsetku.ui.data.ProductItem
 import com.example.omsetku.viewmodels.HppViewModel
+import com.example.omsetku.viewmodels.ProductViewModel
 import kotlinx.coroutines.launch
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.omsetku.ui.components.FormField
@@ -58,7 +59,8 @@ import androidx.compose.material3.rememberModalBottomSheetState
 @Composable
 fun HppScreen(
     navController: NavController,
-    hppViewModel: HppViewModel = hiltViewModel()
+    hppViewModel: HppViewModel = hiltViewModel(),
+    productViewModel: ProductViewModel = hiltViewModel()
 ) {
     var selectedItem by remember { mutableStateOf("HPP") }
     val scrollState = rememberScrollState()
@@ -341,7 +343,7 @@ fun HppScreen(
                 )
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(4.dp))
 
             // Tombol Hitung HPP
             Button(
@@ -466,6 +468,8 @@ fun HppScreen(
                                 hppViewModel.saveHpp(product.id, hppPerPorsi)
                             }
                             showResultDialog = false
+                            // Tambahkan refresh produk setelah simpan HPP
+                            productViewModel.loadProducts()
                         },
                         modifier = Modifier
                             .fillMaxWidth()

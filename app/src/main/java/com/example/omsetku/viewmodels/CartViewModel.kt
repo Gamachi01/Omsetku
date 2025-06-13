@@ -55,18 +55,22 @@ class CartViewModel : ViewModel() {
         }
     }
 
-    fun addToCart(product: Product, quantity: Int) {
+    fun addToCart(product: ProductItem, quantity: Int) {
         // Pastikan user ID terupdate
         updateCurrentUserId()
 
         if (quantity <= 0 || currentUserId.isEmpty()) return
 
-        val existingItem = _cartItems.value.find { it.productId == product.id }
+        val productId = product.firestoreId
+        val existingItem = _cartItems.value.find { it.productId == productId }
+
+        // Ambil HPP dari produk
+        val hpp = product.hpp
 
         val updatedItems = if (existingItem != null) {
             // Update quantity jika produk sudah ada di keranjang
             _cartItems.value.map {
-                if (it.productId == product.id) {
+                if (it.productId == productId) {
                     it.copy(quantity = it.quantity + quantity)
                 } else {
                     it
@@ -75,12 +79,12 @@ class CartViewModel : ViewModel() {
         } else {
             // Tambahkan produk baru ke keranjang
             _cartItems.value + CartItem(
-                productId = product.id,
+                productId = productId,
                 name = product.name,
-                price = product.price.toInt(),
+                price = product.price,
                 quantity = quantity,
                 imageRes = product.imageRes,
-                hpp = product.hpp
+                hpp = hpp
             )
         }
 
@@ -212,16 +216,18 @@ class CartViewModel : ViewModel() {
     }
 
     /**
-     * Menghitung total profit dari transaksi berdasarkan margin yang diinginkan
+     * Menghitung total profit dari transaksi berdasarkan HPP
      */
     fun calculateTotalProfit(products: List<ProductItem>, marginProfit: Double): Double {
         return _cartItems.value.sumOf { item ->
-            val product = products.find { it.id.toString() == item.productId }
+            val product = products.find { 
+                // Coba cari berdasarkan firestoreId dulu, jika tidak ada coba berdasarkan id
+                it.firestoreId == item.productId || it.id.toString() == item.productId 
+            }
             if (product != null) {
-                val hpp = product.hpp
-                val hargaJual = item.price
-                val profitPerItem = hargaJual - hpp
-                val targetProfit = hpp * (marginProfit / 100.0) // Margin profit dalam persen
+                // Hitung profit per item: harga jual - HPP
+                val profitPerItem = item.price - product.hpp
+                // Total profit = profit per item × quantity
                 profitPerItem * item.quantity
             } else {
                 0.0

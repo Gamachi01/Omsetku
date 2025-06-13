@@ -16,10 +16,10 @@ class ProductRepository private constructor() {
     init {
         // Inisialisasi dengan data dummy
         _products.value = listOf(
-            ProductItem(1, "Cappucino", 25000, R.drawable.logo, "", 0, 0.0),
-            ProductItem(2, "Americano", 20000, R.drawable.logo, "", 0, 0.0),
-            ProductItem(3, "Espresso", 15000, R.drawable.logo, "", 0, 0.0),
-            ProductItem(4, "Brown Sugar Latte", 15000, R.drawable.logo, "", 0, 0.0)
+            ProductItem(1, "dummy-id-1", "Cappucino", 25000, R.drawable.logo, "", 0, 0.0),
+            ProductItem(2, "dummy-id-2", "Americano", 20000, R.drawable.logo, "", 0, 0.0),
+            ProductItem(3, "dummy-id-3", "Espresso", 15000, R.drawable.logo, "", 0, 0.0),
+            ProductItem(4, "dummy-id-4", "Brown Sugar Latte", 15000, R.drawable.logo, "", 0, 0.0)
         )
     }
 
@@ -28,7 +28,7 @@ class ProductRepository private constructor() {
      */
     fun addProduct(name: String, price: Int): ProductItem {
         val newId = (_products.value.maxOfOrNull { it.id } ?: 0) + 1
-        val newProduct = ProductItem(newId, name, price, R.drawable.logo, "", 0, 0.0)
+        val newProduct = ProductItem(newId, "dummy-id-$newId", name, price, R.drawable.logo, "", 0, 0.0)
         _products.value = _products.value + newProduct
         return newProduct
     }

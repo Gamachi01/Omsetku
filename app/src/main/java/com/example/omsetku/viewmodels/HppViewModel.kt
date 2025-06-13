@@ -101,6 +101,7 @@ class HppViewModel : ViewModel() {
 
                     ProductItem(
                         id = id,
+                        firestoreId = firestoreId,
                         name = productMap["name"] as? String ?: "",
                         price = (productMap["price"] as? Number)?.toInt() ?: 0,
                         imageRes = com.example.omsetku.R.drawable.logo,  // Default image

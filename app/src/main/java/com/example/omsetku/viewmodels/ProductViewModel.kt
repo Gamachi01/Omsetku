@@ -53,11 +53,13 @@ class ProductViewModel : ViewModel() {
 
                     ProductItem(
                         id = id,
+                        firestoreId = firestoreId,
                         name = productMap["name"] as? String ?: "",
                         price = (productMap["price"] as? Number)?.toInt() ?: 0,
                         imageRes = R.drawable.logo,  // Default image
                         imageUrl = productMap["imageUrl"] as? String ?: "",
-                        quantity = 0
+                        quantity = 0,
+                        hpp = (productMap["hpp"] as? Number)?.toDouble() ?: 0.0  // Ambil HPP dari Firestore
                     )
                 }
 
@@ -110,11 +112,13 @@ class ProductViewModel : ViewModel() {
                 // Update UI dengan produk baru
                 val newProduct = ProductItem(
                     id = hashedId,
+                    firestoreId = productId,
                     name = name,
                     price = price,
                     imageRes = R.drawable.logo,
                     imageUrl = imageUrl,
-                    quantity = 0
+                    quantity = 0,
+                    hpp = 0.0  // Default HPP untuk produk baru
                 )
 
                 _products.value = _products.value + newProduct
