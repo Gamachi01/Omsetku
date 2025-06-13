@@ -283,7 +283,7 @@ fun ReportFilterDialog(
                 }
 
                 // Menambahkan spasi sebelum tombol Terapkan
-                Spacer(modifier = Modifier.height(32.dp))
+                Spacer(modifier = Modifier.height(28.dp))
 
                 // Tombol Terapkan
                 Button(
