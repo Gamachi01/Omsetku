@@ -8,7 +8,8 @@ data class Product(
     val imageUrl: String = "",
     val description: String = "",
     val createdAt: Long = 0,
-    val imageRes: Int = 0
+    val imageRes: Int = 0,
+    val hpp: Double = 0.0
 ) {
     companion object {
         fun fromMap(map: Map<String, Any>): Product {
@@ -20,7 +21,8 @@ data class Product(
                 imageUrl = map["imageUrl"] as? String ?: "",
                 description = map["description"] as? String ?: "",
                 createdAt = (map["createdAt"] as? Number)?.toLong() ?: 0,
-                imageRes = (map["imageRes"] as? Number)?.toInt() ?: 0
+                imageRes = (map["imageRes"] as? Number)?.toInt() ?: 0,
+                hpp = (map["hpp"] as? Number)?.toDouble() ?: 0.0
             )
         }
     }

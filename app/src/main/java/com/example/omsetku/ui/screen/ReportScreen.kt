@@ -191,7 +191,9 @@ fun ReportScreen(navController: NavController, transactionViewModel: Transaction
                 Icon(
                     painter = painterResource(id = R.drawable.transactioncalender),
                     contentDescription = "Tanggal",
-                    modifier = Modifier.size(18.dp),
+                    modifier = Modifier
+                        .size(18.dp)
+                        .offset(y = (-2.5).dp),
                     tint = Color.DarkGray
                 )
                 Spacer(modifier = Modifier.width(8.dp))
@@ -994,9 +996,6 @@ fun FilterDialog(
                         )
                     }
                 }
-
-                // Menambahkan spasi sebelum tombol Terapkan
-                Spacer(modifier = Modifier.height(32.dp))
 
                 // Tombol Terapkan
                 Button(

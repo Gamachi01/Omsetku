@@ -338,7 +338,8 @@ class FirestoreRepository {
         name: String? = null,
         price: Long? = null,
         imageUrl: String? = null,
-        description: String? = null
+        description: String? = null,
+        hppValue: Double? = null
     ): Boolean {
         val updateData = hashMapOf<String, Any>()
 
@@ -346,6 +347,7 @@ class FirestoreRepository {
         price?.let { updateData["price"] = it }
         imageUrl?.let { updateData["imageUrl"] = it }
         description?.let { updateData["description"] = it }
+        hppValue?.let { updateData["hpp"] = it }
 
         if (updateData.isEmpty()) return true
 

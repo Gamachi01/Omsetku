@@ -66,7 +66,7 @@ fun EditProfileScreen(
             .fillMaxSize()
             .background(Color.White)
             .verticalScroll(scrollState)
-            .padding(16.dp)
+            .padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 16.dp)
     ) {
         // Header dengan tombol kembali dan judul
         Row(
@@ -261,7 +261,7 @@ fun EditProfileScreen(
             }
         }
 
-        Spacer(modifier = Modifier.weight(1f, fill = true))
+        Spacer(modifier = Modifier.height(24.dp))
 
         // Tampilkan error jika ada
         if (error != null) {
@@ -274,22 +274,21 @@ fun EditProfileScreen(
             )
         }
 
+        Spacer(modifier = Modifier.height(6.dp))
+
         // Tombol simpan
         Button(
             onClick = {
-                // Panggil fungsi savePersonalData untuk menyimpan perubahan
                 authViewModel.savePersonalData(
                     fullName = nama,
+                    phoneNumber = noTelepon,
                     gender = jenisKelamin,
-                    position = jabatan,
-                    address = "",  // Field alamat tidak ada di EditProfileScreen
-                    phoneNumber = noTelepon
+                    position = jabatan
                 )
                 navController.navigate(Routes.PROFILE)
             },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 24.dp, bottom = 16.dp)
                 .height(48.dp),
             shape = RoundedCornerShape(8.dp),
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF5ED0C5)),

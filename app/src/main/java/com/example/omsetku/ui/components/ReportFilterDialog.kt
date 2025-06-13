@@ -58,7 +58,10 @@ fun ReportFilterDialog(
         Surface(
             shape = RoundedCornerShape(16.dp),
             color = Color.White,
-            modifier = Modifier.heightIn(max = 550.dp)
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp)
+                .heightIn(max = 550.dp)
         ) {
             Column(
                 modifier = Modifier

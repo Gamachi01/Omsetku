@@ -46,7 +46,7 @@ enum class TransactionType {
 @Composable
 fun TransactionScreen(
     navController: NavController,
-    transactionViewModel: TransactionViewModel = viewModel(factory = TransactionViewModelFactory(FirestoreRepository()))
+    transactionViewModel: TransactionViewModel = viewModel(factory = TransactionViewModelFactory())
 ) {
     var selectedItem by remember { mutableStateOf("Transaction") }
     var selectedType by remember { mutableStateOf(TransactionType.INCOME) }
@@ -104,7 +104,7 @@ fun TransactionScreen(
                 .fillMaxSize()
                 .verticalScroll(scrollState)
                 .padding(horizontal = 16.dp)
-                .padding(top = 16.dp, bottom = 8.dp)
+                .padding(top = 16.dp, bottom = 16.dp)
                 .padding(paddingValues)
         ) {
             Text(
@@ -121,7 +121,7 @@ fun TransactionScreen(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(40.dp)
+                    .height(48.dp)
                     .clip(RoundedCornerShape(8.dp))
             ) {
                 TransactionButton(
@@ -253,6 +253,8 @@ fun TransactionScreen(
                 )
             }
 
+            Spacer(modifier = Modifier.height(24.dp))
+
             // Error message
             if (error != null) {
                 Spacer(modifier = Modifier.height(8.dp))
@@ -265,7 +267,7 @@ fun TransactionScreen(
                 )
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.weight(1f))
 
             Button(
                 onClick = {
@@ -377,7 +379,7 @@ fun TransactionButton(
     Button(
         onClick = onClick,
         modifier = modifier
-            .height(40.dp),
+            .height(48.dp),
         contentPadding = PaddingValues(vertical = 0.dp),
         shape = shape,
         border = BorderStroke(1.dp, selectedColor),

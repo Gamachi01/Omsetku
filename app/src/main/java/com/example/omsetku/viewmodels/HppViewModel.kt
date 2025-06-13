@@ -334,7 +334,7 @@ class HppViewModel : ViewModel() {
     /**
      * Menyimpan HPP ke database
      */
-    fun saveHpp(productId: Int, hpp: Double) {
+    fun saveHpp(productId: Int, hppValue: Double) {
         viewModelScope.launch {
             _isLoading.value = true
             _error.value = null
@@ -346,14 +346,14 @@ class HppViewModel : ViewModel() {
                 // Update di Firestore
                 val success = repository.updateProduct(
                     productId = firestoreId,
-                    hpp = hpp
+                    hppValue = hppValue
                 )
 
                 if (success) {
                     // Update di state lokal
                     val updatedProducts = _products.value.map {
                         if (it.id == productId) {
-                            it.copy(hpp = hpp)
+                            it.copy(hpp = hppValue)
                         } else {
                             it
                         }

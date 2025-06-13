@@ -287,7 +287,7 @@ fun HppScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
             Button(
                 onClick = { hppViewModel.addBahanBaku() },
@@ -341,14 +341,20 @@ fun HppScreen(
                 )
             }
 
-            // Button Hitung HPP
+            Spacer(modifier = Modifier.height(4.dp))
+
+            // Tombol Hitung HPP
             Button(
-                onClick = { showResultDialog = true },
+                onClick = {
+                    showResultDialog = true
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(48.dp),
                 shape = RoundedCornerShape(8.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF5ED0C5))
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF5ED0C5)
+                )
             ) {
                 Text(
                     text = "Hitung HPP",

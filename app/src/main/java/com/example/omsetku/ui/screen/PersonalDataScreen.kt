@@ -35,7 +35,6 @@ fun PersonalDataScreen(
     var fullName by remember { mutableStateOf("") }
     var gender by remember { mutableStateOf("") }
     var position by remember { mutableStateOf("") }
-    var address by remember { mutableStateOf("") }
     var phoneNumber by remember { mutableStateOf("") }
 
     val isLoading by authViewModel.isLoading.collectAsState()
@@ -210,35 +209,6 @@ fun PersonalDataScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Alamat
-            Text(
-                text = "Alamat",
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Medium,
-                fontFamily = Poppins,
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
-
-            OutlinedTextField(
-                value = address,
-                onValueChange = { address = it },
-                placeholder = { Text("Masukkan alamat lengkap", fontSize = 14.sp, fontFamily = Poppins) },
-                shape = RoundedCornerShape(8.dp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    unfocusedBorderColor = Color.LightGray,
-                    focusedBorderColor = Color(0xFF5ED0C5)
-                ),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(100.dp),
-                textStyle = TextStyle(
-                    fontSize = 14.sp,
-                    fontFamily = Poppins
-                )
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
             // Nomor Telepon
             Text(
                 text = "Nomor Telepon",
@@ -273,8 +243,8 @@ fun PersonalDataScreen(
             // Tombol Simpan
             Button(
                 onClick = {
-                    if (validateInputs(fullName, gender, position, address, phoneNumber)) {
-                        authViewModel.savePersonalData(fullName, gender, position, address, phoneNumber)
+                    if (validateInputs(fullName, gender, position, phoneNumber)) {
+                        authViewModel.savePersonalData(fullName, gender, position, phoneNumber)
                     }
                 },
                 enabled = !isLoading,
@@ -325,7 +295,6 @@ private fun validateInputs(
     fullName: String,
     gender: String,
     position: String,
-    address: String,
     phoneNumber: String
 ): Boolean {
     // Check if all required fields are filled

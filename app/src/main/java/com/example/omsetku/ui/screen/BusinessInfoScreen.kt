@@ -203,7 +203,7 @@ fun BusinessInfoScreen(
 
             FormField(label = "Telepon Usaha", value = teleponUsaha, onValueChange = { teleponUsaha = it })
 
-            Spacer(modifier = Modifier.weight(1f, fill = true))
+            Spacer(modifier = Modifier.height(28.dp))
 
             // Tombol simpan
             Button(
@@ -222,7 +222,6 @@ fun BusinessInfoScreen(
                 },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 24.dp, bottom = 16.dp)
                     .height(48.dp),
                 shape = RoundedCornerShape(8.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF5ED0C5)),

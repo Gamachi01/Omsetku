@@ -140,7 +140,7 @@ class AuthViewModel : ViewModel() {
     /**
      * Menyimpan data diri user
      */
-    fun savePersonalData(fullName: String, gender: String, position: String, address: String, phoneNumber: String) {
+    fun savePersonalData(fullName: String, gender: String, position: String, phoneNumber: String) {
         viewModelScope.launch {
             _isLoading.value = true
             _error.value = null

@@ -110,7 +110,7 @@ fun HppBahanBakuList(
                         horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         OutlinedTextField(
-                            value = bahan.hargaPerUnit,
+                            value = bahan.hargaBeli,
                             onValueChange = { onBahanBakuHargaChanged(index, it) },
                             label = { Text("Harga/Unit", fontFamily = Poppins) },
                             modifier = Modifier.weight(1f),
@@ -127,7 +127,7 @@ fun HppBahanBakuList(
                         )
 
                         OutlinedTextField(
-                            value = bahan.jumlahDigunakan,
+                            value = bahan.jumlahBeli,
                             onValueChange = { onBahanBakuJumlahChanged(index, it) },
                             label = { Text("Jumlah", fontFamily = Poppins) },
                             modifier = Modifier.weight(1f),

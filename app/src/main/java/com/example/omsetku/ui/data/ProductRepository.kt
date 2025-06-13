@@ -6,18 +6,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 /**
- * Model data produk yang digunakan di seluruh aplikasi
- */
-data class ProductItem(
-    val id: Int,
-    val name: String,
-    val price: Int,
-    val imageRes: Int,
-    val imageUrl: String = "",
-    var quantity: Int = 0
-)
-
-/**
  * Repository untuk mengelola data produk di aplikasi
  */
 class ProductRepository private constructor() {
@@ -28,10 +16,10 @@ class ProductRepository private constructor() {
     init {
         // Inisialisasi dengan data dummy
         _products.value = listOf(
-            ProductItem(1, "Cappucino", 25000, R.drawable.logo),
-            ProductItem(2, "Americano", 20000, R.drawable.logo),
-            ProductItem(3, "Espresso", 15000, R.drawable.logo),
-            ProductItem(4, "Brown Sugar Latte", 15000, R.drawable.logo)
+            ProductItem(1, "Cappucino", 25000, R.drawable.logo, "", 0, 0.0),
+            ProductItem(2, "Americano", 20000, R.drawable.logo, "", 0, 0.0),
+            ProductItem(3, "Espresso", 15000, R.drawable.logo, "", 0, 0.0),
+            ProductItem(4, "Brown Sugar Latte", 15000, R.drawable.logo, "", 0, 0.0)
         )
     }
 
@@ -40,7 +28,7 @@ class ProductRepository private constructor() {
      */
     fun addProduct(name: String, price: Int): ProductItem {
         val newId = (_products.value.maxOfOrNull { it.id } ?: 0) + 1
-        val newProduct = ProductItem(newId, name, price, R.drawable.logo)
+        val newProduct = ProductItem(newId, name, price, R.drawable.logo, "", 0, 0.0)
         _products.value = _products.value + newProduct
         return newProduct
     }

@@ -72,6 +72,27 @@ import com.example.omsetku.ui.components.DeleteConfirmationDialog
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.ripple.rememberRipple
+import com.example.omsetku.ui.components.ProfitAlertDialog
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Surface
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.IconButtonDefaults
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
 @Composable
@@ -206,7 +227,7 @@ fun CashierScreen(
                     },
                     trailingIcon = {
                         if (searchQuery.isNotEmpty()) {
-                            IconButton(
+                            androidx.compose.material3.IconButton(
                                 onClick = { searchQuery = "" }
                             ) {
                                 Icon(
@@ -499,17 +520,6 @@ fun CashierScreen(
             }
         )
     }
-
-    // Tambahkan dialog profit alert setelah success dialog
-    if (showProfitAlert) {
-        ProfitAlertDialog(
-            profit = transactionProfit,
-            onDismiss = {
-                showProfitAlert = false
-                cartViewModel.clearCart()
-            }
-        )
-    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
@@ -604,100 +614,93 @@ fun ProductCard(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(40.dp),
+                    .height(56.dp),
                 contentAlignment = Alignment.Center
             ) {
-                AnimatedContent(
+                androidx.compose.animation.AnimatedContent(
                     targetState = isEditMode,
                     transitionSpec = {
-                        fadeIn(animationSpec = tween(500)) with fadeOut(animationSpec = tween(500))
+                        fadeIn(tween(300)) with fadeOut(tween(300))
                     }
                 ) { editMode ->
-                    if (editMode) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 24.dp)
-                        ) {
-                            // Edit Button
-                            IconButton(
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        // Slot kiri
+                        if (editMode) {
+                            androidx.compose.material3.IconButton(
                                 onClick = onEdit,
-                                modifier = Modifier
-                                    .size(32.dp)
-                                    .background(PrimaryVariant.copy(alpha = 0.2f), CircleShape)
+                                modifier = Modifier.size(48.dp).clip(CircleShape),
+                                colors = IconButtonDefaults.iconButtonColors(
+                                    containerColor = PrimaryVariant.copy(alpha = 0.2f)
+                                )
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.Edit,
                                     contentDescription = "Edit",
                                     tint = PrimaryVariant,
-                                    modifier = Modifier.size(16.dp)
+                                    modifier = Modifier.size(24.dp)
                                 )
                             }
-
-                            // Delete Button
-                            IconButton(
-                                onClick = onDelete,
-                                modifier = Modifier
-                                    .size(32.dp)
-                                    .background(Color.Red.copy(alpha = 0.2f), CircleShape)
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Delete,
-                                    contentDescription = "Delete",
-                                    tint = Color.Red,
-                                    modifier = Modifier.size(16.dp)
-                                )
-                            }
-                        }
-                    } else {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 24.dp)
-                        ) {
-                            // Minus Button
-                            IconButton(
+                        } else {
+                            androidx.compose.material3.IconButton(
                                 onClick = {
                                     if (quantity > 0) {
                                         quantity--
                                         cartViewModel.updateQuantity(product.id.toString(), quantity)
                                     }
                                 },
-                                modifier = Modifier
-                                    .size(32.dp)
-                                    .background(
-                                        color = if (quantity > 0) PrimaryVariant else Color.LightGray,
-                                        shape = CircleShape
-                                    )
+                                modifier = Modifier.size(48.dp).clip(CircleShape),
+                                colors = IconButtonDefaults.iconButtonColors(
+                                    containerColor = if (quantity > 0) PrimaryVariant else Color.LightGray
+                                )
                             ) {
                                 Icon(
                                     painter = painterResource(id = R.drawable.ic_remove),
                                     contentDescription = "Decrease",
                                     tint = Color.White,
-                                    modifier = Modifier.size(16.dp)
+                                    modifier = Modifier.size(24.dp)
                                 )
                             }
+                        }
 
-                            // Quantity
+                        // Slot tengah
+                        if (editMode) {
+                            Spacer(modifier = Modifier.width(40.dp))
+                        } else {
                             Text(
                                 text = quantity.toString(),
-                                fontSize = 16.sp,
+                                fontSize = 18.sp,
                                 fontWeight = FontWeight.Bold,
                                 fontFamily = Poppins,
-                                modifier = Modifier.width(35.dp),
+                                modifier = Modifier.width(40.dp),
                                 textAlign = TextAlign.Center
                             )
+                        }
 
-                            // Plus Button
-                            IconButton(
+                        // Slot kanan
+                        if (editMode) {
+                            androidx.compose.material3.IconButton(
+                                onClick = onDelete,
+                                modifier = Modifier.size(48.dp).clip(CircleShape),
+                                colors = IconButtonDefaults.iconButtonColors(
+                                    containerColor = Color.Red.copy(alpha = 0.2f)
+                                )
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Delete,
+                                    contentDescription = "Delete",
+                                    tint = Color.Red,
+                                    modifier = Modifier.size(24.dp)
+                                )
+                            }
+                        } else {
+                            androidx.compose.material3.IconButton(
                                 onClick = {
                                     quantity++
                                     if (quantity == 1) {
-                                        // Jika baru ditambahkan, gunakan addToCart
                                         cartViewModel.addToCart(
                                             com.example.omsetku.models.Product(
                                                 id = product.id.toString(),
@@ -708,114 +711,22 @@ fun ProductCard(
                                             1
                                         )
                                     } else {
-                                        // Jika sudah ada, update quantity
                                         cartViewModel.updateQuantity(product.id.toString(), quantity)
                                     }
-
-                                    // Panggil callback untuk memberitahu parent
                                     onQuantityChanged(quantity)
                                 },
-                                modifier = Modifier
-                                    .size(32.dp)
-                                    .background(PrimaryVariant, CircleShape)
+                                modifier = Modifier.size(48.dp).clip(CircleShape),
+                                colors = IconButtonDefaults.iconButtonColors(containerColor = PrimaryVariant)
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.Add,
                                     contentDescription = "Increase",
                                     tint = Color.White,
-                                    modifier = Modifier.size(16.dp)
+                                    modifier = Modifier.size(24.dp)
                                 )
                             }
                         }
                     }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun ProfitAlertDialog(
-    profit: Double,
-    onDismiss: () -> Unit
-) {
-    Dialog(
-        onDismissRequest = onDismiss,
-        properties = DialogProperties(usePlatformDefaultWidth = false)
-    ) {
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = Color.White)
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                // Icon Celebration
-                Icon(
-                    imageVector = Icons.Default.Star,
-                    contentDescription = "Celebration",
-                    modifier = Modifier.size(48.dp),
-                    tint = Color(0xFF4CAF50)  // Warna hijau
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // Title
-                Text(
-                    text = "Selamat!",
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                    fontFamily = Poppins,
-                    color = Color.Black
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                // Profit Text
-                Text(
-                    text = "Kamu mendapatkan profit",
-                    fontSize = 16.sp,
-                    fontFamily = Poppins,
-                    color = Color.Gray
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                // Profit Amount
-                Text(
-                    text = "Rp ${profit.toString().reversed().chunked(3).joinToString(".").reversed()}",
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold,
-                    fontFamily = Poppins,
-                    color = Color(0xFF4CAF50)  // Warna hijau
-                )
-
-                Spacer(modifier = Modifier.height(24.dp))
-
-                // Close Button
-                Button(
-                    onClick = onDismiss,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(48.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF4CAF50)  // Warna hijau
-                    ),
-                    shape = RoundedCornerShape(8.dp)
-                ) {
-                    Text(
-                        text = "Tutup",
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Medium,
-                        fontFamily = Poppins,
-                        color = Color.White
-                    )
                 }
             }
         }
