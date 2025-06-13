@@ -55,6 +55,7 @@ class TransactionViewModel : ViewModel() {
                     try {
                         val date = transactionMap["date"] as? Long ?: 0L
                         val dateFormat = SimpleDateFormat("dd MMMM yyyy", Locale("id", "ID"))
+                        dateFormat.timeZone = TimeZone.getTimeZone("Asia/Jakarta")
                         val type = transactionMap["type"] as? String ?: ""
                         val description = transactionMap["description"] as? String ?: ""
                         val category = transactionMap["category"] as? String ?: ""
@@ -80,6 +81,7 @@ class TransactionViewModel : ViewModel() {
                 val sortedTransactions = transactionItems.sortedByDescending {
                     try {
                         val dateFormat = SimpleDateFormat("dd MMMM yyyy", Locale("id", "ID"))
+                        dateFormat.timeZone = TimeZone.getTimeZone("Asia/Jakarta")
                         dateFormat.parse(it.date)?.time ?: 0L
                     } catch (e: Exception) {
                         0L
@@ -117,12 +119,8 @@ class TransactionViewModel : ViewModel() {
             return
         }
 
-        val dateFormat = SimpleDateFormat("dd MMMM yyyy", Locale("id", "ID"))
-        val parsedDate = try {
-            dateFormat.parse(date)?.time ?: System.currentTimeMillis()
-        } catch (e: Exception) {
-            System.currentTimeMillis()
-        }
+        // Gunakan waktu real-time saat transaksi dilakukan
+        val parsedDate = System.currentTimeMillis()
 
         viewModelScope.launch {
             _isLoading.value = true

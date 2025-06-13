@@ -229,7 +229,7 @@ fun ProductDialog(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 4.dp),
+                        .padding(horizontal = 2.dp),
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     Button(
@@ -245,7 +245,7 @@ fun ProductDialog(
                         Text(
                             text = "Batal",
                             fontSize = 14.sp,
-                            fontWeight = FontWeight.Medium,
+                            fontWeight = FontWeight.Bold,
                             fontFamily = Poppins,
                             color = Color.Black,
                             textAlign = TextAlign.Center,
@@ -267,7 +267,7 @@ fun ProductDialog(
                         Text(
                             text = if (isNewProduct) "Tambah Produk" else "Simpan",
                             fontSize = 14.sp,
-                            fontWeight = FontWeight.Medium,
+                            fontWeight = FontWeight.Bold,
                             fontFamily = Poppins,
                             color = Color.White,
                             textAlign = TextAlign.Center,

@@ -13,6 +13,9 @@ import java.util.Date
 class HppViewModel : ViewModel() {
     private val repository = FirestoreRepository()
 
+    // Tambahkan mapping ID
+    private val productIdMap = mutableMapOf<Int, String>()
+
     private val _products = MutableStateFlow<List<ProductItem>>(emptyList())
     val products: StateFlow<List<ProductItem>> = _products.asStateFlow()
 
@@ -92,6 +95,9 @@ class HppViewModel : ViewModel() {
                 val productItems = productsList.map { productMap ->
                     val firestoreId = productMap["id"] as? String ?: ""
                     val id = firestoreId.hashCode()
+
+                    // Simpan mapping ID
+                    productIdMap[id] = firestoreId
 
                     ProductItem(
                         id = id,
@@ -341,7 +347,10 @@ class HppViewModel : ViewModel() {
 
             try {
                 // Dapatkan Firestore ID dari mapping
-                val firestoreId = productId.toString()
+                val firestoreId = productIdMap[productId] ?: run {
+                    _error.value = "ID produk tidak valid"
+                    return@launch
+                }
 
                 // Update di Firestore
                 val success = repository.updateProduct(

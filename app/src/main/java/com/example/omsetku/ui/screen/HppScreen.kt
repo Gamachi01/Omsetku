@@ -341,7 +341,7 @@ fun HppScreen(
                 )
             }
 
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
             // Tombol Hitung HPP
             Button(
@@ -460,7 +460,13 @@ fun HppScreen(
                     Spacer(modifier = Modifier.height(24.dp))
 
                     Button(
-                        onClick = { showResultDialog = false },
+                        onClick = {
+                            val product = selectedProduct
+                            if (product != null) {
+                                hppViewModel.saveHpp(product.id, hppPerPorsi)
+                            }
+                            showResultDialog = false
+                        },
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(top = 8.dp),
@@ -470,7 +476,7 @@ fun HppScreen(
                         )
                     ) {
                         Text(
-                            "Tutup",
+                            "Simpan",
                             fontFamily = Poppins,
                             fontWeight = FontWeight.Bold,
                             color = Color.White,

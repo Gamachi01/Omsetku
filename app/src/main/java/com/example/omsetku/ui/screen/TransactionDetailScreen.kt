@@ -31,6 +31,8 @@ import com.example.omsetku.R
 import com.example.omsetku.models.CartItem
 import com.example.omsetku.ui.components.Poppins
 import com.example.omsetku.ui.theme.PrimaryVariant
+import com.example.omsetku.ui.theme.MediumText
+import com.example.omsetku.ui.theme.PrimaryLight
 import com.example.omsetku.viewmodels.CartViewModel
 import com.example.omsetku.viewmodels.ProductViewModel
 import com.example.omsetku.viewmodels.TaxViewModel
@@ -81,11 +83,11 @@ fun TransactionDetailScreen(
     // Efek untuk menangani transaksi sukses
     LaunchedEffect(transactionSuccess) {
         if (transactionSuccess) {
+            showSuccessDialog = true
             val marginProfitValue = marginProfit.toDoubleOrNull() ?: 0.0
             val totalProfit = cartViewModel.calculateTotalProfit(products, marginProfitValue)
             if (totalProfit > 0) {
                 transactionProfit = totalProfit
-                showProfitAlert = true
             }
         }
     }
@@ -210,23 +212,31 @@ fun TransactionDetailScreen(
         }
     }
 
+    if (showSuccessDialog) {
+        SuccessDialog(
+            onDismiss = {
+                showSuccessDialog = false
+                if (transactionProfit > 0) {
+                    showProfitAlert = true
+                } else {
+                    navController.navigate(Routes.HOME) {
+                        popUpTo(Routes.HOME) { inclusive = true }
+                    }
+                    cartViewModel.clearCartAfterSuccess()
+                }
+            }
+        )
+    }
+
     if (showProfitAlert) {
         ProfitAlertDialog(
             profit = transactionProfit,
             onDismiss = {
                 showProfitAlert = false
-                showSuccessDialog = true
-            }
-        )
-    }
-
-    if (showSuccessDialog) {
-        SuccessDialog(
-            onDismiss = {
-                showSuccessDialog = false
                 navController.navigate(Routes.HOME) {
                     popUpTo(Routes.HOME) { inclusive = true }
                 }
+                cartViewModel.clearCartAfterSuccess()
             }
         )
     }
@@ -269,7 +279,7 @@ fun SuccessDialog(onDismiss: () -> Unit) {
                 .fillMaxWidth()
                 .padding(16.dp),
             shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = Color.White)
+            colors = CardDefaults.cardColors(containerColor = PrimaryLight)
         ) {
             Column(
                 modifier = Modifier
@@ -282,7 +292,7 @@ fun SuccessDialog(onDismiss: () -> Unit) {
                     imageVector = Icons.Default.Check,
                     contentDescription = "Success",
                     modifier = Modifier.size(48.dp),
-                    tint = Color(0xFF4CAF50)  // Warna hijau
+                    tint = PrimaryVariant
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -293,7 +303,7 @@ fun SuccessDialog(onDismiss: () -> Unit) {
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
                     fontFamily = Poppins,
-                    color = Color.Black
+                    color = PrimaryVariant
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -303,7 +313,7 @@ fun SuccessDialog(onDismiss: () -> Unit) {
                     text = "Transaksi anda telah tercatat.",
                     fontSize = 16.sp,
                     fontFamily = Poppins,
-                    color = Color.Gray
+                    color = MediumText
                 )
 
                 Spacer(modifier = Modifier.height(24.dp))
@@ -315,7 +325,7 @@ fun SuccessDialog(onDismiss: () -> Unit) {
                         .fillMaxWidth()
                         .height(48.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF4CAF50)  // Warna hijau
+                        containerColor = PrimaryVariant
                     ),
                     shape = RoundedCornerShape(8.dp)
                 ) {

@@ -228,7 +228,7 @@ fun ReportScreen(navController: NavController, transactionViewModel: Transaction
                     Text(
                         "Filter",
                         fontSize = 13.sp,
-                        fontWeight = FontWeight.Medium,
+                        fontWeight = FontWeight.Bold,
                         fontFamily = Poppins
                     )
                 }
@@ -256,7 +256,7 @@ fun ReportScreen(navController: NavController, transactionViewModel: Transaction
                     Text(
                         "Download Laporan",
                         fontSize = 13.sp,
-                        fontWeight = FontWeight.Medium,
+                        fontWeight = FontWeight.Bold,
                         fontFamily = Poppins
                     )
                 }

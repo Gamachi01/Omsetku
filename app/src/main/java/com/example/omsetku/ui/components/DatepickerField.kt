@@ -56,13 +56,19 @@ fun DatePickerField(
     // Gunakan TimeZone default sistem
     val currentTimeZone = TimeZone.getDefault()
 
-    // Kalender untuk menyimpan tanggal yang dipilih - gunakan TimeZone default
-    val calendar = remember { Calendar.getInstance() }
+    val dateFormatForParse = SimpleDateFormat("dd MMMM yyyy", Locale("id", "ID"))
+    dateFormatForParse.timeZone = TimeZone.getDefault()
 
-    // Jika mode WEEKLY_END, gunakan startDate sebagai tanggal minimum
     val initialDate = when {
         mode == DatePickerMode.WEEKLY_END && startDate != null -> startDate
-        else -> calendar.timeInMillis
+        value.isNotBlank() -> {
+            try {
+                dateFormatForParse.parse(value)?.time ?: System.currentTimeMillis()
+            } catch (e: Exception) {
+                System.currentTimeMillis()
+            }
+        }
+        else -> System.currentTimeMillis()
     }
 
     val datePickerState = rememberDatePickerState(
@@ -97,9 +103,6 @@ fun DatePickerField(
                         selectedCalendar.set(Calendar.MINUTE, 0)
                         selectedCalendar.set(Calendar.SECOND, 0)
                         selectedCalendar.set(Calendar.MILLISECOND, 0)
-
-                        // Tambahkan 1 hari untuk mengatasi masalah timezone di Indonesia
-                        selectedCalendar.add(Calendar.DAY_OF_MONTH, 1)
 
                         // Jika mode WEEKLY_END, pastikan tanggal yang dipilih adalah seminggu setelah startDate
                         if (mode == DatePickerMode.WEEKLY_END && startDate != null) {

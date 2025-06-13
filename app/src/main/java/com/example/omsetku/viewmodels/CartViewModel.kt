@@ -180,11 +180,8 @@ class CartViewModel : ViewModel() {
                 // Simpan transaksi ke Firestore
                 firestoreRepository.saveTransaction(transaction)
                 
-                // Set transaction success sebelum membersihkan keranjang
+                // Set transaction success, clearCart dipanggil dari UI setelah dialog sukses/profit ditutup
                 _transactionSuccess.value = true
-                
-                // Reset state keranjang
-                clearCart()
                 _error.value = null
             } catch (e: Exception) {
                 _error.value = "Gagal menyimpan transaksi: ${e.message}"
@@ -230,5 +227,10 @@ class CartViewModel : ViewModel() {
                 0.0
             }
         }
+    }
+
+    // Fungsi baru: clear keranjang setelah dialog sukses/profit ditutup
+    fun clearCartAfterSuccess() {
+        clearCart()
     }
 }

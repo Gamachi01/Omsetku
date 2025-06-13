@@ -630,39 +630,39 @@ fun ProductCard(
                     ) {
                         // Slot kiri
                         if (editMode) {
-                            androidx.compose.material3.IconButton(
-                                onClick = onEdit,
+                        androidx.compose.material3.IconButton(
+                            onClick = onEdit,
                                 modifier = Modifier.size(48.dp).clip(CircleShape),
-                                colors = IconButtonDefaults.iconButtonColors(
-                                    containerColor = PrimaryVariant.copy(alpha = 0.2f)
-                                )
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Edit,
-                                    contentDescription = "Edit",
-                                    tint = PrimaryVariant,
+                            colors = IconButtonDefaults.iconButtonColors(
+                                containerColor = PrimaryVariant.copy(alpha = 0.2f)
+                            )
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Edit,
+                                contentDescription = "Edit",
+                                tint = PrimaryVariant,
                                     modifier = Modifier.size(24.dp)
                                 )
                             }
                         } else {
-                            androidx.compose.material3.IconButton(
-                                onClick = {
-                                    if (quantity > 0) {
-                                        quantity--
-                                        cartViewModel.updateQuantity(product.id.toString(), quantity)
-                                    }
-                                },
+                        androidx.compose.material3.IconButton(
+                            onClick = {
+                                if (quantity > 0) {
+                                    quantity--
+                                    cartViewModel.updateQuantity(product.id.toString(), quantity)
+                                }
+                            },
                                 modifier = Modifier.size(48.dp).clip(CircleShape),
-                                colors = IconButtonDefaults.iconButtonColors(
-                                    containerColor = if (quantity > 0) PrimaryVariant else Color.LightGray
-                                )
-                            ) {
-                                Icon(
-                                    painter = painterResource(id = R.drawable.ic_remove),
-                                    contentDescription = "Decrease",
-                                    tint = Color.White,
+                            colors = IconButtonDefaults.iconButtonColors(
+                                containerColor = if (quantity > 0) PrimaryVariant else Color.LightGray
+                            )
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_remove),
+                                contentDescription = "Decrease",
+                                tint = Color.White,
                                     modifier = Modifier.size(24.dp)
-                                )
+                            )
                             }
                         }
 
@@ -670,14 +670,14 @@ fun ProductCard(
                         if (editMode) {
                             Spacer(modifier = Modifier.width(40.dp))
                         } else {
-                            Text(
-                                text = quantity.toString(),
+                        Text(
+                            text = quantity.toString(),
                                 fontSize = 18.sp,
-                                fontWeight = FontWeight.Bold,
-                                fontFamily = Poppins,
+                            fontWeight = FontWeight.Bold,
+                            fontFamily = Poppins,
                                 modifier = Modifier.width(40.dp),
-                                textAlign = TextAlign.Center
-                            )
+                            textAlign = TextAlign.Center
+                        )
                         }
 
                         // Slot kanan
@@ -697,33 +697,33 @@ fun ProductCard(
                                 )
                             }
                         } else {
-                            androidx.compose.material3.IconButton(
-                                onClick = {
-                                    quantity++
-                                    if (quantity == 1) {
-                                        cartViewModel.addToCart(
-                                            com.example.omsetku.models.Product(
-                                                id = product.id.toString(),
-                                                name = product.name,
-                                                price = product.price.toLong(),
-                                                imageRes = product.imageRes
-                                            ),
-                                            1
-                                        )
-                                    } else {
-                                        cartViewModel.updateQuantity(product.id.toString(), quantity)
-                                    }
-                                    onQuantityChanged(quantity)
-                                },
+                        androidx.compose.material3.IconButton(
+                            onClick = {
+                                quantity++
+                                if (quantity == 1) {
+                                    cartViewModel.addToCart(
+                                        com.example.omsetku.models.Product(
+                                            id = product.id.toString(),
+                                            name = product.name,
+                                            price = product.price.toLong(),
+                                            imageRes = product.imageRes
+                                        ),
+                                        1
+                                    )
+                                } else {
+                                    cartViewModel.updateQuantity(product.id.toString(), quantity)
+                                }
+                                onQuantityChanged(quantity)
+                            },
                                 modifier = Modifier.size(48.dp).clip(CircleShape),
-                                colors = IconButtonDefaults.iconButtonColors(containerColor = PrimaryVariant)
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Add,
-                                    contentDescription = "Increase",
-                                    tint = Color.White,
+                            colors = IconButtonDefaults.iconButtonColors(containerColor = PrimaryVariant)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Add,
+                                contentDescription = "Increase",
+                                tint = Color.White,
                                     modifier = Modifier.size(24.dp)
-                                )
+                            )
                             }
                         }
                     }

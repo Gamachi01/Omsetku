@@ -298,16 +298,22 @@ fun HomeScreen(
 
                             Button(
                                 onClick = { navController.navigate(Routes.TRANSACTION) },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(48.dp),
                                 shape = RoundedCornerShape(8.dp),
                                 colors = ButtonDefaults.buttonColors(
-                                    containerColor = PrimaryColor
+                                    containerColor = PrimaryVariant
                                 )
                             ) {
                                 Text(
                                     text = "Catat Transaksi",
                                     fontSize = 14.sp,
                                     fontWeight = FontWeight.Bold,
-                                    fontFamily = Poppins
+                                    fontFamily = Poppins,
+                                    color = Color.White,
+                                    textAlign = TextAlign.Center,
+                                    modifier = Modifier.fillMaxWidth()
                                 )
                             }
                         }

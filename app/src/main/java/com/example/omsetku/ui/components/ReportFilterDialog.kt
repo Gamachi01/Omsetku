@@ -362,7 +362,7 @@ fun ReportFilterDialog(
                     Text(
                         text = "Terapkan",
                         fontSize = 16.sp,
-                        fontWeight = FontWeight.Medium,
+                        fontWeight = FontWeight.Bold,
                         fontFamily = Poppins
                     )
                 }
