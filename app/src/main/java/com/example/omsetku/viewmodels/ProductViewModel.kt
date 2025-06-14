@@ -4,29 +4,34 @@ import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.omsetku.R
+import com.example.omsetku.data.repository.ProductRepository
 import com.example.omsetku.firebase.FirebaseModule
 import com.example.omsetku.firebase.FirestoreRepository
 import com.example.omsetku.ui.data.ProductItem
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class ProductViewModel : ViewModel() {
-    private val repository = FirestoreRepository()
+@HiltViewModel
+class ProductViewModel @Inject constructor(
+    private val repository: ProductRepository
+) : ViewModel() {
     private val storageRepository = FirebaseModule.storageRepository
 
     private val _products = MutableStateFlow<List<ProductItem>>(emptyList())
-    val products: StateFlow<List<ProductItem>> = _products.asStateFlow()
+    val products: StateFlow<List<ProductItem>> = _products
 
     private val _isLoading = MutableStateFlow(false)
-    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
+    val isLoading: StateFlow<Boolean> = _isLoading
 
     private val _error = MutableStateFlow<String?>(null)
-    val error: StateFlow<String?> = _error.asStateFlow()
+    val error: StateFlow<String?> = _error
 
-    // Menyimpan mapping ID produk dari hashCode ke ID Firestore
-    private val productIdMap = mutableMapOf<Int, String>()
+    // Menyimpan mapping ID produk dari id ke Firestore ID
+    private val productIdMap = mutableMapOf<String, String>()
 
     init {
         loadProducts()
@@ -38,35 +43,22 @@ class ProductViewModel : ViewModel() {
     fun loadProducts() {
         viewModelScope.launch {
             _isLoading.value = true
-            _error.value = null
-
             try {
-                val productsList = repository.getUserProducts()
-
-                // Convert dari Map ke ProductItem
-                val productItems = productsList.map { productMap ->
-                    val firestoreId = productMap["id"] as? String ?: ""
-                    val id = firestoreId.hashCode()
-
-                    // Simpan mapping ID
-                    productIdMap[id] = firestoreId
-
-                    ProductItem(
-                        id = id,
-                        firestoreId = firestoreId,
-                        name = productMap["name"] as? String ?: "",
-                        price = (productMap["price"] as? Number)?.toInt() ?: 0,
-                        imageRes = R.drawable.logo,  // Default image
-                        imageUrl = productMap["imageUrl"] as? String ?: "",
-                        quantity = 0,
-                        hpp = (productMap["hpp"] as? Number)?.toDouble() ?: 0.0  // Ambil HPP dari Firestore
-                    )
-                }
-
-                _products.value = productItems
+                // Sync dengan Firestore
+                repository.syncProducts()
+                
+                // Observe perubahan dari database lokal
+                repository.getAllProducts()
+                    .catch { e ->
+                        _error.value = e.message
+                        _isLoading.value = false
+                    }
+                    .collect { products ->
+                        _products.value = products
+                        _isLoading.value = false
+                    }
             } catch (e: Exception) {
-                _error.value = "Gagal memuat produk: ${e.message}"
-            } finally {
+                _error.value = e.message
                 _isLoading.value = false
             }
         }
@@ -98,29 +90,19 @@ class ProductViewModel : ViewModel() {
                     }
                 }
 
-                // Simpan ke Firestore
-                val productId = repository.saveProduct(
-                    name = name,
-                    price = price.toLong(),
-                    imageUrl = imageUrl
-                )
-
-                // Simpan mapping ID
-                val hashedId = productId.hashCode()
-                productIdMap[hashedId] = productId
-
-                // Update UI dengan produk baru
+                // Simpan ke repository
                 val newProduct = ProductItem(
-                    id = hashedId,
-                    firestoreId = productId,
+                    id = System.currentTimeMillis().toString(),
+                    firestoreId = "",
                     name = name,
                     price = price,
                     imageRes = R.drawable.logo,
                     imageUrl = imageUrl,
                     quantity = 0,
-                    hpp = 0.0  // Default HPP untuk produk baru
+                    hpp = 0.0
                 )
-
+                repository.addProduct(newProduct)
+                // Update UI dengan produk baru
                 _products.value = _products.value + newProduct
             } catch (e: Exception) {
                 _error.value = "Gagal menambahkan produk: ${e.message}"
@@ -133,28 +115,17 @@ class ProductViewModel : ViewModel() {
     /**
      * Mengedit produk yang ada
      */
-    fun editProduct(productId: Int, name: String, price: Int, imageUri: Uri? = null) {
+    fun editProduct(productId: String, name: String, price: Int, imageUri: Uri? = null) {
         if (name.isBlank() || price <= 0) {
             _error.value = "Nama produk dan harga harus valid"
             return
         }
-
-        // Dapatkan Firestore ID dari mapping
-        val firestoreId = productIdMap[productId] ?: run {
-            _error.value = "ID produk tidak valid"
-            return
-        }
-
         viewModelScope.launch {
             _isLoading.value = true
             _error.value = null
-
             try {
-                // Cari produk yang akan diupdate
                 val currentProduct = _products.value.find { it.id == productId }
                 var imageUrl = currentProduct?.imageUrl ?: ""
-
-                // Upload gambar baru jika ada
                 if (imageUri != null) {
                     try {
                         imageUrl = storageRepository.uploadProductImage(imageUri)
@@ -164,28 +135,20 @@ class ProductViewModel : ViewModel() {
                         return@launch
                     }
                 }
-
-                // Perbarui di Firestore
-                val success = repository.updateProduct(
-                    productId = firestoreId,
+                val updatedProduct = ProductItem(
+                    id = productId,
+                    firestoreId = currentProduct?.firestoreId ?: "",
                     name = name,
-                    price = price.toLong(),
-                    imageUrl = imageUrl
+                    price = price,
+                    imageRes = R.drawable.logo,
+                    imageUrl = imageUrl,
+                    quantity = 0,
+                    hpp = 0.0
                 )
-
-                if (success) {
-                    // Update di state lokal
-                    val updatedProducts = _products.value.map {
-                        if (it.id == productId) {
-                            it.copy(name = name, price = price, imageUrl = imageUrl)
-                        } else {
-                            it
-                        }
-                    }
-
-                    _products.value = updatedProducts
-                } else {
-                    _error.value = "Gagal memperbarui produk di database"
+                repository.updateProduct(updatedProduct)
+                _products.value = _products.value.map {
+                    if (it.id == productId) it.copy(name = name, price = price, imageUrl = imageUrl)
+                    else it
                 }
             } catch (e: Exception) {
                 _error.value = "Gagal mengedit produk: ${e.message}"
@@ -198,43 +161,21 @@ class ProductViewModel : ViewModel() {
     /**
      * Menghapus produk
      */
-    fun deleteProduct(productId: Int) {
-        // Dapatkan Firestore ID dari mapping
-        val firestoreId = productIdMap[productId] ?: run {
-            _error.value = "ID produk tidak valid"
-            return
-        }
-
+    fun deleteProduct(productId: String) {
         viewModelScope.launch {
             _isLoading.value = true
             _error.value = null
-
             try {
-                // Cari produk yang akan dihapus
                 val productToDelete = _products.value.find { it.id == productId }
-
-                // Hapus gambar jika ada
                 if (!productToDelete?.imageUrl.isNullOrEmpty()) {
                     try {
                         storageRepository.deleteProductImage(productToDelete?.imageUrl ?: "")
                     } catch (e: Exception) {
-                        // Lanjutkan meskipun gagal menghapus gambar
                         _error.value = "Gagal menghapus gambar produk, tapi produk akan tetap dihapus"
                     }
                 }
-
-                // Hapus di Firestore
-                val success = repository.deleteProduct(firestoreId)
-
-                if (success) {
-                    // Hapus dari state lokal
-                    _products.value = _products.value.filter { it.id != productId }
-
-                    // Hapus dari mapping
-                    productIdMap.remove(productId)
-                } else {
-                    _error.value = "Gagal menghapus produk di database"
-                }
+                repository.deleteProduct(productId)
+                _products.value = _products.value.filter { it.id != productId }
             } catch (e: Exception) {
                 _error.value = "Gagal menghapus produk: ${e.message}"
             } finally {
@@ -246,13 +187,10 @@ class ProductViewModel : ViewModel() {
     /**
      * Mengubah kuantitas produk yang dipilih
      */
-    fun updateProductQuantity(productId: Int, quantity: Int) {
+    fun updateProductQuantity(productId: String, quantity: Int) {
         val updatedProducts = _products.value.map {
-            if (it.id == productId) {
-                it.copy(quantity = quantity)
-            } else {
-                it
-            }
+            if (it.id == productId) it.copy(quantity = quantity)
+            else it
         }
         _products.value = updatedProducts
     }

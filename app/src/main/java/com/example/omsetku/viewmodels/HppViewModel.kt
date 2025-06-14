@@ -14,7 +14,7 @@ class HppViewModel : ViewModel() {
     private val repository = FirestoreRepository()
 
     // Tambahkan mapping ID
-    private val productIdMap = mutableMapOf<Int, String>()
+    private val productIdMap = mutableMapOf<String, String>()
 
     private val _products = MutableStateFlow<List<ProductItem>>(emptyList())
     val products: StateFlow<List<ProductItem>> = _products.asStateFlow()
@@ -94,11 +94,8 @@ class HppViewModel : ViewModel() {
                 // Convert dari Map ke ProductItem
                 val productItems = productsList.map { productMap ->
                     val firestoreId = productMap["id"] as? String ?: ""
-                    val id = firestoreId.hashCode()
-
-                    // Simpan mapping ID
+                    val id = firestoreId
                     productIdMap[id] = firestoreId
-
                     ProductItem(
                         id = id,
                         firestoreId = firestoreId,
@@ -285,7 +282,7 @@ class HppViewModel : ViewModel() {
 
                 // Data yang akan disimpan
                 val hppData = mapOf(
-                    "productId" to selectedProduct.id.toString(),
+                    "productId" to selectedProduct.id,
                     "productName" to selectedProduct.name,
                     "hppValue" to hpp,
                     "totalBiaya" to _totalBiaya.value,
@@ -341,7 +338,7 @@ class HppViewModel : ViewModel() {
     /**
      * Menyimpan HPP ke database
      */
-    fun saveHpp(productId: Int, hppValue: Double) {
+    fun saveHpp(productId: String, hppValue: Double) {
         viewModelScope.launch {
             _isLoading.value = true
             _error.value = null

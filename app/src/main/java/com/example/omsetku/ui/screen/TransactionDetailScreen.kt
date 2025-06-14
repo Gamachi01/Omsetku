@@ -42,6 +42,7 @@ import java.util.*
 import com.example.omsetku.ui.components.ProfitAlertDialog
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.hilt.navigation.compose.hiltViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -49,7 +50,7 @@ fun TransactionDetailScreen(
     navController: NavController,
     cartViewModel: CartViewModel,
     taxViewModel: TaxViewModel = viewModel(),
-    productViewModel: ProductViewModel = viewModel(),
+    productViewModel: ProductViewModel = hiltViewModel(),
     hppViewModel: HppViewModel = viewModel()
 ) {
     val cartItems by cartViewModel.cartItems.collectAsState()

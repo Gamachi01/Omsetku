@@ -38,33 +38,15 @@ class BusinessViewModel : ViewModel() {
     /**
      * Menyimpan data bisnis
      */
-    fun saveBusinessData(
-        name: String,
-        type: String,
-        address: String,
-        email: String? = null,
-        phone: String? = null,
-        logo: String? = null
-    ) {
+    fun saveBusiness(business: Business) {
         viewModelScope.launch {
             _isLoading.value = true
             _error.value = null
             _isSuccess.value = false
 
             try {
-                val businessId = firestoreRepository.saveBusinessData(
-                    name = name,
-                    type = type,
-                    address = address,
-                    email = email,
-                    phone = phone,
-                    logo = logo
-                )
-
-                // Refresh data bisnis
+                firestoreRepository.saveBusiness(business)
                 loadBusinessData()
-
-                // Set status sukses
                 _isSuccess.value = true
             } catch (e: Exception) {
                 _error.value = e.message ?: "Gagal menyimpan data bisnis"
@@ -83,12 +65,9 @@ class BusinessViewModel : ViewModel() {
             _error.value = null
 
             try {
-                val businesses = firestoreRepository.getUserBusinesses()
-
+                val businesses = firestoreRepository.getUserBusinessesModel()
                 if (businesses.isNotEmpty()) {
-                    // Ambil bisnis pertama (untuk saat ini cukup 1 bisnis per user)
-                    val businessData = businesses.first()
-                    _currentBusiness.value = Business.fromMap(businessData)
+                    _currentBusiness.value = businesses.first()
                 }
             } catch (e: Exception) {
                 _error.value = e.message ?: "Gagal memuat data bisnis"
@@ -152,23 +131,21 @@ class BusinessViewModel : ViewModel() {
             _error.value = null
 
             try {
-                // Upload logo jika ada
                 var logoUrl: String? = null
                 if (logoUri != null) {
                     logoUrl = storageRepository.uploadBusinessLogo(logoUri)
                 }
-
-                // Simpan data bisnis
-                val businessId = firestoreRepository.saveBusinessData(
+                val business = Business(
+                    id = java.util.UUID.randomUUID().toString(),
                     name = name,
                     type = type,
                     address = address,
                     email = email,
                     phone = phone,
-                    logo = logoUrl
+                    logo = logoUrl,
+                    createdAt = System.currentTimeMillis()
                 )
-
-                // Refresh daftar bisnis
+                firestoreRepository.saveBusiness(business)
                 loadBusinessData()
             } catch (e: Exception) {
                 _error.value = e.message ?: "Gagal membuat bisnis baru"

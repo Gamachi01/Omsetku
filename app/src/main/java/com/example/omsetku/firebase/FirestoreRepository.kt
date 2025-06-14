@@ -11,6 +11,9 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.tasks.await
 import com.example.omsetku.models.TaxSettings
 import com.example.omsetku.models.Transaction
+import com.example.omsetku.models.Business
+import com.example.omsetku.models.CartItem
+import com.example.omsetku.models.User
 
 /**
  * Repository yang menangani operasi Firestore Database
@@ -99,51 +102,78 @@ class FirestoreRepository {
     }
 
     /**
-     * Menyimpan data bisnis
+     * Menyimpan data bisnis (dengan model Business)
      */
-    suspend fun saveBusinessData(
-        name: String,
-        type: String,
-        address: String,
-        email: String? = null,
-        phone: String? = null,
-        logo: String? = null
-    ): String {
-        val userId = getCurrentUserId()
-
-        val businessData = hashMapOf(
-            "ownerId" to userId,
-            "name" to name,
-            "type" to type,
-            "address" to address,
-            "email" to email,
-            "phone" to phone,
-            "logo" to logo,
-            "createdAt" to System.currentTimeMillis()
+    suspend fun saveBusiness(business: Business) {
+        val data = mapOf(
+            "id" to business.id,
+            "ownerId" to getCurrentUserId(),
+            "name" to business.name,
+            "type" to business.type,
+            "address" to business.address,
+            "email" to business.email,
+            "phone" to business.phone,
+            "logo" to business.logo,
+            "createdAt" to business.createdAt
         )
-
-        // Hapus field null
-        businessData.entries.removeIf { it.value == null }
-
-        val docRef = businessCollection.add(businessData).await()
-        return docRef.id
+        businessCollection.document(business.id).set(data).await()
     }
 
     /**
-     * Mendapatkan data bisnis milik user saat ini
+     * Memperbarui data bisnis (dengan model Business)
      */
-    suspend fun getUserBusinesses(): List<Map<String, Any>> {
-        val userId = getCurrentUserId()
-        val snapshot = businessCollection
-            .whereEqualTo("ownerId", userId)
-            .get()
-            .await()
+    suspend fun updateBusiness(business: Business) {
+        val updateData = hashMapOf<String, Any>()
+        business.name.let { updateData["name"] = it }
+        business.type.let { updateData["type"] = it }
+        business.address.let { updateData["address"] = it }
+        business.email?.let { updateData["email"] = it }
+        business.phone?.let { updateData["phone"] = it }
+        business.logo?.let { updateData["logo"] = it }
+        business.createdAt.let { updateData["createdAt"] = it }
+        businessCollection.document(business.id).update(updateData).await()
+    }
 
+    /**
+     * Menghapus bisnis berdasarkan ID
+     */
+    suspend fun deleteBusiness(businessId: String) {
+        businessCollection.document(businessId).delete().await()
+    }
+
+    /**
+     * Menghapus semua bisnis milik user saat ini
+     */
+    suspend fun clearBusiness() {
+        val userId = getCurrentUserId()
+        val snapshot = businessCollection.whereEqualTo("ownerId", userId).get().await()
+        for (doc in snapshot.documents) {
+            doc.reference.delete().await()
+        }
+    }
+
+    /**
+     * Mengambil semua bisnis milik user saat ini (List<Business>)
+     */
+    suspend fun getUserBusinessesModel(): List<Business> {
+        val userId = getCurrentUserId()
+        val snapshot = businessCollection.whereEqualTo("ownerId", userId).get().await()
         return snapshot.documents.mapNotNull { doc ->
-            val data = doc.data
-            data?.let {
-                it["id"] = doc.id
-                it
+            val data = doc.data ?: return@mapNotNull null
+            data["id"] = doc.id
+            try {
+                Business(
+                    id = doc.id,
+                    name = data["name"] as? String ?: "",
+                    type = data["type"] as? String ?: "",
+                    address = data["address"] as? String ?: "",
+                    email = data["email"] as? String,
+                    phone = data["phone"] as? String,
+                    logo = data["logo"] as? String,
+                    createdAt = (data["createdAt"] as? Number)?.toLong() ?: 0L
+                )
+            } catch (e: Exception) {
+                null
             }
         }
     }
@@ -516,6 +546,231 @@ class FirestoreRepository {
             snapshot.documents.mapNotNull { it.data }
         } catch (e: Exception) {
             throw Exception("Gagal mengambil data HPP: ${e.message}")
+        }
+    }
+
+    /**
+     * Menyimpan item keranjang
+     */
+    suspend fun saveCartItem(cartItem: CartItem) {
+        val data = mapOf(
+            "productId" to cartItem.productId,
+            "ownerId" to getCurrentUserId(),
+            "name" to cartItem.name,
+            "price" to cartItem.price,
+            "quantity" to cartItem.quantity,
+            "imageRes" to cartItem.imageRes,
+            "hpp" to cartItem.hpp
+        )
+        db.collection("cart_items").document(cartItem.productId).set(data).await()
+    }
+
+    /**
+     * Update item keranjang
+     */
+    suspend fun updateCartItem(cartItem: CartItem) {
+        val updateData = hashMapOf<String, Any>()
+        updateData["name"] = cartItem.name
+        updateData["price"] = cartItem.price
+        updateData["quantity"] = cartItem.quantity
+        updateData["imageRes"] = cartItem.imageRes
+        updateData["hpp"] = cartItem.hpp
+        db.collection("cart_items").document(cartItem.productId).update(updateData).await()
+    }
+
+    /**
+     * Hapus item keranjang berdasarkan productId
+     */
+    suspend fun deleteCartItem(productId: String) {
+        db.collection("cart_items").document(productId).delete().await()
+    }
+
+    /**
+     * Hapus semua item keranjang milik user saat ini
+     */
+    suspend fun clearCart() {
+        val userId = getCurrentUserId()
+        val snapshot = db.collection("cart_items").whereEqualTo("ownerId", userId).get().await()
+        for (doc in snapshot.documents) {
+            doc.reference.delete().await()
+        }
+    }
+
+    /**
+     * Ambil semua item keranjang milik user saat ini
+     */
+    suspend fun getUserCartItems(): List<CartItem> {
+        val userId = getCurrentUserId()
+        val snapshot = db.collection("cart_items").whereEqualTo("ownerId", userId).get().await()
+        return snapshot.documents.mapNotNull { doc ->
+            val data = doc.data ?: return@mapNotNull null
+            try {
+                CartItem(
+                    productId = data["productId"] as? String ?: "",
+                    name = data["name"] as? String ?: "",
+                    price = (data["price"] as? Number)?.toInt() ?: 0,
+                    quantity = (data["quantity"] as? Number)?.toInt() ?: 0,
+                    imageRes = (data["imageRes"] as? Number)?.toInt() ?: 0,
+                    hpp = (data["hpp"] as? Number)?.toDouble() ?: 0.0
+                )
+            } catch (e: Exception) {
+                null
+            }
+        }
+    }
+
+    /**
+     * Mengambil satu bisnis utama milik user (jika ada)
+     */
+    suspend fun getUserBusiness(): Business? {
+        val userId = getCurrentUserId()
+        val snapshot = businessCollection.whereEqualTo("ownerId", userId).limit(1).get().await()
+        val doc = snapshot.documents.firstOrNull() ?: return null
+        val data = doc.data ?: return null
+        data["id"] = doc.id
+        return try {
+            Business(
+                id = doc.id,
+                name = data["name"] as? String ?: "",
+                type = data["type"] as? String ?: "",
+                address = data["address"] as? String ?: "",
+                email = data["email"] as? String,
+                phone = data["phone"] as? String,
+                logo = data["logo"] as? String,
+                createdAt = (data["createdAt"] as? Number)?.toLong() ?: 0L
+            )
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    /**
+     * Menyimpan atau update pengaturan pajak
+     */
+    suspend fun saveOrUpdateTaxSettings(taxSettings: TaxSettings) {
+        val taxData = TaxSettings.toMap(taxSettings)
+        db.collection("taxSettings").document(taxSettings.userId).set(taxData).await()
+    }
+
+    /**
+     * Menghapus pengaturan pajak berdasarkan id
+     */
+    suspend fun deleteTaxSettings(id: String) {
+        db.collection("taxSettings").document(id).delete().await()
+    }
+
+    /**
+     * Mengambil pengaturan pajak berdasarkan userId
+     */
+    suspend fun getTaxSettingsByUserId(userId: String): TaxSettings? {
+        val document = db.collection("taxSettings").document(userId).get().await()
+        return if (document.exists()) TaxSettings.fromMap(document.data!!) else null
+    }
+
+    /**
+     * Menghapus semua pengaturan pajak (hati-hati, biasanya hanya untuk admin)
+     */
+    suspend fun deleteAllTaxSettings() {
+        val snapshot = db.collection("taxSettings").get().await()
+        for (doc in snapshot.documents) {
+            doc.reference.delete().await()
+        }
+    }
+
+    /**
+     * Update transaksi
+     */
+    suspend fun updateTransaction(transaction: Transaction) {
+        val updateData = hashMapOf<String, Any>()
+        updateData["type"] = transaction.type
+        updateData["amount"] = transaction.amount
+        updateData["date"] = transaction.date
+        updateData["category"] = transaction.category
+        updateData["description"] = transaction.description ?: ""
+        updateData["createdAt"] = transaction.createdAt
+        transactionCollection.document(transaction.id).update(updateData).await()
+    }
+
+    /**
+     * Hapus transaksi
+     */
+    suspend fun deleteTransaction(transactionId: String) {
+        transactionCollection.document(transactionId).delete().await()
+    }
+
+    /**
+     * Simpan user
+     */
+    suspend fun saveUser(user: User) {
+        val userData = mapOf(
+            "id" to user.id,
+            "name" to user.name,
+            "email" to user.email,
+            "phone" to user.phone,
+            "gender" to user.gender,
+            "position" to user.position,
+            "createdAt" to user.createdAt
+        )
+        userCollection.document(user.id).set(userData).await()
+    }
+
+    /**
+     * Update user
+     */
+    suspend fun updateUser(user: User) {
+        val updateData = hashMapOf<String, Any>()
+        updateData["name"] = user.name
+        updateData["email"] = user.email
+        updateData["phone"] = user.phone
+        updateData["gender"] = user.gender
+        updateData["position"] = user.position
+        userCollection.document(user.id).update(updateData).await()
+    }
+
+    /**
+     * Hapus user
+     */
+    suspend fun deleteUser(userId: String) {
+        userCollection.document(userId).delete().await()
+    }
+
+    /**
+     * Ambil semua user
+     */
+    suspend fun getAllUsers(): List<User> {
+        val snapshot = userCollection.get().await()
+        return snapshot.documents.mapNotNull { doc ->
+            val data = doc.data ?: return@mapNotNull null
+            try {
+                com.example.omsetku.models.User.fromMap(data)
+            } catch (e: Exception) {
+                null
+            }
+        }
+    }
+
+    /**
+     * Mendapatkan daftar transaksi milik user saat ini (List<Transaction>)
+     */
+    suspend fun getUserTransactionsList(): List<Transaction> {
+        val userId = getCurrentUserId()
+        val snapshot = transactionCollection.whereEqualTo("userId", userId).get().await()
+        return snapshot.documents.mapNotNull { doc ->
+            val data = doc.data ?: return@mapNotNull null
+            try {
+                Transaction(
+                    id = doc.id,
+                    userId = data["userId"] as? String ?: "",
+                    type = data["type"] as? String ?: "",
+                    amount = (data["amount"] as? Number)?.toLong() ?: 0L,
+                    date = (data["date"] as? Number)?.toLong() ?: 0L,
+                    category = data["category"] as? String ?: "",
+                    description = data["description"] as? String ?: "",
+                    createdAt = (data["createdAt"] as? Number)?.toLong() ?: 0L
+                )
+            } catch (e: Exception) {
+                null
+            }
         }
     }
 }

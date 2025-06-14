@@ -178,22 +178,13 @@ class AuthViewModel : ViewModel() {
     /**
      * Menyimpan data usaha
      */
-    fun saveBusinessData(name: String, type: String, address: String, email: String?, phone: String?) {
+    fun saveBusiness(business: com.example.omsetku.models.Business) {
         viewModelScope.launch {
             _isLoading.value = true
             _error.value = null
 
             try {
-                // Simpan data bisnis ke Firestore
-                firestoreRepository.saveBusinessData(
-                    name = name,
-                    type = type,
-                    address = address,
-                    email = email,
-                    phone = phone
-                )
-
-                // Update state
+                firestoreRepository.saveBusiness(business)
                 _businessDataSaved.value = true
             } catch (e: Exception) {
                 _error.value = e.message ?: "Gagal menyimpan data usaha"

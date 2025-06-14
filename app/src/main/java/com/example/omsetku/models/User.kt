@@ -10,7 +10,7 @@ data class User(
     val createdAt: Long = 0
 ) {
     companion object {
-        fun fromMap(map: Map<String, Any>): User {
+        fun fromMap(map: Map<String, Any?>): User {
             return User(
                 id = map["id"] as? String ?: "",
                 name = map["name"] as? String ?: "",

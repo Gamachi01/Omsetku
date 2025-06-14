@@ -25,6 +25,7 @@ import com.example.omsetku.Navigation.Routes
 import com.example.omsetku.R
 import com.example.omsetku.ui.components.Poppins
 import com.example.omsetku.viewmodels.AuthViewModel
+import com.example.omsetku.models.Business
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -279,7 +280,17 @@ fun BusinessFormScreen(
             Button(
                 onClick = {
                     if (validateInputs(businessName, businessType, businessAddress)) {
-                        authViewModel.saveBusinessData(businessName, businessType, businessAddress, businessEmail, businessPhone)
+                        val business = com.example.omsetku.models.Business(
+                            id = java.util.UUID.randomUUID().toString(),
+                            name = businessName,
+                            type = businessType,
+                            address = businessAddress,
+                            email = businessEmail.takeIf { it.isNotBlank() },
+                            phone = businessPhone.takeIf { it.isNotBlank() },
+                            logo = null,
+                            createdAt = System.currentTimeMillis()
+                        )
+                        authViewModel.saveBusiness(business)
                     }
                 },
                 enabled = !isLoading,
