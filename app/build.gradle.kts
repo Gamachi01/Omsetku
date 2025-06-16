@@ -80,8 +80,8 @@ dependencies {
 
     // Room dependencies
     implementation("androidx.room:room-runtime:2.6.1")
+    kapt("androidx.room:room-compiler:2.6.1")
     implementation("androidx.room:room-ktx:2.6.1")
-    ksp("androidx.room:room-compiler:2.6.1")
 
     // Material Components
     implementation("com.google.android.material:material:1.11.0")
@@ -100,4 +100,7 @@ dependencies {
     implementation("com.google.firebase:firebase-storage:20.3.0")
     // Coil
     implementation("io.coil-kt:coil-compose:2.4.0")
+
+    // Gson
+    implementation("com.google.code.gson:gson:2.10.1")
 } 
