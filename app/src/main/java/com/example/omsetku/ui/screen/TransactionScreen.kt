@@ -35,7 +35,6 @@ import com.example.omsetku.viewmodels.TransactionViewModel
 import com.example.omsetku.ui.components.FormField
 import com.example.omsetku.ui.components.StandardTextField
 import com.example.omsetku.ui.components.MultilineTextField
-import com.example.omsetku.viewmodels.TransactionViewModelFactory
 import com.example.omsetku.firebase.FirestoreRepository
 
 enum class TransactionType {
@@ -46,7 +45,7 @@ enum class TransactionType {
 @Composable
 fun TransactionScreen(
     navController: NavController,
-    transactionViewModel: TransactionViewModel = viewModel(factory = TransactionViewModelFactory())
+    transactionViewModel: TransactionViewModel = viewModel<TransactionViewModel>()
 ) {
     var selectedItem by remember { mutableStateOf("Transaction") }
     var selectedType by remember { mutableStateOf(TransactionType.INCOME) }

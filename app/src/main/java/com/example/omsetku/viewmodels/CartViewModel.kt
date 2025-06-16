@@ -7,7 +7,6 @@ import com.example.omsetku.models.CartItem
 import com.example.omsetku.models.Product
 import com.example.omsetku.models.Transaction
 import com.example.omsetku.models.TransactionType
-import com.example.omsetku.ui.data.ProductItem
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -55,13 +54,13 @@ class CartViewModel : ViewModel() {
         }
     }
 
-    fun addToCart(product: ProductItem, quantity: Int) {
+    fun addToCart(product: Product, quantity: Int) {
         // Pastikan user ID terupdate
         updateCurrentUserId()
 
         if (quantity <= 0 || currentUserId.isEmpty()) return
 
-        val productId = product.firestoreId
+        val productId = product.id
         val existingItem = _cartItems.value.find { it.productId == productId }
 
         // Ambil HPP dari produk
@@ -128,7 +127,7 @@ class CartViewModel : ViewModel() {
         return _cartItems.value.sumOf { it.quantity }
     }
 
-    fun getSubtotal(): Int {
+    fun getSubtotal(): Long {
         return _cartItems.value.sumOf { it.subtotal }
     }
 
@@ -139,7 +138,7 @@ class CartViewModel : ViewModel() {
      * @param products List produk untuk menghitung profit
      * @param marginProfit Persentase margin profit yang diinginkan
      */
-    fun saveTransaction(taxEnabled: Boolean, taxRate: Int, products: List<ProductItem>, marginProfit: Double) {
+    fun saveTransaction(taxEnabled: Boolean, taxRate: Int, products: List<Product>, marginProfit: Double) {
         // Pastikan user ID terupdate
         updateCurrentUserId()
 
@@ -163,7 +162,7 @@ class CartViewModel : ViewModel() {
             try {
                 val now = System.currentTimeMillis()
                 val subtotal = getSubtotal()
-                val tax = if (taxEnabled) (subtotal * taxRate / 100) else 0
+                val tax = if (taxEnabled) (subtotal * taxRate / 100) else 0L
                 val total = subtotal + tax
 
                 // Hitung total profit
@@ -174,7 +173,7 @@ class CartViewModel : ViewModel() {
                     id = UUID.randomUUID().toString(),
                     userId = currentUser.uid,
                     type = TransactionType.INCOME.name,
-                    amount = total.toLong(),
+                    amount = total,
                     date = now,
                     category = "Penjualan",
                     description = generateTransactionDescription(items),
@@ -218,7 +217,7 @@ class CartViewModel : ViewModel() {
     /**
      * Menghitung total profit dari transaksi berdasarkan HPP
      */
-    fun calculateTotalProfit(products: List<ProductItem>, marginProfit: Double): Double {
+    fun calculateTotalProfit(products: List<Product>, marginProfit: Double): Double {
         return _cartItems.value.sumOf { item ->
             val product = products.find { 
                 // Coba cari berdasarkan firestoreId dulu, jika tidak ada coba berdasarkan id

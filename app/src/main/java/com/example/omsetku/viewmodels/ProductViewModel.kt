@@ -4,25 +4,20 @@ import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.omsetku.R
-import com.example.omsetku.data.repository.ProductRepository
 import com.example.omsetku.firebase.FirebaseModule
 import com.example.omsetku.firebase.FirestoreRepository
-import com.example.omsetku.ui.data.ProductItem
-import dagger.hilt.android.lifecycle.HiltViewModel
+import com.example.omsetku.models.Product
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@HiltViewModel
-class ProductViewModel @Inject constructor(
-    private val repository: ProductRepository
-) : ViewModel() {
+class ProductViewModel : ViewModel() {
     private val storageRepository = FirebaseModule.storageRepository
+    private val repository = FirestoreRepository()
 
-    private val _products = MutableStateFlow<List<ProductItem>>(emptyList())
-    val products: StateFlow<List<ProductItem>> = _products
+    private val _products = MutableStateFlow<List<Product>>(emptyList())
+    val products: StateFlow<List<Product>> = _products
 
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
@@ -43,22 +38,25 @@ class ProductViewModel @Inject constructor(
     fun loadProducts() {
         viewModelScope.launch {
             _isLoading.value = true
+            _error.value = null
             try {
-                // Sync dengan Firestore
-                repository.syncProducts()
-                
-                // Observe perubahan dari database lokal
-                repository.getAllProducts()
-                    .catch { e ->
-                        _error.value = e.message
-                        _isLoading.value = false
-                    }
-                    .collect { products ->
-                        _products.value = products
-                        _isLoading.value = false
-                    }
+                val productsList = repository.getUserProducts()
+                val productItems = productsList.map { productMap ->
+                    Product(
+                        id = productMap["id"] as? String ?: "",
+                        firestoreId = productMap["id"] as? String ?: "",
+                        name = productMap["name"] as? String ?: "",
+                        price = (productMap["price"] as? Number)?.toLong() ?: 0,
+                        imageRes = R.drawable.logo,
+                        imageUrl = productMap["imageUrl"] as? String ?: "",
+                        quantity = (productMap["quantity"] as? Number)?.toInt() ?: 0,
+                        hpp = (productMap["hpp"] as? Number)?.toDouble() ?: 0.0
+                    )
+                }
+                _products.value = productItems
             } catch (e: Exception) {
                 _error.value = e.message
+            } finally {
                 _isLoading.value = false
             }
         }
@@ -72,13 +70,10 @@ class ProductViewModel @Inject constructor(
             _error.value = "Nama produk dan harga harus valid"
             return
         }
-
         viewModelScope.launch {
             _isLoading.value = true
             _error.value = null
-
             try {
-                // Upload gambar jika ada
                 var imageUrl = ""
                 if (imageUri != null) {
                     try {
@@ -89,20 +84,17 @@ class ProductViewModel @Inject constructor(
                         return@launch
                     }
                 }
-
-                // Simpan ke repository
-                val newProduct = ProductItem(
-                    id = System.currentTimeMillis().toString(),
-                    firestoreId = "",
+                val firestoreId = repository.saveProduct(name, price.toLong(), imageUrl)
+                val newProduct = Product(
+                    id = firestoreId,
+                    firestoreId = firestoreId,
                     name = name,
-                    price = price,
+                    price = price.toLong(),
                     imageRes = R.drawable.logo,
                     imageUrl = imageUrl,
                     quantity = 0,
                     hpp = 0.0
                 )
-                repository.addProduct(newProduct)
-                // Update UI dengan produk baru
                 _products.value = _products.value + newProduct
             } catch (e: Exception) {
                 _error.value = "Gagal menambahkan produk: ${e.message}"
@@ -135,19 +127,9 @@ class ProductViewModel @Inject constructor(
                         return@launch
                     }
                 }
-                val updatedProduct = ProductItem(
-                    id = productId,
-                    firestoreId = currentProduct?.firestoreId ?: "",
-                    name = name,
-                    price = price,
-                    imageRes = R.drawable.logo,
-                    imageUrl = imageUrl,
-                    quantity = 0,
-                    hpp = 0.0
-                )
-                repository.updateProduct(updatedProduct)
+                repository.updateProduct(productId, name, price.toLong(), imageUrl)
                 _products.value = _products.value.map {
-                    if (it.id == productId) it.copy(name = name, price = price, imageUrl = imageUrl)
+                    if (it.id == productId) it.copy(name = name, price = price.toLong(), imageUrl = imageUrl)
                     else it
                 }
             } catch (e: Exception) {
@@ -198,7 +180,7 @@ class ProductViewModel @Inject constructor(
     /**
      * Mendapatkan daftar produk yang dipilih (kuantitas > 0)
      */
-    fun getSelectedProducts(): List<ProductItem> {
+    fun getSelectedProducts(): List<Product> {
         return _products.value.filter { it.quantity > 0 }
     }
 

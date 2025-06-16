@@ -608,7 +608,7 @@ class FirestoreRepository {
                 CartItem(
                     productId = data["productId"] as? String ?: "",
                     name = data["name"] as? String ?: "",
-                    price = (data["price"] as? Number)?.toInt() ?: 0,
+                    price = (data["price"] as? Number)?.toLong() ?: 0L,
                     quantity = (data["quantity"] as? Number)?.toInt() ?: 0,
                     imageRes = (data["imageRes"] as? Number)?.toInt() ?: 0,
                     hpp = (data["hpp"] as? Number)?.toDouble() ?: 0.0

@@ -10,12 +10,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.example.omsetku.R
 import com.example.omsetku.ui.theme.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Star
+
+val Poppins = FontFamily(
+    Font(R.font.poppins, FontWeight.Normal),
+    Font(R.font.poppins_bold, FontWeight.Bold)
+)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -149,6 +158,53 @@ fun OmsetkuDialog(
                 Spacer(modifier = Modifier.height(24.dp))
 
                 buttons()
+            }
+        }
+    }
+}
+
+@Composable
+fun ProfitAlertDialog(
+    profit: Double,
+    onDismiss: () -> Unit
+) {
+    Dialog(onDismissRequest = onDismiss) {
+        Card(
+            shape = RoundedCornerShape(16.dp),
+            colors = CardDefaults.cardColors(containerColor = Color.White)
+        ) {
+            Column(
+                modifier = Modifier.padding(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Star,
+                    contentDescription = "Profit",
+                    tint = Color(0xFFFFC107),
+                    modifier = Modifier.size(48.dp)
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = "Profit Transaksi",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = Poppins
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "Rp ${profit.toInt()}",
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF5ED0C5),
+                    fontFamily = Poppins
+                )
+                Spacer(modifier = Modifier.height(24.dp))
+                Button(
+                    onClick = onDismiss,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Tutup", fontFamily = Poppins)
+                }
             }
         }
     }

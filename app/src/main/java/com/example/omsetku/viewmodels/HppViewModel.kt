@@ -3,7 +3,7 @@ package com.example.omsetku.viewmodels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.omsetku.firebase.FirestoreRepository
-import com.example.omsetku.ui.data.ProductItem
+import com.example.omsetku.models.Product
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -16,11 +16,11 @@ class HppViewModel : ViewModel() {
     // Tambahkan mapping ID
     private val productIdMap = mutableMapOf<String, String>()
 
-    private val _products = MutableStateFlow<List<ProductItem>>(emptyList())
-    val products: StateFlow<List<ProductItem>> = _products.asStateFlow()
+    private val _products = MutableStateFlow<List<Product>>(emptyList())
+    val products: StateFlow<List<Product>> = _products.asStateFlow()
 
-    private val _selectedProduct = MutableStateFlow<ProductItem?>(null)
-    val selectedProduct: StateFlow<ProductItem?> = _selectedProduct.asStateFlow()
+    private val _selectedProduct = MutableStateFlow<Product?>(null)
+    val selectedProduct: StateFlow<Product?> = _selectedProduct.asStateFlow()
 
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
@@ -96,11 +96,11 @@ class HppViewModel : ViewModel() {
                     val firestoreId = productMap["id"] as? String ?: ""
                     val id = firestoreId
                     productIdMap[id] = firestoreId
-                    ProductItem(
+                    Product(
                         id = id,
                         firestoreId = firestoreId,
                         name = productMap["name"] as? String ?: "",
-                        price = (productMap["price"] as? Number)?.toInt() ?: 0,
+                        price = (productMap["price"] as? Number)?.toLong() ?: 0,
                         imageRes = com.example.omsetku.R.drawable.logo,  // Default image
                         imageUrl = productMap["imageUrl"] as? String ?: "",  // Tambah imageUrl
                         quantity = 0,
@@ -117,7 +117,7 @@ class HppViewModel : ViewModel() {
         }
     }
 
-    fun selectProduct(product: ProductItem) {
+    fun selectProduct(product: Product) {
         _selectedProduct.value = product
     }
 

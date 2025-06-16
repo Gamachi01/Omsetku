@@ -51,7 +51,7 @@ import com.example.omsetku.ui.components.Poppins
 import com.example.omsetku.ui.components.StandardTextField
 import com.example.omsetku.ui.theme.PrimaryVariant
 import androidx.compose.foundation.verticalScroll
-import com.example.omsetku.ui.data.ProductItem
+import com.example.omsetku.models.Product
 import com.example.omsetku.viewmodels.ProductViewModel
 import com.example.omsetku.viewmodels.CartViewModel
 import com.example.omsetku.viewmodels.HppViewModel
@@ -66,7 +66,6 @@ import androidx.compose.animation.core.tween
 import kotlinx.coroutines.delay
 import com.example.omsetku.firebase.FirestoreRepository
 import kotlinx.coroutines.launch
-import com.example.omsetku.ui.components.ImageCropperDialog
 import com.example.omsetku.ui.components.ProductDialog
 import com.example.omsetku.ui.components.DeleteConfirmationDialog
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -132,8 +131,8 @@ fun CashierScreen(
     var showAddProductDialog by remember { mutableStateOf(false) }
     var showEditProductDialog by remember { mutableStateOf(false) }
     var showDeleteConfirmDialog by remember { mutableStateOf(false) }
-    var selectedProduct by remember { mutableStateOf<ProductItem?>(null) }
-    var productToDelete by remember { mutableStateOf<ProductItem?>(null) }
+    var selectedProduct by remember { mutableStateOf<Product?>(null) }
+    var productToDelete by remember { mutableStateOf<Product?>(null) }
     var showSuccessDialog by remember { mutableStateOf(false) }
     var isEditMode by remember { mutableStateOf(false) }
     var isAddProductSelected by remember { mutableStateOf(false) }
@@ -511,14 +510,10 @@ fun CashierScreen(
         )
     }
 
-    if (showImageCropper && selectedImageUri != null) {
-        ImageCropperDialog(
-            imageUri = selectedImageUri!!,
-            onDismiss = { showImageCropper = false },
-            onCropComplete = { croppedUri ->
-                selectedImageUri = croppedUri
-                showImageCropper = false
-            }
+    if (showProfitAlert) {
+        ProfitAlertDialog(
+            profit = transactionProfit,
+            onDismiss = { showProfitAlert = false }
         )
     }
 }
@@ -526,7 +521,7 @@ fun CashierScreen(
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
 @Composable
 fun ProductCard(
-    product: ProductItem,
+    product: Product,
     isEditMode: Boolean = false,
     onQuantityChanged: (Int) -> Unit,
     onEdit: () -> Unit = {},

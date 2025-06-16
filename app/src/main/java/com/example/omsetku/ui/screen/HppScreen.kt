@@ -35,7 +35,7 @@ import com.example.omsetku.ui.components.BottomNavBar
 import com.example.omsetku.ui.components.HppBahanBakuList
 import com.example.omsetku.ui.components.HppBiayaOperasionalList
 import com.example.omsetku.ui.components.Poppins
-import com.example.omsetku.ui.data.ProductItem
+import com.example.omsetku.models.Product
 import com.example.omsetku.viewmodels.HppViewModel
 import com.example.omsetku.viewmodels.ProductViewModel
 import kotlinx.coroutines.launch

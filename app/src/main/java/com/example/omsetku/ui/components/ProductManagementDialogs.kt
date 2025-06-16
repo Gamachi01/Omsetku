@@ -35,16 +35,15 @@ import androidx.compose.ui.window.DialogProperties
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.example.omsetku.R
-import com.example.omsetku.ui.data.ProductItem
+import com.example.omsetku.models.Product
 import com.example.omsetku.ui.theme.PrimaryVariant
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import com.example.omsetku.ui.components.ImageCropperDialog
 
 @Composable
 fun ProductDialog(
     isNewProduct: Boolean,
-    initialProduct: ProductItem?,
+    initialProduct: Product?,
     onDismiss: () -> Unit,
     onConfirm: (name: String, price: String, imageUri: Uri?) -> Unit
 ) {
@@ -277,17 +276,6 @@ fun ProductDialog(
                 }
             }
         }
-    }
-
-    if (showImageCropper && selectedImageUri != null) {
-        ImageCropperDialog(
-            imageUri = selectedImageUri!!,
-            onDismiss = { showImageCropper = false },
-            onCropComplete = { croppedUri ->
-                selectedImageUri = croppedUri
-                showImageCropper = false
-            }
-        )
     }
 }
 

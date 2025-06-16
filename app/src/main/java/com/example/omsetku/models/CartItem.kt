@@ -6,11 +6,11 @@ package com.example.omsetku.models
 data class CartItem(
     val productId: String,
     val name: String,
-    val price: Int,
+    val price: Long,
     val quantity: Int,
     val imageRes: Int,
     val hpp: Double = 0.0
 ) {
-    val subtotal: Int
+    val subtotal: Long
         get() = price * quantity
 }
