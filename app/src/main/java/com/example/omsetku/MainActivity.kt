@@ -10,8 +10,8 @@ import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
 import com.google.firebase.FirebaseApp
-import com.example.omsetku.Navigation.AppNavigation
-import com.example.omsetku.Navigation.AppNavGraph
+import com.example.omsetku.navigation.AppNavigation
+import com.example.omsetku.navigation.AppNavGraph
 import com.example.omsetku.ui.theme.OmsetkuTheme
 import com.example.omsetku.viewmodels.CartViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel

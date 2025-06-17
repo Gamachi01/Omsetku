@@ -14,7 +14,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.omsetku.Navigation.Routes
+import com.example.omsetku.navigation.Routes
 import com.example.omsetku.R
 import kotlinx.coroutines.delay
 

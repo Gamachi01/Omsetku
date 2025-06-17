@@ -21,7 +21,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.omsetku.R
-import com.example.omsetku.Navigation.Routes
+import com.example.omsetku.navigation.Routes
 import com.example.omsetku.viewmodels.AuthViewModel
 
 @Composable

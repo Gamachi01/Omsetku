@@ -26,7 +26,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.omsetku.Navigation.Routes
+import com.example.omsetku.navigation.Routes
 import com.example.omsetku.R
 import com.example.omsetku.models.CartItem
 import com.example.omsetku.ui.components.Poppins
