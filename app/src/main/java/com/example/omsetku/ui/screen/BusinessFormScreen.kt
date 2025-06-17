@@ -49,9 +49,7 @@ fun BusinessFormScreen(
             // Reset status dan arahkan ke home
             authViewModel.resetBusinessDataStatus()
             navController.navigate(Routes.HOME) {
-                popUpTo(Routes.LOGIN) {
-                    inclusive = true
-                }
+                popUpTo(0) // Pop up to start of navigation graph
             }
         }
     }

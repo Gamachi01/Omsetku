@@ -46,7 +46,7 @@ fun SignUpScreen(
     LaunchedEffect(isRegistered) {
         if (isRegistered) {
             navController.navigate(Routes.BUSINESS_FORM) {
-                popUpTo(Routes.SIGNUP) { inclusive = true }
+                popUpTo(0)
             }
         }
     }

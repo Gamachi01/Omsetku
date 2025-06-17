@@ -50,9 +50,7 @@ fun RegisterScreen(
             // Reset status registrasi dan arahkan ke form data diri
             authViewModel.resetRegistrationStatus()
             navController.navigate(Routes.PERSONAL_DATA) {
-                popUpTo(Routes.SIGNUP) {
-                    inclusive = true
-                }
+                popUpTo(0) // Pop up to start of navigation graph
             }
         }
     }
@@ -61,9 +59,7 @@ fun RegisterScreen(
     LaunchedEffect(isLoggedIn, isRegistered) {
         if (isLoggedIn && !isRegistered) {
             navController.navigate(Routes.HOME) {
-                popUpTo(Routes.SIGNUP) {
-                    inclusive = true
-                }
+                popUpTo(0) // Pop up to start of navigation graph
             }
         }
     }

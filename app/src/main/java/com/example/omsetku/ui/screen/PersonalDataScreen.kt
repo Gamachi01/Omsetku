@@ -46,7 +46,9 @@ fun PersonalDataScreen(
         if (personalDataSaved) {
             // Reset status dan arahkan ke form bisnis
             authViewModel.resetPersonalDataStatus()
-            navController.navigate(Routes.BUSINESS_FORM)
+            navController.navigate(Routes.BUSINESS_FORM) {
+                popUpTo(0) // Pop up to start of navigation graph
+            }
         }
     }
 
