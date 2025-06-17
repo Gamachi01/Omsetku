@@ -1,4 +1,4 @@
-package com.example.omsetku.Navigation
+package com.example.omsetku.navigation
 
 object Routes {
     const val SPLASH = "splash"

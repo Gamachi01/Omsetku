@@ -1,4 +1,4 @@
-package com.example.omsetku.Navigation
+package com.example.omsetku.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
