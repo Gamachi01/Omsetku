@@ -369,7 +369,7 @@ fun ReportScreen(navController: NavController, transactionViewModel: Transaction
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
-                            text = formatRupiah(total_pendapatan),
+                            text = formatRupiah(total_pendapatan.toInt()),
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Bold,
                             fontFamily = Poppins,
@@ -403,7 +403,7 @@ fun ReportScreen(navController: NavController, transactionViewModel: Transaction
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
-                            text = formatRupiah(total_beban),
+                            text = formatRupiah(total_beban.toInt()),
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Bold,
                             fontFamily = Poppins,
@@ -440,7 +440,7 @@ fun ReportScreen(navController: NavController, transactionViewModel: Transaction
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = formatRupiah(laba_bersih),
+                        text = formatRupiah(laba_bersih.toInt()),
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold,
                         fontFamily = Poppins,
@@ -477,7 +477,7 @@ fun ReportScreen(navController: NavController, transactionViewModel: Transaction
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text("Pendapatan Usaha", fontFamily = Poppins, color = Color.Black)
-                        Text(formatRupiah(pendapatanUsaha), fontFamily = Poppins, color = Color.Black, textAlign = TextAlign.End)
+                        Text(formatRupiah(pendapatanUsaha.toInt()), fontFamily = Poppins, color = Color.Black, textAlign = TextAlign.End)
                     }
                     Spacer(modifier = Modifier.height(6.dp))
                     Row(
@@ -485,7 +485,7 @@ fun ReportScreen(navController: NavController, transactionViewModel: Transaction
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text("Pendapatan Lainnya", fontFamily = Poppins, color = Color.Black)
-                        Text(formatRupiah(pendapatanLainnya), fontFamily = Poppins, color = Color.Black, textAlign = TextAlign.End)
+                        Text(formatRupiah(pendapatanLainnya.toInt()), fontFamily = Poppins, color = Color.Black, textAlign = TextAlign.End)
                     }
                     Spacer(modifier = Modifier.height(6.dp))
                     Row(
@@ -493,7 +493,7 @@ fun ReportScreen(navController: NavController, transactionViewModel: Transaction
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text("Total Pemasukan", fontWeight = FontWeight.Bold, fontFamily = Poppins, color = Color.Black)
-                        Text(formatRupiah(total_pendapatan), fontWeight = FontWeight.Bold, fontFamily = Poppins, color = Color.Black, textAlign = TextAlign.End)
+                        Text(formatRupiah(total_pendapatan.toInt()), fontWeight = FontWeight.Bold, fontFamily = Poppins, color = Color.Black, textAlign = TextAlign.End)
                     }
                     Divider(thickness = 1.dp, color = Color.LightGray)
                     Spacer(modifier = Modifier.height(10.dp))
@@ -512,7 +512,7 @@ fun ReportScreen(navController: NavController, transactionViewModel: Transaction
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text("Beban Usaha", fontFamily = Poppins, color = Color.Black)
-                        Text(formatRupiah(bebanUsaha), fontFamily = Poppins, color = Color.Black, textAlign = TextAlign.End)
+                        Text(formatRupiah(bebanUsaha.toInt()), fontFamily = Poppins, color = Color.Black, textAlign = TextAlign.End)
                     }
                     Spacer(modifier = Modifier.height(6.dp))
                     Row(
@@ -520,7 +520,7 @@ fun ReportScreen(navController: NavController, transactionViewModel: Transaction
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text("Beban Lainnya", fontFamily = Poppins, color = Color.Black)
-                        Text(formatRupiah(bebanLainnya), fontFamily = Poppins, color = Color.Black, textAlign = TextAlign.End)
+                        Text(formatRupiah(bebanLainnya.toInt()), fontFamily = Poppins, color = Color.Black, textAlign = TextAlign.End)
                     }
                     Spacer(modifier = Modifier.height(6.dp))
                     Row(
@@ -528,7 +528,7 @@ fun ReportScreen(navController: NavController, transactionViewModel: Transaction
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text("Total Pengeluaran", fontWeight = FontWeight.Bold, fontFamily = Poppins, color = Color.Black)
-                        Text(formatRupiah(total_beban), fontWeight = FontWeight.Bold, fontFamily = Poppins, color = Color.Black, textAlign = TextAlign.End)
+                        Text(formatRupiah(total_beban.toInt()), fontWeight = FontWeight.Bold, fontFamily = Poppins, color = Color.Black, textAlign = TextAlign.End)
                     }
                     Divider(thickness = 1.dp, color = Color.LightGray)
                     Spacer(modifier = Modifier.height(12.dp))
@@ -539,7 +539,7 @@ fun ReportScreen(navController: NavController, transactionViewModel: Transaction
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text("Laba (Rugi) Kotor", fontWeight = FontWeight.Bold, fontFamily = Poppins, color = Color.Black)
-                        Text(formatRupiah(laba_kotor), fontWeight = FontWeight.Bold, fontFamily = Poppins, color = Color.Black, textAlign = TextAlign.End)
+                        Text(formatRupiah(laba_kotor.toInt()), fontWeight = FontWeight.Bold, fontFamily = Poppins, color = Color.Black, textAlign = TextAlign.End)
                     }
                     Divider(thickness = 1.dp, color = Color.LightGray)
                     Spacer(modifier = Modifier.height(12.dp))
@@ -550,7 +550,7 @@ fun ReportScreen(navController: NavController, transactionViewModel: Transaction
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text("Pajak Penghasilan UMKM (0,5%)", fontFamily = Poppins, color = Color.Black)
-                        Text(formatRupiah(pajak_umkm), fontFamily = Poppins, color = Color.Black, textAlign = TextAlign.End)
+                        Text(formatRupiah(pajak_umkm.toInt()), fontFamily = Poppins, color = Color.Black, textAlign = TextAlign.End)
                     }
                     Divider(thickness = 1.dp, color = Color.LightGray)
                     Spacer(modifier = Modifier.height(12.dp))
@@ -561,7 +561,7 @@ fun ReportScreen(navController: NavController, transactionViewModel: Transaction
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text("Laba (Rugi) Bersih", fontWeight = FontWeight.Bold, fontFamily = Poppins, color = Color.Black)
-                        Text(formatRupiah(laba_bersih), fontWeight = FontWeight.Bold, fontFamily = Poppins, color = Color.Black, textAlign = TextAlign.End)
+                        Text(formatRupiah(laba_bersih.toInt()), fontWeight = FontWeight.Bold, fontFamily = Poppins, color = Color.Black, textAlign = TextAlign.End)
                     }
                 }
             }

@@ -2,7 +2,7 @@ package com.example.omsetku.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.omsetku.data.Transaction
+import com.example.omsetku.domain.model.Transaction
 import com.example.omsetku.firebase.FirestoreRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -17,11 +17,11 @@ class TransactionViewModel : ViewModel() {
     private val _transactions = MutableStateFlow<List<Transaction>>(emptyList())
     val transactions: StateFlow<List<Transaction>> = _transactions.asStateFlow()
 
-    private val _incomeAmount = MutableStateFlow(0)
-    val incomeAmount: StateFlow<Int> = _incomeAmount.asStateFlow()
+    private val _incomeAmount = MutableStateFlow(0L)
+    val incomeAmount: StateFlow<Long> = _incomeAmount.asStateFlow()
 
-    private val _expenseAmount = MutableStateFlow(0)
-    val expenseAmount: StateFlow<Int> = _expenseAmount.asStateFlow()
+    private val _expenseAmount = MutableStateFlow(0L)
+    val expenseAmount: StateFlow<Long> = _expenseAmount.asStateFlow()
 
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
@@ -61,40 +61,40 @@ class TransactionViewModel : ViewModel() {
                         val category = transactionMap["category"] as? String ?: ""
 
                         val amount = when (val amountValue = transactionMap["amount"]) {
-                            is Number -> amountValue.toInt()
-                            is String -> amountValue.toIntOrNull() ?: 0
-                            else -> 0
+                            is Number -> amountValue.toLong()
+                            is String -> amountValue.toLongOrNull() ?: 0L
+                            else -> 0L
                         }
 
                         Transaction(
+                            id = transactionMap["id"] as? String ?: "",
+                            userId = transactionMap["userId"] as? String ?: "",
                             type = type,
-                            description = description,
                             amount = amount,
-                            date = dateFormat.format(Date(date)),
-                            category = category
+                            date = date,
+                            category = category,
+                            description = description,
+                            createdAt = transactionMap["createdAt"] as? Long ?: 0L,
+                            subtotal = transactionMap["subtotal"] as? Long ?: 0L,
+                            tax = transactionMap["tax"] as? Long ?: 0L,
+                            total = transactionMap["total"] as? Long ?: 0L,
+                            profit = transactionMap["profit"] as? Long ?: 0L,
+                            items = emptyList()
                         )
                     } catch (e: Exception) {
                         null
                     }
                 }
 
-                val sortedTransactions = transactionItems.sortedByDescending {
-                    try {
-                        val dateFormat = SimpleDateFormat("dd MMMM yyyy", Locale("id", "ID"))
-                        dateFormat.timeZone = TimeZone.getTimeZone("Asia/Jakarta")
-                        dateFormat.parse(it.date)?.time ?: 0L
-                    } catch (e: Exception) {
-                        0L
-                    }
-                }
+                val sortedTransactions = transactionItems.sortedByDescending { it.date }
 
                 _transactions.value = sortedTransactions
                 calculateAmounts(sortedTransactions)
 
             } catch (e: Exception) {
                 _transactions.value = emptyList()
-                _incomeAmount.value = 0
-                _expenseAmount.value = 0
+                _incomeAmount.value = 0L
+                _expenseAmount.value = 0L
                 _error.value = "Gagal memuat transaksi: ${e.message}"
             } finally {
                 _isLoading.value = false
@@ -104,23 +104,20 @@ class TransactionViewModel : ViewModel() {
 
     fun saveTransaction(
         type: String,
-        amount: Int,
-        date: String,
+        amount: Long,
+        date: Long,
         description: String,
         category: String
     ) {
-        if (amount <= 0) {
+        if (amount <= 0L) {
             _error.value = "Nominal harus lebih dari 0"
             return
         }
 
-        if (date.isBlank()) {
+        if (date <= 0L) {
             _error.value = "Tanggal tidak boleh kosong"
             return
         }
-
-        // Gunakan waktu real-time saat transaksi dilakukan
-        val parsedDate = System.currentTimeMillis()
 
         viewModelScope.launch {
             _isLoading.value = true
@@ -129,8 +126,8 @@ class TransactionViewModel : ViewModel() {
             try {
                 repository.saveTransaction(
                     type = type,
-                    amount = amount.toLong(),
-                    date = parsedDate,
+                    amount = amount,
+                    date = date,
                     category = category,
                     description = description
                 )
@@ -150,8 +147,8 @@ class TransactionViewModel : ViewModel() {
     }
 
     private fun calculateAmounts(transactions: List<Transaction>) {
-        var income = 0
-        var expense = 0
+        var income = 0L
+        var expense = 0L
 
         transactions.forEach { transaction ->
             val isIncome = transaction.type.equals("INCOME", ignoreCase = true) ||
@@ -168,8 +165,8 @@ class TransactionViewModel : ViewModel() {
         _expenseAmount.value = expense
     }
 
-    fun getSummary(): Triple<List<Transaction>, Int, Int> {
-        return Triple(_transactions.value, _incomeAmount.value, _expenseAmount.value)
+    fun getSummary(): Triple<List<Transaction>, Long, Long> {
+        return Triple(_transactions.value, _incomeAmount.value.toLong(), _expenseAmount.value.toLong())
     }
 
     fun clearError() {

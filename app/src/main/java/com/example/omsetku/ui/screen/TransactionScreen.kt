@@ -288,9 +288,9 @@ fun TransactionScreen(
                         // Bersihkan semua karakter non-numerik (kecuali digit)
                         val cleanNominal = nominal.replace(Regex("[^0-9]"), "")
                         if (cleanNominal.isBlank()) {
-                            0
+                            0L
                         } else {
-                            cleanNominal.toInt()
+                            cleanNominal.toLong()
                         }
                     } catch (e: Exception) {
                         // Jika gagal konversi, tampilkan error
@@ -316,7 +316,7 @@ fun TransactionScreen(
                     transactionViewModel.saveTransaction(
                         type = if (selectedType == TransactionType.INCOME) "INCOME" else "EXPENSE",
                         amount = amount,
-                        date = tanggal,
+                        date = System.currentTimeMillis(),
                         description = deskripsi,
                         category = kategoriFinal
                     )
