@@ -24,12 +24,14 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.zIndex
 import com.example.omsetku.R
-import com.example.omsetku.data.Transaction
+import com.example.omsetku.models.Transaction
 import com.example.omsetku.ui.theme.OmsetkuTheme
 import com.example.omsetku.ui.theme.Divider as DividerColor
 import com.example.omsetku.ui.theme.PrimaryVariant
 import com.example.omsetku.ui.theme.IncomeColor
 import com.example.omsetku.ui.theme.ExpenseColor
+import java.text.SimpleDateFormat
+import java.util.*
 
 @SuppressLint("SuspiciousIndentation")
 @Composable
@@ -177,7 +179,7 @@ fun TransactionItem(transaction: Transaction) {
                 )
                 Spacer(modifier = Modifier.height(2.dp))
                 Text(
-                    text = transaction.date,
+                    text = SimpleDateFormat("dd/MM/yyyy", Locale("id", "ID")).format(Date(transaction.date)),
                     fontSize = 11.sp,
                     color = Color.Gray,
                     fontFamily = Poppins

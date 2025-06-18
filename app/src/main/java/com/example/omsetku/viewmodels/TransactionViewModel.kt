@@ -2,7 +2,7 @@ package com.example.omsetku.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.omsetku.domain.model.Transaction
+import com.example.omsetku.models.Transaction
 import com.example.omsetku.firebase.FirestoreRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -74,12 +74,7 @@ class TransactionViewModel : ViewModel() {
                             date = date,
                             category = category,
                             description = description,
-                            createdAt = transactionMap["createdAt"] as? Long ?: 0L,
-                            subtotal = transactionMap["subtotal"] as? Long ?: 0L,
-                            tax = transactionMap["tax"] as? Long ?: 0L,
-                            total = transactionMap["total"] as? Long ?: 0L,
-                            profit = transactionMap["profit"] as? Long ?: 0L,
-                            items = emptyList()
+                            createdAt = transactionMap["createdAt"] as? Long ?: 0L
                         )
                     } catch (e: Exception) {
                         null

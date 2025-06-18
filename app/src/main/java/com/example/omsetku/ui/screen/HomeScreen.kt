@@ -32,7 +32,7 @@ import com.example.omsetku.navigation.Routes
 import com.example.omsetku.ui.components.BottomNavBar
 import com.example.omsetku.ui.components.TransactionItem
 import com.example.omsetku.ui.components.Poppins
-import com.example.omsetku.data.Transaction
+import com.example.omsetku.models.Transaction
 import com.example.omsetku.ui.theme.*
 import com.example.omsetku.viewmodels.TransactionViewModel
 import java.text.NumberFormat
