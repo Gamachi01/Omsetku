@@ -447,7 +447,7 @@ fun CashierScreen(
                                     fontSize = 12.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = PrimaryVariant,
-                                    modifier = Modifier.offset(y = 2.dp)
+                                    modifier = Modifier.offset(y = (-1).dp)
                                 )
                             }
                         }

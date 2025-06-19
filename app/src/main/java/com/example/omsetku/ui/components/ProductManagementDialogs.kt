@@ -39,6 +39,7 @@ import com.example.omsetku.models.Product
 import com.example.omsetku.ui.theme.PrimaryVariant
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.ui.text.TextStyle
 
 @Composable
 fun ProductDialog(
@@ -201,7 +202,12 @@ fun ProductDialog(
                         focusedBorderColor = Color.LightGray,
                         unfocusedBorderColor = Color.LightGray
                     ),
-                    singleLine = true
+                    singleLine = true,
+                    textStyle = TextStyle(
+                        fontSize = 14.sp,
+                        color = Color.Black,
+                        fontFamily = Poppins
+                    )
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))

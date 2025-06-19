@@ -18,6 +18,7 @@ import com.example.omsetku.R
 import java.text.SimpleDateFormat
 import java.util.*
 import androidx.compose.foundation.background
+import androidx.compose.ui.zIndex
 import java.util.concurrent.TimeUnit
 
 enum class DatePickerMode {
@@ -87,75 +88,81 @@ fun DatePickerField(
         }
     }
 
-    // Menampilkan date picker dialog untuk mode DAILY, WEEKLY_START, dan WEEKLY_END
+    // DatePickerDialog pop up floating (restore)
     if (showDatePicker) {
-        DatePickerDialog(
-            onDismissRequest = { showDatePicker = false },
-            confirmButton = {
-                TextButton(onClick = {
-                    datePickerState.selectedDateMillis?.let { millis ->
-                        // Gunakan Calendar dengan TimeZone Indonesia
-                        val selectedCalendar = Calendar.getInstance()
-                        selectedCalendar.timeInMillis = millis
-
-                        // Selalu atur waktu ke siang hari untuk menghindari masalah
-                        selectedCalendar.set(Calendar.HOUR_OF_DAY, 12)
-                        selectedCalendar.set(Calendar.MINUTE, 0)
-                        selectedCalendar.set(Calendar.SECOND, 0)
-                        selectedCalendar.set(Calendar.MILLISECOND, 0)
-
-                        // Jika mode WEEKLY_END, pastikan tanggal yang dipilih adalah seminggu setelah startDate
-                        if (mode == DatePickerMode.WEEKLY_END && startDate != null) {
-                            val startCalendar = Calendar.getInstance()
-                            startCalendar.timeInMillis = startDate
-                            if (selectedCalendar.timeInMillis >= startCalendar.timeInMillis) {
-                                startCalendar.add(Calendar.DAY_OF_MONTH, 7)
-                                selectedCalendar.timeInMillis = startCalendar.timeInMillis
-                            }
+        Dialog(onDismissRequest = { showDatePicker = false }) {
+            Surface(
+                shape = RoundedCornerShape(24.dp),
+                color = Color.White,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 0.dp)
+                    .widthIn(max = 700.dp)
+            ) {
+                Column {
+                    DatePicker(
+                        state = datePickerState,
+                        showModeToggle = false,
+                        colors = DatePickerDefaults.colors(
+                            containerColor = Color.White,
+                            titleContentColor = Color.Black,
+                            headlineContentColor = Color.Black,
+                            weekdayContentColor = Color.Gray,
+                            subheadContentColor = Color(0xFF5ED0C5),
+                            yearContentColor = Color.Black,
+                            currentYearContentColor = Color(0xFF5ED0C5),
+                            selectedYearContentColor = Color.White,
+                            selectedYearContainerColor = Color(0xFF5ED0C5),
+                            dayContentColor = Color.Black,
+                            selectedDayContentColor = Color.White,
+                            selectedDayContainerColor = Color(0xFF5ED0C5),
+                            todayContentColor = Color(0xFF5ED0C5),
+                            todayDateBorderColor = Color(0xFF5ED0C5)
+                        )
+                    )
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        horizontalArrangement = Arrangement.End
+                    ) {
+                        TextButton(onClick = { showDatePicker = false }) {
+                            Text(
+                                text = "Batal",
+                                color = Color.Gray,
+                                fontFamily = Poppins
+                            )
                         }
-
-                        val formattedDate = dateFormat.format(selectedCalendar.time)
-                        onDateSelected(formattedDate)
+                        TextButton(onClick = {
+                            datePickerState.selectedDateMillis?.let { millis ->
+                                val selectedCalendar = Calendar.getInstance()
+                                selectedCalendar.timeInMillis = millis
+                                selectedCalendar.set(Calendar.HOUR_OF_DAY, 12)
+                                selectedCalendar.set(Calendar.MINUTE, 0)
+                                selectedCalendar.set(Calendar.SECOND, 0)
+                                selectedCalendar.set(Calendar.MILLISECOND, 0)
+                                if (mode == DatePickerMode.WEEKLY_END && startDate != null) {
+                                    val startCalendar = Calendar.getInstance()
+                                    startCalendar.timeInMillis = startDate
+                                    if (selectedCalendar.timeInMillis >= startCalendar.timeInMillis) {
+                                        startCalendar.add(Calendar.DAY_OF_MONTH, 7)
+                                        selectedCalendar.timeInMillis = startCalendar.timeInMillis
+                                    }
+                                }
+                                val formattedDate = dateFormat.format(selectedCalendar.time)
+                                onDateSelected(formattedDate)
+                            }
+                            showDatePicker = false
+                        }) {
+                            Text(
+                                text = "OK",
+                                color = Color(0xFF5ED0C5),
+                                fontFamily = Poppins
+                            )
+                        }
                     }
-                    showDatePicker = false
-                }) {
-                    Text(
-                        text = "OK",
-                        color = Color(0xFF5ED0C5),
-                        fontFamily = Poppins
-                    )
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showDatePicker = false }) {
-                    Text(
-                        text = "Batal",
-                        color = Color.Gray,
-                        fontFamily = Poppins
-                    )
                 }
             }
-        ) {
-            DatePicker(
-                state = datePickerState,
-                showModeToggle = false,
-                colors = DatePickerDefaults.colors(
-                    containerColor = Color.White,
-                    titleContentColor = Color.Black,
-                    headlineContentColor = Color.Black,
-                    weekdayContentColor = Color.Gray,
-                    subheadContentColor = Color(0xFF5ED0C5),
-                    yearContentColor = Color.Black,
-                    currentYearContentColor = Color(0xFF5ED0C5),
-                    selectedYearContentColor = Color.White,
-                    selectedYearContainerColor = Color(0xFF5ED0C5),
-                    dayContentColor = Color.Black,
-                    selectedDayContentColor = Color.White,
-                    selectedDayContainerColor = Color(0xFF5ED0C5),
-                    todayContentColor = Color(0xFF5ED0C5),
-                    todayDateBorderColor = Color(0xFF5ED0C5)
-                )
-            )
         }
     }
 
@@ -259,32 +266,31 @@ fun MonthPickerDialog(
     val calendar = Calendar.getInstance()
     val currentYear = calendar.get(Calendar.YEAR)
     val currentMonth = calendar.get(Calendar.MONTH)
-
     var selectedYear by remember { mutableStateOf(currentYear) }
     var selectedMonth by remember { mutableStateOf(currentMonth) }
-
     val monthNames = listOf(
         "Januari", "Februari", "Maret", "April", "Mei", "Juni",
         "Juli", "Agustus", "September", "Oktober", "November", "Desember"
     )
-
     Dialog(onDismissRequest = onDismiss) {
         Surface(
             shape = RoundedCornerShape(16.dp),
-            color = Color.White
+            color = Color.White,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 0.dp)
+                .widthIn(max = 700.dp)
         ) {
             Column(
                 modifier = Modifier
-                    .padding(16.dp)
-                    .width(300.dp)
+                    .padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
                     text = "Pilih Bulan",
                     style = MaterialTheme.typography.titleLarge,
                     modifier = Modifier.padding(bottom = 16.dp)
                 )
-
-                // Year selector
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -293,20 +299,15 @@ fun MonthPickerDialog(
                     IconButton(onClick = { selectedYear-- }) {
                         Text(text = "<", fontSize = 20.sp)
                     }
-
                     Text(
                         text = selectedYear.toString(),
                         style = MaterialTheme.typography.titleMedium
                     )
-
                     IconButton(onClick = { selectedYear++ }) {
                         Text(text = ">", fontSize = 20.sp)
                     }
                 }
-
                 Spacer(modifier = Modifier.height(16.dp))
-
-                // Month grid
                 Column {
                     for (i in 0 until 4) {
                         Row(
@@ -345,10 +346,7 @@ fun MonthPickerDialog(
                         Spacer(modifier = Modifier.height(8.dp))
                     }
                 }
-
                 Spacer(modifier = Modifier.height(16.dp))
-
-                // Buttons
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.End
@@ -360,7 +358,6 @@ fun MonthPickerDialog(
                             fontFamily = Poppins
                         )
                     }
-
                     TextButton(
                         onClick = {
                             onMonthSelected(selectedMonth, selectedYear)
@@ -387,24 +384,25 @@ fun YearPickerDialog(
     val currentYear = calendar.get(Calendar.YEAR)
     var selectedYear by remember { mutableStateOf(currentYear) }
     var startYear by remember { mutableStateOf(currentYear - 10) }
-
     Dialog(onDismissRequest = onDismiss) {
         Surface(
             shape = RoundedCornerShape(16.dp),
-            color = Color.White
+            color = Color.White,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 0.dp)
+                .widthIn(max = 700.dp)
         ) {
             Column(
                 modifier = Modifier
-                    .padding(16.dp)
-                    .width(300.dp)
+                    .padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
                     text = "Pilih Tahun",
                     style = MaterialTheme.typography.titleLarge,
                     modifier = Modifier.padding(bottom = 16.dp)
                 )
-
-                // Year navigation
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -413,20 +411,15 @@ fun YearPickerDialog(
                     IconButton(onClick = { startYear -= 10 }) {
                         Text(text = "<<", fontSize = 16.sp)
                     }
-
                     Text(
                         text = "${startYear} - ${startYear + 9}",
                         style = MaterialTheme.typography.titleMedium
                     )
-
                     IconButton(onClick = { startYear += 10 }) {
                         Text(text = ">>", fontSize = 16.sp)
                     }
                 }
-
                 Spacer(modifier = Modifier.height(16.dp))
-
-                // Year grid
                 Column {
                     for (i in 0 until 5) {
                         Row(
@@ -465,10 +458,7 @@ fun YearPickerDialog(
                         Spacer(modifier = Modifier.height(8.dp))
                     }
                 }
-
                 Spacer(modifier = Modifier.height(16.dp))
-
-                // Buttons
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.End
@@ -480,7 +470,6 @@ fun YearPickerDialog(
                             fontFamily = Poppins
                         )
                     }
-
                     TextButton(
                         onClick = { onYearSelected(selectedYear) }
                     ) {

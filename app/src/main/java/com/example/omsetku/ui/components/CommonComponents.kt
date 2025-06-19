@@ -20,6 +20,10 @@ import com.example.omsetku.R
 import com.example.omsetku.ui.theme.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.ui.zIndex
 
 val Poppins = FontFamily(
     Font(R.font.poppins, FontWeight.Normal),
@@ -168,19 +172,29 @@ fun ProfitAlertDialog(
     profit: Double,
     onDismiss: () -> Unit
 ) {
-    Dialog(onDismissRequest = onDismiss) {
-        Card(
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color(0x80000000)) // semi transparan
+            .zIndex(99f)
+    ) {
+        Surface(
             shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = Color.White)
+            color = Color.White,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp)
+                .align(Alignment.Center)
         ) {
             Column(
-                modifier = Modifier.padding(24.dp),
+                modifier = Modifier
+                    .padding(vertical = 28.dp, horizontal = 24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Icon(
                     imageVector = Icons.Default.Star,
                     contentDescription = "Profit",
-                    tint = Color(0xFFFFC107),
+                    tint = Color(0xFF5ED0C5),
                     modifier = Modifier.size(48.dp)
                 )
                 Spacer(modifier = Modifier.height(16.dp))
@@ -188,7 +202,15 @@ fun ProfitAlertDialog(
                     text = "Profit Transaksi",
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
-                    fontFamily = Poppins
+                    fontFamily = Poppins,
+                    color = Color(0xFF5ED0C5),
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "Transaksi ini menghasilkan profit.",
+                    fontSize = 16.sp,
+                    color = Color(0xFF757575),
+                    fontFamily = Poppins,
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
@@ -201,11 +223,26 @@ fun ProfitAlertDialog(
                 Spacer(modifier = Modifier.height(24.dp))
                 Button(
                     onClick = onDismiss,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp),
+                    shape = RoundedCornerShape(8.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFF5ED0C5)
+                    )
                 ) {
-                    Text("Tutup", fontFamily = Poppins)
+                    Text("Lanjutkan", fontFamily = Poppins, color = Color.White, fontWeight = FontWeight.Medium)
                 }
             }
         }
+        // Area klik di luar dialog untuk dismiss
+        Box(
+            modifier = Modifier
+                .matchParentSize()
+                .clickable(
+                    indication = null,
+                    interactionSource = remember { MutableInteractionSource() }
+                ) { onDismiss() }
+        )
     }
 }
