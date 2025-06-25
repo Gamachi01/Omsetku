@@ -14,6 +14,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import com.example.omsetku.R
 import java.text.SimpleDateFormat
 import java.util.*
@@ -88,16 +89,18 @@ fun DatePickerField(
         }
     }
 
-    // DatePickerDialog pop up floating (restore)
+    // DatePickerDialog pop up floating
     if (showDatePicker) {
-        Dialog(onDismissRequest = { showDatePicker = false }) {
+        Dialog(
+            onDismissRequest = { showDatePicker = false },
+            properties = DialogProperties(usePlatformDefaultWidth = false)
+        ) {
             Surface(
                 shape = RoundedCornerShape(24.dp),
                 color = Color.White,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 0.dp)
-                    .widthIn(max = 700.dp)
+                    .padding(horizontal = 24.dp)
             ) {
                 Column {
                     DatePicker(
@@ -272,14 +275,16 @@ fun MonthPickerDialog(
         "Januari", "Februari", "Maret", "April", "Mei", "Juni",
         "Juli", "Agustus", "September", "Oktober", "November", "Desember"
     )
-    Dialog(onDismissRequest = onDismiss) {
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(usePlatformDefaultWidth = false)
+    ) {
         Surface(
             shape = RoundedCornerShape(16.dp),
             color = Color.White,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 0.dp)
-                .widthIn(max = 700.dp)
+                .padding(horizontal = 24.dp)
         ) {
             Column(
                 modifier = Modifier
@@ -318,7 +323,8 @@ fun MonthPickerDialog(
                                 val month = i * 3 + j
                                 Box(
                                     modifier = Modifier
-                                        .size(80.dp, 40.dp)
+                                        .weight(1f)
+                                        .height(40.dp)
                                         .clickable {
                                             selectedMonth = month
                                             onMonthSelected(month, selectedYear)
@@ -384,14 +390,16 @@ fun YearPickerDialog(
     val currentYear = calendar.get(Calendar.YEAR)
     var selectedYear by remember { mutableStateOf(currentYear) }
     var startYear by remember { mutableStateOf(currentYear - 10) }
-    Dialog(onDismissRequest = onDismiss) {
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(usePlatformDefaultWidth = false)
+    ) {
         Surface(
             shape = RoundedCornerShape(16.dp),
             color = Color.White,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 0.dp)
-                .widthIn(max = 700.dp)
+                .padding(horizontal = 24.dp)
         ) {
             Column(
                 modifier = Modifier

@@ -51,7 +51,7 @@ fun HppBiayaOperasionalList(
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 4.dp),
+                    .padding(vertical = 8.dp),
                 colors = CardDefaults.cardColors(
                     containerColor = Color(0xFFF5F5F5)
                 ),
@@ -153,12 +153,13 @@ fun HppBiayaOperasionalList(
                 }
             }
         }
-
-        Spacer(modifier = Modifier.height(28.dp))
+        Spacer(modifier = Modifier.height(12.dp))
+        
         Button(
             onClick = onAddBiayaOperasional,
             modifier = Modifier
                 .fillMaxWidth()
+                .padding(vertical = 8.dp)
                 .height(48.dp),
             shape = RoundedCornerShape(8.dp),
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF5ED0C5))
