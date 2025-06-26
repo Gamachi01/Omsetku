@@ -20,7 +20,6 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.omsetku.ui.components.Poppins
 
 // Secara eksplisit mengimpor nilai warna dari Color.kt
 import com.example.omsetku.ui.theme.PrimaryColor
@@ -34,6 +33,14 @@ import com.example.omsetku.ui.theme.TextPrimaryColor
 import com.example.omsetku.ui.theme.White
 import com.example.omsetku.ui.theme.DarkText
 import com.example.omsetku.ui.theme.Divider
+import com.example.omsetku.ui.theme.OnPrimary
+import com.example.omsetku.ui.theme.OnSecondary
+import com.example.omsetku.ui.theme.PrimaryLight
+import com.example.omsetku.ui.theme.OnBackground
+import com.example.omsetku.ui.theme.OnSurface
+import com.example.omsetku.ui.theme.ExpenseLightColor
+import com.example.omsetku.ui.theme.OnError
+import com.example.omsetku.ui.theme.MediumText
 
 object OmsetkuTheme {
     val Colors = object {
@@ -57,40 +64,40 @@ object OmsetkuTheme {
 
     val Typography = androidx.compose.material3.Typography(
         headlineLarge = TextStyle(
-            fontFamily = Poppins,
+            fontFamily = PoppinsFontFamily,
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold
         ),
         headlineMedium = TextStyle(
-            fontFamily = Poppins,
+            fontFamily = PoppinsFontFamily,
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold
         ),
         headlineSmall = TextStyle(
-            fontFamily = Poppins,
+            fontFamily = PoppinsFontFamily,
             fontSize = 18.sp,
             fontWeight = FontWeight.Bold
         ),
         titleLarge = TextStyle(
-            fontFamily = Poppins,
+            fontFamily = PoppinsFontFamily,
             fontSize = 16.sp,
             fontWeight = FontWeight.Bold
         ),
         titleMedium = TextStyle(
-            fontFamily = Poppins,
+            fontFamily = PoppinsFontFamily,
             fontSize = 14.sp,
             fontWeight = FontWeight.Medium
         ),
         bodyLarge = TextStyle(
-            fontFamily = Poppins,
+            fontFamily = PoppinsFontFamily,
             fontSize = 16.sp
         ),
         bodyMedium = TextStyle(
-            fontFamily = Poppins,
+            fontFamily = PoppinsFontFamily,
             fontSize = 14.sp
         ),
         labelLarge = TextStyle(
-            fontFamily = Poppins,
+            fontFamily = PoppinsFontFamily,
             fontSize = 14.sp,
             fontWeight = FontWeight.Medium
         )
@@ -105,31 +112,70 @@ object OmsetkuTheme {
     )
 }
 
-private val DarkColorScheme = darkColorScheme(
-    primary = PrimaryColor,
-    secondary = PrimaryVariant,
-    tertiary = IncomeColor,
-    background = BackgroundColor,
-    surface = SurfaceColor,
-    onPrimary = White,
-    onSecondary = White,
-    onTertiary = White,
-    onBackground = DarkText,
-    onSurface = DarkText
-)
-
+// Light color scheme untuk UMKM
 private val LightColorScheme = lightColorScheme(
     primary = PrimaryColor,
+    onPrimary = OnPrimary,
     primaryContainer = PrimaryLight,
-    secondary = Color(0xFF2F7E68),
-    background = BackgroundColor,
-    surface = SurfaceColor,
+    onPrimaryContainer = PrimaryColor,
+    secondary = PrimaryVariant,
+    onSecondary = OnSecondary,
+    secondaryContainer = PrimaryLight,
+    onSecondaryContainer = PrimaryColor,
+    tertiary = Color(0xFFFFD700), // Gold color
+    onTertiary = DarkText,
+    tertiaryContainer = Color(0xFFFF8C00).copy(alpha = 0.1f), // Orange color
+    onTertiaryContainer = Color(0xFFFF8C00),
     error = ExpenseColor,
-    onPrimary = White,
+    onError = OnError,
+    errorContainer = ExpenseLightColor,
+    onErrorContainer = ExpenseColor,
+    background = BackgroundColor,
+    onBackground = OnBackground,
+    surface = SurfaceColor,
+    onSurface = OnSurface,
+    surfaceVariant = Divider,
+    onSurfaceVariant = MediumText,
+    outline = Divider,
+    inverseOnSurface = White,
+    inverseSurface = DarkText,
+    inversePrimary = PrimaryVariant,
+    surfaceTint = PrimaryColor,
+    outlineVariant = Divider,
+    scrim = DarkText.copy(alpha = 0.32f),
+)
+
+// Dark color scheme untuk UMKM (jika diperlukan)
+private val DarkColorScheme = darkColorScheme(
+    primary = PrimaryVariant,
+    onPrimary = DarkText,
+    primaryContainer = PrimaryColor,
+    onPrimaryContainer = PrimaryLight,
+    secondary = PrimaryColor,
     onSecondary = White,
-    onBackground = TextPrimaryColor,
-    onSurface = TextPrimaryColor,
-    onError = White
+    secondaryContainer = PrimaryColor,
+    onSecondaryContainer = PrimaryLight,
+    tertiary = Color(0xFFFFD700), // Gold color
+    onTertiary = DarkText,
+    tertiaryContainer = Color(0xFFFF8C00).copy(alpha = 0.2f), // Orange color
+    onTertiaryContainer = Color(0xFFFF8C00),
+    error = ExpenseColor,
+    onError = White,
+    errorContainer = ExpenseColor.copy(alpha = 0.2f),
+    onErrorContainer = ExpenseColor,
+    background = DarkText,
+    onBackground = White,
+    surface = DarkText,
+    onSurface = White,
+    surfaceVariant = MediumText,
+    onSurfaceVariant = LightText,
+    outline = MediumText,
+    inverseOnSurface = DarkText,
+    inverseSurface = White,
+    inversePrimary = PrimaryColor,
+    surfaceTint = PrimaryVariant,
+    outlineVariant = MediumText,
+    scrim = White.copy(alpha = 0.32f),
 )
 
 @Composable
@@ -151,8 +197,9 @@ fun OmsetkuTheme(
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
+            // Mengatur status bar color untuk UMKM branding
             window.statusBarColor = colorScheme.primary.toArgb()
-            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = darkTheme
+            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !darkTheme
         }
     }
 

@@ -45,7 +45,7 @@ fun AppNavGraph(
             BusinessFormScreen(navController)
         }
         composable(Routes.HOME) {
-            HomeScreen(navController)
+            EnhancedHomeScreen(navController)
         }
         composable(Routes.PROFILE) {
             ProfileScreen(navController)

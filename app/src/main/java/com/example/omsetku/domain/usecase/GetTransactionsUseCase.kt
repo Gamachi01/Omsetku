@@ -1,6 +1,6 @@
 package com.example.omsetku.domain.usecase
 
-import com.example.omsetku.domain.model.Transaction
+import com.example.omsetku.models.Transaction
 import com.example.omsetku.domain.repository.TransactionRepository
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject

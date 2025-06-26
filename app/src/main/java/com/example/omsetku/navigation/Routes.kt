@@ -18,6 +18,7 @@ object Routes {
     const val EDIT_PROFILE = "edit_profile"
     const val BUSINESS_INFO = "business_info"
     const val TAX_SETTINGS = "tax_settings"
+    const val SETTINGS = "settings"
     const val CHANGE_PASSWORD = "change_password"
     const val NOTIFICATIONS = "notifications"
     const val HELP_CENTER = "help_center"

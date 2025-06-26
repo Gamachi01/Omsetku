@@ -3,7 +3,7 @@ package com.example.omsetku.data.repository
 import com.example.omsetku.data.local.TransactionDao
 import com.example.omsetku.data.local.TransactionEntity
 import com.example.omsetku.data.remote.model.TransactionDto
-import com.example.omsetku.domain.model.Transaction
+import com.example.omsetku.models.Transaction
 import com.example.omsetku.domain.repository.TransactionRepository
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.flow.Flow
@@ -22,6 +22,25 @@ class TransactionRepositoryImpl(
     override fun getTransactions(): Flow<List<Transaction>> =
         transactionDao.getAll().map { list -> list.map { it.toDomain() } }
 
+    override suspend fun getAllTransactions(userId: String): List<Transaction> =
+        withContext(Dispatchers.IO) {
+            try {
+                val snapshot = firestore.collection("transactions")
+                    .whereEqualTo("userId", userId)
+                    .get()
+                    .await()
+                
+                snapshot.documents.mapNotNull { doc ->
+                    val data = doc.data
+                    data?.let {
+                        Transaction.fromMap(it + ("id" to doc.id))
+                    }
+                }
+            } catch (e: Exception) {
+                emptyList()
+            }
+        }
+
     override suspend fun getTransactionById(id: String): Transaction? =
         transactionDao.getAll().firstOrNull()?.find { it.id == id }?.toDomain()
 
@@ -39,33 +58,29 @@ class TransactionRepositoryImpl(
 
 // Mapping extension
 fun TransactionEntity.toDomain(): Transaction {
-    val itemsType = object : TypeToken<List<com.example.omsetku.domain.model.CartItem>>() {}.type
-    val items: List<com.example.omsetku.domain.model.CartItem> = Gson().fromJson(this.items, itemsType)
     return Transaction(
         id = id,
         userId = userId,
         type = type,
+        amount = total, // Using total as amount for compatibility
         date = date,
-        subtotal = subtotal,
-        tax = tax,
-        total = total,
-        profit = profit,
-        items = items
+        category = "", // Not available in entity
+        description = "", // Not available in entity
+        createdAt = date
     )
 }
 
 fun Transaction.toEntity(): TransactionEntity {
-    val itemsJson = Gson().toJson(items)
     return TransactionEntity(
         id = id,
         userId = userId,
         type = type,
         date = date,
-        subtotal = subtotal,
-        tax = tax,
-        total = total,
-        profit = profit,
-        items = itemsJson
+        subtotal = amount,
+        tax = 0L,
+        total = amount,
+        profit = if (isIncome) amount else 0L,
+        items = "[]" // Empty JSON array for compatibility
     )
 }
 
@@ -74,9 +89,9 @@ fun Transaction.toDto(): TransactionDto = TransactionDto(
     userId = userId,
     type = type,
     date = date,
-    subtotal = subtotal,
-    tax = tax,
-    total = total,
-    profit = profit,
-    items = items.map { it.toDto() }
+    subtotal = amount,
+    tax = 0L,
+    total = amount,
+    profit = if (isIncome) amount else 0L,
+    items = emptyList()
 ) 

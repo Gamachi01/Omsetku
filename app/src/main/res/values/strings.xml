@@ -1,3 +1,189 @@
 <resources>
-    <string name="app_name">OmsetKu</string>
+    <string name="app_name">Omsetku</string>
+    
+    <!-- Navigation -->
+    <string name="nav_home">Beranda</string>
+    <string name="nav_cashier">Kasir</string>
+    <string name="nav_transaction">Transaksi</string>
+    <string name="nav_hpp">HPP</string>
+    <string name="nav_report">Laporan</string>
+    <string name="nav_profile">Profil</string>
+    
+    <!-- Authentication -->
+    <string name="login_title">Masuk ke OmsetKu</string>
+    <string name="login_subtitle">Kelola bisnis UMKM Anda dengan mudah</string>
+    <string name="email_hint">Masukkan email</string>
+    <string name="password_hint">Masukkan password</string>
+    <string name="login_button">Masuk</string>
+    <string name="register_link">Belum punya akun? Daftar</string>
+    <string name="forgot_password">Lupa password?</string>
+    
+    <!-- Registration -->
+    <string name="register_title">Daftar OmsetKu</string>
+    <string name="register_subtitle">Buat akun untuk mulai mengelola bisnis</string>
+    <string name="name_hint">Nama lengkap</string>
+    <string name="phone_hint">Nomor telepon</string>
+    <string name="confirm_password_hint">Konfirmasi password</string>
+    <string name="register_button">Daftar</string>
+    <string name="login_link">Sudah punya akun? Masuk</string>
+    
+    <!-- Home Screen -->
+    <string name="balance_title">Saldo Saat Ini</string>
+    <string name="income_label">Pemasukan</string>
+    <string name="expense_label">Pengeluaran</string>
+    <string name="recent_transactions">Transaksi Terakhir</string>
+    <string name="quick_actions">Aksi Cepat</string>
+    <string name="add_transaction">Tambah Transaksi</string>
+    <string name="view_report">Lihat Laporan</string>
+    
+    <!-- Transaction -->
+    <string name="transaction_title">Transaksi</string>
+    <string name="transaction_type">Jenis Transaksi</string>
+    <string name="income">Pemasukan</string>
+    <string name="expense">Pengeluaran</string>
+    <string name="amount">Jumlah</string>
+    <string name="description">Deskripsi</string>
+    <string name="category">Kategori</string>
+    <string name="date">Tanggal</string>
+    <string name="save_transaction">Simpan</string>
+    <string name="delete_transaction">Hapus</string>
+    <string name="edit_transaction">Edit</string>
+    
+    <!-- Cashier -->
+    <string name="cashier_title">Kasir</string>
+    <string name="cashier_subtitle">Transaksi Cepat</string>
+    <string name="add_product">Tambah Produk</string>
+    <string name="scan_barcode">Scan Barcode</string>
+    <string name="manual_input">Input Manual</string>
+    <string name="product_name">Nama Produk</string>
+    <string name="product_price">Harga</string>
+    <string name="product_quantity">Jumlah</string>
+    <string name="total_amount">Total</string>
+    <string name="payment_method">Metode Pembayaran</string>
+    <string name="cash">Tunai</string>
+    <string name="card">Kartu</string>
+    <string name="qr_code">QR Code</string>
+    <string name="complete_transaction">Selesai</string>
+    <string name="cancel_transaction">Batal</string>
+    
+    <!-- HPP -->
+    <string name="hpp_title">HPP</string>
+    <string name="hpp_subtitle">Harga Pokok Penjualan</string>
+    <string name="select_product">Pilih Produk</string>
+    <string name="cost_of_goods">Biaya Barang</string>
+    <string name="operational_cost">Biaya Operasional</string>
+    <string name="calculate_hpp">Hitung HPP</string>
+    <string name="hpp_result">Hasil HPP</string>
+    <string name="profit_margin">Margin Keuntungan</string>
+    <string name="selling_price">Harga Jual</string>
+    
+    <!-- Report -->
+    <string name="report_title">Laporan</string>
+    <string name="report_subtitle">Laporan Keuangan</string>
+    <string name="daily_report">Laporan Harian</string>
+    <string name="weekly_report">Laporan Mingguan</string>
+    <string name="monthly_report">Laporan Bulanan</string>
+    <string name="yearly_report">Laporan Tahunan</string>
+    <string name="export_report">Export Laporan</string>
+    <string name="print_report">Cetak Laporan</string>
+    
+    <!-- Profile -->
+    <string name="profile_title">Profil</string>
+    <string name="business_info">Informasi Bisnis</string>
+    <string name="personal_info">Informasi Pribadi</string>
+    <string name="settings">Pengaturan</string>
+    <string name="help_center">Pusat Bantuan</string>
+    <string name="about">Tentang</string>
+    <string name="logout">Keluar</string>
+    
+    <!-- Business Setup -->
+    <string name="business_setup_title">Setup Bisnis</string>
+    <string name="business_name_hint">Nama bisnis</string>
+    <string name="business_type_hint">Jenis usaha</string>
+    <string name="business_address_hint">Alamat bisnis</string>
+    <string name="tax_id_hint">NPWP (opsional)</string>
+    <string name="save_business">Simpan Data Bisnis</string>
+    
+    <!-- Tax Settings -->
+    <string name="tax_settings_title">Pengaturan Pajak</string>
+    <string name="ppn_enabled">Aktifkan PPN (11%)</string>
+    <string name="pph_enabled">Aktifkan PPh</string>
+    <string name="tax_rate">Tarif Pajak</string>
+    <string name="save_tax_settings">Simpan Pengaturan</string>
+    
+    <!-- Common -->
+    <string name="save">Simpan</string>
+    <string name="cancel">Batal</string>
+    <string name="delete">Hapus</string>
+    <string name="edit">Edit</string>
+    <string name="confirm">Konfirmasi</string>
+    <string name="loading">Memuat...</string>
+    <string name="error_occurred">Terjadi kesalahan</string>
+    <string name="success">Berhasil</string>
+    <string name="retry">Coba Lagi</string>
+    <string name="back">Kembali</string>
+    <string name="next">Selanjutnya</string>
+    <string name="done">Selesai</string>
+    
+    <!-- Categories -->
+    <string name="category_sales">Penjualan</string>
+    <string name="category_service">Jasa</string>
+    <string name="category_investment">Investasi</string>
+    <string name="category_other_income">Pendapatan Lain</string>
+    <string name="category_purchase">Pembelian</string>
+    <string name="category_operational">Operasional</string>
+    <string name="category_utilities">Utilitas</string>
+    <string name="category_salary">Gaji</string>
+    <string name="category_tax">Pajak</string>
+    <string name="category_other">Lainnya</string>
+    
+    <!-- Validation Messages -->
+    <string name="error_required_field">Field ini wajib diisi</string>
+    <string name="error_invalid_amount">Jumlah tidak valid</string>
+    <string name="error_invalid_email">Email tidak valid</string>
+    <string name="error_invalid_phone">Nomor telepon tidak valid</string>
+    <string name="error_password_mismatch">Password tidak cocok</string>
+    <string name="error_weak_password">Password terlalu lemah</string>
+    
+    <!-- Success Messages -->
+    <string name="success_transaction_saved">Transaksi berhasil disimpan</string>
+    <string name="success_profile_updated">Profil berhasil diperbarui</string>
+    <string name="success_settings_saved">Pengaturan berhasil disimpan</string>
+    <string name="success_data_exported">Data berhasil diexport</string>
+    
+    <!-- Error Messages -->
+    <string name="error_network">Koneksi internet bermasalah</string>
+    <string name="error_server">Server sedang bermasalah</string>
+    <string name="error_unknown">Terjadi kesalahan yang tidak diketahui</string>
+    <string name="error_data_not_found">Data tidak ditemukan</string>
+    <string name="error_permission_denied">Izin ditolak</string>
+    
+    <!-- Help & Support -->
+    <string name="help_title">Pusat Bantuan</string>
+    <string name="help_faq">Pertanyaan Umum</string>
+    <string name="help_contact">Hubungi Kami</string>
+    <string name="help_tutorial">Tutorial</string>
+    <string name="help_feedback">Kirim Feedback</string>
+    
+    <!-- About -->
+    <string name="about_title">Tentang Omsetku</string>
+    <string name="about_version">Versi 1.0.0</string>
+    <string name="about_description">Aplikasi manajemen keuangan untuk UMKM Indonesia</string>
+    <string name="about_developer">Dikembangkan oleh Tim Omsetku</string>
+    <string name="about_terms">Syarat dan Ketentuan</string>
+    <string name="about_privacy">Kebijakan Privasi</string>
+    
+    <!-- Accessibility -->
+    <string name="accessibility_profile_button">Tombol Profil</string>
+    <string name="accessibility_add_button">Tombol tambah</string>
+    <string name="accessibility_back_button">Tombol Kembali</string>
+    <string name="accessibility_menu_button">Tombol Menu</string>
+    <string name="accessibility_search_button">Tombol Cari</string>
+    <string name="accessibility_close_button">Tombol Tutup</string>
+    <string name="accessibility_filter_button">Tombol Filter</string>
+    <string name="accessibility_sort_button">Tombol Urutkan</string>
+    <string name="accessibility_refresh_button">Tombol Segar</string>
+    <string name="accessibility_share_button">Tombol Bagikan</string>
+    <string name="accessibility_download_button">Tombol Unduh</string>
+    <string name="accessibility_print_button">Tombol Cetak</string>
 </resources>
