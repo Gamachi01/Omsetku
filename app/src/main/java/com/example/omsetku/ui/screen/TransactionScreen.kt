@@ -23,6 +23,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.omsetku.navigation.Routes
@@ -398,11 +399,15 @@ fun TransactionButton(
 
 @Composable
 fun TransactionSuccessDialog(onDismiss: () -> Unit) {
-    Dialog(onDismissRequest = onDismiss) {
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(usePlatformDefaultWidth = false)
+    ) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 24.dp, vertical = 16.dp)
+                .heightIn(min = 260.dp)
+                .padding(horizontal = 24.dp)
                 .clip(RoundedCornerShape(16.dp))
                 .background(Color.White),
             contentAlignment = Alignment.Center
@@ -410,12 +415,12 @@ fun TransactionSuccessDialog(onDismiss: () -> Unit) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 24.dp, horizontal = 16.dp),
+                    .padding(horizontal = 24.dp, vertical = 40.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Box(
                     modifier = Modifier
-                        .size(60.dp)
+                        .size(64.dp)
                         .clip(CircleShape)
                         .background(Color(0xFF5ED0C5)),
                     contentAlignment = Alignment.Center
@@ -424,25 +429,25 @@ fun TransactionSuccessDialog(onDismiss: () -> Unit) {
                         imageVector = Icons.Default.Check,
                         contentDescription = "Success",
                         tint = Color.White,
-                        modifier = Modifier.size(32.dp)
+                        modifier = Modifier.size(36.dp)
                     )
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(28.dp))
 
                 Text(
                     text = "Transaksi Berhasil",
-                    fontSize = 18.sp,
+                    fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
                     fontFamily = Poppins,
                     color = Color.Black
                 )
 
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
                 Text(
                     text = "Transaksi anda telah tercatat",
-                    fontSize = 14.sp,
+                    fontSize = 15.sp,
                     fontFamily = Poppins,
                     color = Color.Gray,
                     textAlign = TextAlign.Center
