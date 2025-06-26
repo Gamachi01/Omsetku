@@ -48,6 +48,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import com.example.omsetku.models.Transaction
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
 
 enum class FilterPeriode {
     HARIAN, MINGGUAN, BULANAN, TAHUNAN
@@ -465,6 +470,11 @@ fun ReportScreen(navController: NavController, transactionViewModel: Transaction
                     .fillMaxWidth()
                     .padding(horizontal = 12.dp, vertical = 12.dp)) {
                     // Section 1: Pemasukan
+                    var pendapatanUsahaExpanded by remember { mutableStateOf(false) }
+                    var pendapatanLainnyaExpanded by remember { mutableStateOf(false) }
+                    var bebanUsahaExpanded by remember { mutableStateOf(false) }
+                    var bebanLainnyaExpanded by remember { mutableStateOf(false) }
+
                     Text(
                         text = "Pemasukan",
                         fontSize = 16.sp,
@@ -473,22 +483,123 @@ fun ReportScreen(navController: NavController, transactionViewModel: Transaction
                         fontFamily = Poppins,
                         modifier = Modifier.padding(vertical = 8.dp)
                     )
+                    // Pendapatan Usaha
                     Row(
-                        Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
+                        Modifier
+                            .fillMaxWidth()
+                            .clickable { pendapatanUsahaExpanded = !pendapatanUsahaExpanded },
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text("Pendapatan Usaha", fontFamily = Poppins, color = Color.Black)
-                        Text(formatRupiah(pendapatanUsaha.toInt()), fontFamily = Poppins, color = Color.Black, textAlign = TextAlign.End)
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(formatRupiah(pendapatanUsaha.toInt()), fontFamily = Poppins, color = Color.Black, textAlign = TextAlign.End)
+                            Icon(
+                                imageVector = if (pendapatanUsahaExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
+                                contentDescription = null,
+                                tint = Color.Gray
+                            )
+                        }
                     }
-                    Spacer(modifier = Modifier.height(6.dp))
+                    AnimatedVisibility(visible = pendapatanUsahaExpanded, enter = expandVertically(), exit = shrinkVertically()) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(start = 8.dp, end = 8.dp, bottom = 8.dp)
+                                .background(Color(0xFFF8F8F8), RoundedCornerShape(8.dp))
+                                .padding(8.dp)
+                        ) {
+                            val list = transactions.filter {
+                                it.type.equals("INCOME", true) && (it.description.contains("Penjualan", true) || it.description.contains("Kasir", true))
+                            }
+                            if (list.isEmpty()) {
+                                Text("Tidak ada transaksi.", fontSize = 12.sp, color = Color.Gray, fontFamily = Poppins)
+                            } else {
+                                list.forEach { trx ->
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(vertical = 4.dp),
+                                        horizontalArrangement = Arrangement.SpaceBetween
+                                    ) {
+                                        Text(
+                                            text = trx.description,
+                                            fontSize = 12.sp,
+                                            fontFamily = Poppins,
+                                            color = Color.Black,
+                                            maxLines = 1
+                                        )
+                                        Text(
+                                            text = formatRupiah(trx.amount.toInt()),
+                                            fontSize = 12.sp,
+                                            fontFamily = Poppins,
+                                            color = Color(0xFF08C39F),
+                                            textAlign = TextAlign.End
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    // Pendapatan Lainnya
                     Row(
-                        Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
+                        Modifier
+                            .fillMaxWidth()
+                            .clickable { pendapatanLainnyaExpanded = !pendapatanLainnyaExpanded },
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text("Pendapatan Lainnya", fontFamily = Poppins, color = Color.Black)
-                        Text(formatRupiah(pendapatanLainnya.toInt()), fontFamily = Poppins, color = Color.Black, textAlign = TextAlign.End)
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(formatRupiah(pendapatanLainnya.toInt()), fontFamily = Poppins, color = Color.Black, textAlign = TextAlign.End)
+                            Icon(
+                                imageVector = if (pendapatanLainnyaExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
+                                contentDescription = null,
+                                tint = Color.Gray
+                            )
+                        }
                     }
-                    Spacer(modifier = Modifier.height(6.dp))
+                    AnimatedVisibility(visible = pendapatanLainnyaExpanded, enter = expandVertically(), exit = shrinkVertically()) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(start = 8.dp, end = 8.dp, bottom = 8.dp)
+                                .background(Color(0xFFF8F8F8), RoundedCornerShape(8.dp))
+                                .padding(8.dp)
+                        ) {
+                            val list = transactions.filter {
+                                it.type.equals("INCOME", true) && !(it.description.contains("Penjualan", true) || it.description.contains("Kasir", true))
+                            }
+                            if (list.isEmpty()) {
+                                Text("Tidak ada transaksi.", fontSize = 12.sp, color = Color.Gray, fontFamily = Poppins)
+                            } else {
+                                list.forEach { trx ->
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(vertical = 4.dp),
+                                        horizontalArrangement = Arrangement.SpaceBetween
+                                    ) {
+                                        Text(
+                                            text = trx.description,
+                                            fontSize = 12.sp,
+                                            fontFamily = Poppins,
+                                            color = Color.Black,
+                                            maxLines = 1
+                                        )
+                                        Text(
+                                            text = formatRupiah(trx.amount.toInt()),
+                                            fontSize = 12.sp,
+                                            fontFamily = Poppins,
+                                            color = Color(0xFF08C39F),
+                                            textAlign = TextAlign.End
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    // Total Pemasukan
                     Row(
                         Modifier.fillMaxWidth().padding(top = 4.dp, bottom = 8.dp),
                         horizontalArrangement = Arrangement.SpaceBetween
@@ -508,22 +619,123 @@ fun ReportScreen(navController: NavController, transactionViewModel: Transaction
                         fontFamily = Poppins,
                         modifier = Modifier.padding(vertical = 8.dp)
                     )
+                    // Beban Usaha
                     Row(
-                        Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
+                        Modifier
+                            .fillMaxWidth()
+                            .clickable { bebanUsahaExpanded = !bebanUsahaExpanded },
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text("Beban Usaha", fontFamily = Poppins, color = Color.Black)
-                        Text(formatRupiah(bebanUsaha.toInt()), fontFamily = Poppins, color = Color.Black, textAlign = TextAlign.End)
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(formatRupiah(bebanUsaha.toInt()), fontFamily = Poppins, color = Color.Black, textAlign = TextAlign.End)
+                            Icon(
+                                imageVector = if (bebanUsahaExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
+                                contentDescription = null,
+                                tint = Color.Gray
+                            )
+                        }
                     }
-                    Spacer(modifier = Modifier.height(6.dp))
+                    AnimatedVisibility(visible = bebanUsahaExpanded, enter = expandVertically(), exit = shrinkVertically()) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(start = 8.dp, end = 8.dp, bottom = 8.dp)
+                                .background(Color(0xFFF8F8F8), RoundedCornerShape(8.dp))
+                                .padding(8.dp)
+                        ) {
+                            val list = transactions.filter {
+                                it.type.equals("EXPENSE", true) && it.category.equals("Usaha", true)
+                            }
+                            if (list.isEmpty()) {
+                                Text("Tidak ada transaksi.", fontSize = 12.sp, color = Color.Gray, fontFamily = Poppins)
+                            } else {
+                                list.forEach { trx ->
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(vertical = 4.dp),
+                                        horizontalArrangement = Arrangement.SpaceBetween
+                                    ) {
+                                        Text(
+                                            text = trx.description,
+                                            fontSize = 12.sp,
+                                            fontFamily = Poppins,
+                                            color = Color.Black,
+                                            maxLines = 1
+                                        )
+                                        Text(
+                                            text = formatRupiah(trx.amount.toInt()),
+                                            fontSize = 12.sp,
+                                            fontFamily = Poppins,
+                                            color = Color(0xFFE74C3C),
+                                            textAlign = TextAlign.End
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    // Beban Lainnya
                     Row(
-                        Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
+                        Modifier
+                            .fillMaxWidth()
+                            .clickable { bebanLainnyaExpanded = !bebanLainnyaExpanded },
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text("Beban Lainnya", fontFamily = Poppins, color = Color.Black)
-                        Text(formatRupiah(bebanLainnya.toInt()), fontFamily = Poppins, color = Color.Black, textAlign = TextAlign.End)
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(formatRupiah(bebanLainnya.toInt()), fontFamily = Poppins, color = Color.Black, textAlign = TextAlign.End)
+                            Icon(
+                                imageVector = if (bebanLainnyaExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
+                                contentDescription = null,
+                                tint = Color.Gray
+                            )
+                        }
                     }
-                    Spacer(modifier = Modifier.height(6.dp))
+                    AnimatedVisibility(visible = bebanLainnyaExpanded, enter = expandVertically(), exit = shrinkVertically()) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(start = 8.dp, end = 8.dp, bottom = 8.dp)
+                                .background(Color(0xFFF8F8F8), RoundedCornerShape(8.dp))
+                                .padding(8.dp)
+                        ) {
+                            val list = transactions.filter {
+                                it.type.equals("EXPENSE", true) && !it.category.equals("Usaha", true)
+                            }
+                            if (list.isEmpty()) {
+                                Text("Tidak ada transaksi.", fontSize = 12.sp, color = Color.Gray, fontFamily = Poppins)
+                            } else {
+                                list.forEach { trx ->
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(vertical = 4.dp),
+                                        horizontalArrangement = Arrangement.SpaceBetween
+                                    ) {
+                                        Text(
+                                            text = trx.description,
+                                            fontSize = 12.sp,
+                                            fontFamily = Poppins,
+                                            color = Color.Black,
+                                            maxLines = 1
+                                        )
+                                        Text(
+                                            text = formatRupiah(trx.amount.toInt()),
+                                            fontSize = 12.sp,
+                                            fontFamily = Poppins,
+                                            color = Color(0xFFE74C3C),
+                                            textAlign = TextAlign.End
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    // Total Pengeluaran
                     Row(
                         Modifier.fillMaxWidth().padding(top = 4.dp, bottom = 8.dp),
                         horizontalArrangement = Arrangement.SpaceBetween

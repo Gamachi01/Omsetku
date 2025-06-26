@@ -48,7 +48,7 @@ fun BottomNavBar(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 12.dp, vertical = 8.dp),
-            horizontalArrangement = Arrangement.SpaceAround,
+            horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically
         ) {
             items.forEachIndexed { index, item ->
@@ -59,6 +59,7 @@ fun BottomNavBar(
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier
+                        .width(60.dp)
                         .clip(RoundedCornerShape(12.dp))
                         .clickable { onItemSelected(item) }
                         .padding(4.dp),
