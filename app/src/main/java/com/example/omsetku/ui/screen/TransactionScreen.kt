@@ -1,7 +1,12 @@
 package com.example.omsetku.ui.screen
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -15,39 +20,23 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.compose.ui.zIndex
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.omsetku.navigation.Routes
-import com.example.omsetku.R
 import com.example.omsetku.ui.components.BottomNavBar
 import com.example.omsetku.ui.components.DatePickerField
-import com.example.omsetku.ui.components.Poppins
-import com.example.omsetku.ui.components.TransactionList
-import com.example.omsetku.viewmodels.TransactionViewModel
 import com.example.omsetku.ui.components.FormField
-import com.example.omsetku.ui.components.StandardTextField
 import com.example.omsetku.ui.components.MultilineTextField
-import com.example.omsetku.firebase.FirestoreRepository
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.IntOffset
-import kotlin.math.roundToInt
-import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.ui.zIndex
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.border
+import com.example.omsetku.ui.components.Poppins
+import com.example.omsetku.ui.components.StandardTextField
+import com.example.omsetku.viewmodels.TransactionViewModel
 
 enum class TransactionType {
     INCOME, EXPENSE
@@ -73,7 +62,6 @@ fun TransactionScreen(
     var showSuccessDialog by remember { mutableStateOf(false) }
 
     // State dari ViewModel
-    val transactions by transactionViewModel.transactions.collectAsState()
     val isLoading by transactionViewModel.isLoading.collectAsState()
     val error by transactionViewModel.error.collectAsState()
 
@@ -102,7 +90,9 @@ fun TransactionScreen(
                     when (item) {
                         "Home" -> navController.navigate(Routes.HOME)
                         "Cashier" -> navController.navigate(Routes.CASHIER)
-                        "Transaction" -> { /* Sudah di layar Transaction */ }
+                        "Transaction" -> { /* Sudah di layar Transaction */
+                        }
+
                         "HPP" -> navController.navigate(Routes.HPP)
                         "Report" -> navController.navigate(Routes.REPORT)
                     }
@@ -124,7 +114,8 @@ fun TransactionScreen(
                 fontWeight = FontWeight.Bold,
                 color = Color.Black,
                 fontFamily = Poppins,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
                     .padding(bottom = 16.dp),
                 textAlign = TextAlign.Center
             )
@@ -156,7 +147,9 @@ fun TransactionScreen(
                         .zIndex(1f)
                 )
                 // Teks tab di atas indikator
-                Row(modifier = Modifier.fillMaxSize().zIndex(2f)) {
+                Row(modifier = Modifier
+                    .fillMaxSize()
+                    .zIndex(2f)) {
                     // Tab Pemasukan
                     val pemasukanActive = selectedType == TransactionType.INCOME
                     val pemasukanTextColor by animateColorAsState(
@@ -288,7 +281,7 @@ fun TransactionScreen(
                     ) {
                         StandardTextField(
                             value = kategoriPemasukan,
-                    onValueChange = {},
+                            onValueChange = {},
                             readOnly = true,
                             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
                             modifier = Modifier.menuAnchor()
@@ -442,7 +435,12 @@ fun TransactionScreen(
 }
 
 @Composable
-fun AnimatedTabButton(text: String, selected: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
+fun AnimatedTabButton(
+    text: String,
+    selected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     val bgColor by animateColorAsState(
         targetValue = if (selected) Color(0xFF5ED0C5) else Color.White,
         label = "tabBgColor"

@@ -12,7 +12,7 @@ import kotlinx.coroutines.tasks.await
 import com.example.omsetku.models.TaxSettings
 import com.example.omsetku.models.Transaction
 import com.example.omsetku.models.Business
-import com.example.omsetku.models.CartItem
+import com.example.omsetku.domain.model.CartItem
 import com.example.omsetku.models.User
 
 /**
@@ -559,8 +559,9 @@ class FirestoreRepository {
             "name" to cartItem.name,
             "price" to cartItem.price,
             "quantity" to cartItem.quantity,
-            "imageRes" to cartItem.imageRes,
-            "hpp" to cartItem.hpp
+            "imageUrl" to (cartItem.imageUrl ?: ""),
+            "hpp" to cartItem.hpp,
+            "subtotal" to cartItem.subtotal
         )
         db.collection("cart_items").document(cartItem.productId).set(data).await()
     }
@@ -573,8 +574,9 @@ class FirestoreRepository {
         updateData["name"] = cartItem.name
         updateData["price"] = cartItem.price
         updateData["quantity"] = cartItem.quantity
-        updateData["imageRes"] = cartItem.imageRes
+        updateData["imageUrl"] = cartItem.imageUrl ?: ""
         updateData["hpp"] = cartItem.hpp
+        updateData["subtotal"] = cartItem.subtotal
         db.collection("cart_items").document(cartItem.productId).update(updateData).await()
     }
 
@@ -606,12 +608,14 @@ class FirestoreRepository {
             val data = doc.data ?: return@mapNotNull null
             try {
                 CartItem(
+                    id = doc.id,
                     productId = data["productId"] as? String ?: "",
                     name = data["name"] as? String ?: "",
                     price = (data["price"] as? Number)?.toLong() ?: 0L,
                     quantity = (data["quantity"] as? Number)?.toInt() ?: 0,
-                    imageRes = (data["imageRes"] as? Number)?.toInt() ?: 0,
-                    hpp = (data["hpp"] as? Number)?.toDouble() ?: 0.0
+                    imageUrl = data["imageUrl"] as? String ?: "",
+                    hpp = (data["hpp"] as? Number)?.toDouble() ?: 0.0,
+                    subtotal = (data["subtotal"] as? Number)?.toLong() ?: 0L
                 )
             } catch (e: Exception) {
                 null

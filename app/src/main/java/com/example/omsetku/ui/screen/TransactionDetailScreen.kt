@@ -29,7 +29,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.omsetku.navigation.Routes
 import com.example.omsetku.R
-import com.example.omsetku.models.CartItem
+import com.example.omsetku.domain.model.CartItem
 import com.example.omsetku.ui.components.Poppins
 import com.example.omsetku.ui.theme.PrimaryVariant
 import com.example.omsetku.ui.theme.MediumText
@@ -44,6 +44,9 @@ import com.example.omsetku.ui.components.ProfitAlertDialog
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.hilt.navigation.compose.hiltViewModel
+import coil.compose.rememberAsyncImagePainter
+import coil.request.ImageRequest
+import androidx.compose.ui.platform.LocalContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -199,7 +202,7 @@ fun TransactionDetailScreen(
                     .fillMaxWidth()
                     .padding(bottom = 24.dp)
                     .height(56.dp),
-                shape = RoundedCornerShape(30.dp),
+                shape = RoundedCornerShape(8.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = PrimaryVariant),
                 elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
             ) {
@@ -247,8 +250,18 @@ fun TransactionDetailScreen(
 @Composable
 fun ProductDetailItem(item: CartItem) {
     Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+        val painter = if (item.imageUrl != null && item.imageUrl.isNotEmpty()) {
+            rememberAsyncImagePainter(
+                ImageRequest.Builder(LocalContext.current)
+                    .data(item.imageUrl)
+                    .crossfade(true)
+                    .build()
+            )
+        } else {
+            painterResource(id = R.drawable.ic_image_placeholder)
+        }
         Image(
-            painter = painterResource(id = item.imageRes),
+            painter = painter,
             contentDescription = item.name,
             contentScale = ContentScale.Crop,
             modifier = Modifier.size(70.dp).clip(RoundedCornerShape(8.dp))

@@ -3,7 +3,7 @@ package com.example.omsetku.viewmodels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.omsetku.firebase.FirebaseModule
-import com.example.omsetku.models.CartItem
+import com.example.omsetku.domain.model.CartItem
 import com.example.omsetku.models.Product
 import com.example.omsetku.models.Transaction
 import com.example.omsetku.models.TransactionType
@@ -78,12 +78,14 @@ class CartViewModel : ViewModel() {
         } else {
             // Tambahkan produk baru ke keranjang
             _cartItems.value + CartItem(
+                id = java.util.UUID.randomUUID().toString(),
                 productId = productId,
                 name = product.name,
                 price = product.price,
                 quantity = quantity,
-                imageRes = product.imageRes,
-                hpp = hpp
+                imageUrl = product.imageUrl,
+                hpp = product.hpp,
+                subtotal = product.price * quantity
             )
         }
 
