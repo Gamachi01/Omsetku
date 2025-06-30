@@ -37,6 +37,17 @@ import com.example.omsetku.ui.components.FormField
 import com.example.omsetku.ui.components.StandardTextField
 import com.example.omsetku.ui.components.MultilineTextField
 import com.example.omsetku.firebase.FirestoreRepository
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.IntOffset
+import kotlin.math.roundToInt
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.ui.zIndex
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.border
 
 enum class TransactionType {
     INCOME, EXPENSE
@@ -118,25 +129,90 @@ fun TransactionScreen(
                 textAlign = TextAlign.Center
             )
 
-            Row(
+            // Sliding green indicator tab
+            BoxWithConstraints(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(48.dp)
                     .clip(RoundedCornerShape(8.dp))
+                    .background(Color.White)
             ) {
-                TransactionButton(
-                    text = "Pemasukan",
-                    isSelected = selectedType == TransactionType.INCOME,
-                    onClick = { selectedType = TransactionType.INCOME },
-                    shape = RoundedCornerShape(topStart = 8.dp, bottomStart = 8.dp),
-                    modifier = Modifier.weight(1f)
+                val tabCount = 2
+                val selectedIndex = if (selectedType == TransactionType.INCOME) 0 else 1
+                val tabWidth = maxWidth / tabCount
+                val indicatorOffset = tabWidth * selectedIndex
+                val animatedOffset by animateDpAsState(
+                    targetValue = indicatorOffset,
+                    animationSpec = tween(durationMillis = 300), label = "indicator"
                 )
-                TransactionButton(
-                    text = "Pengeluaran",
-                    isSelected = selectedType == TransactionType.EXPENSE,
-                    onClick = { selectedType = TransactionType.EXPENSE },
-                    shape = RoundedCornerShape(topEnd = 8.dp, bottomEnd = 8.dp),
-                    modifier = Modifier.weight(1f)
+                // Sliding green indicator (background only)
+                Box(
+                    modifier = Modifier
+                        .offset(x = animatedOffset)
+                        .width(tabWidth)
+                        .fillMaxHeight()
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(Color(0xFF5ED0C5))
+                        .zIndex(1f)
+                )
+                // Teks tab di atas indikator
+                Row(modifier = Modifier.fillMaxSize().zIndex(2f)) {
+                    // Tab Pemasukan
+                    val pemasukanActive = selectedType == TransactionType.INCOME
+                    val pemasukanTextColor by animateColorAsState(
+                        targetValue = if (pemasukanActive) Color.White else Color(0xFF5ED0C5),
+                        animationSpec = tween(durationMillis = 1000),
+                        label = "pemasukanTextColor"
+                    )
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxHeight()
+                            .clickable { selectedType = TransactionType.INCOME },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "Pemasukan",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Bold,
+                            fontFamily = Poppins,
+                            color = pemasukanTextColor,
+                            maxLines = 1,
+                            modifier = if (pemasukanActive) Modifier.zIndex(3f) else Modifier
+                        )
+                    }
+                    // Tab Pengeluaran
+                    val pengeluaranActive = selectedType == TransactionType.EXPENSE
+                    val pengeluaranTextColor by animateColorAsState(
+                        targetValue = if (pengeluaranActive) Color.White else Color(0xFF5ED0C5),
+                        animationSpec = tween(durationMillis = 1000),
+                        label = "pengeluaranTextColor"
+                    )
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxHeight()
+                            .clickable { selectedType = TransactionType.EXPENSE },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "Pengeluaran",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Bold,
+                            fontFamily = Poppins,
+                            color = pengeluaranTextColor,
+                            maxLines = 1,
+                            modifier = if (pengeluaranActive) Modifier.zIndex(3f) else Modifier
+                        )
+                    }
+                }
+                // Border outline
+                Box(
+                    modifier = Modifier
+                        .matchParentSize()
+                        .clip(RoundedCornerShape(8.dp))
+                        .border(BorderStroke(1.dp, Color(0xFF5ED0C5)), RoundedCornerShape(8.dp))
+                        .zIndex(4f)
                 )
             }
 
@@ -366,33 +442,33 @@ fun TransactionScreen(
 }
 
 @Composable
-fun TransactionButton(
-    text: String,
-    isSelected: Boolean,
-    shape: Shape,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    val selectedColor = Color(0xFF5ED0C5)
-    val unselectedColor = Color.White
-
+fun AnimatedTabButton(text: String, selected: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
+    val bgColor by animateColorAsState(
+        targetValue = if (selected) Color(0xFF5ED0C5) else Color.White,
+        label = "tabBgColor"
+    )
+    val textColor by animateColorAsState(
+        targetValue = if (selected) Color.White else Color(0xFF5ED0C5),
+        label = "tabTextColor"
+    )
     Button(
         onClick = onClick,
-        modifier = modifier
-            .height(48.dp),
-        contentPadding = PaddingValues(vertical = 0.dp),
-        shape = shape,
-        border = BorderStroke(1.dp, selectedColor),
+        modifier = modifier.fillMaxHeight(),
+        shape = RoundedCornerShape(8.dp),
+        contentPadding = PaddingValues(0.dp),
         colors = ButtonDefaults.buttonColors(
-            containerColor = if (isSelected) selectedColor else unselectedColor,
-            contentColor = if (isSelected) Color.White else Color.Black
-        )
+            containerColor = bgColor,
+            contentColor = textColor
+        ),
+        elevation = null,
+        border = BorderStroke(1.dp, Color(0xFF5ED0C5))
     ) {
         Text(
             text = text,
             fontSize = 14.sp,
             fontWeight = FontWeight.Bold,
-            fontFamily = Poppins
+            fontFamily = Poppins,
+            maxLines = 1
         )
     }
 }

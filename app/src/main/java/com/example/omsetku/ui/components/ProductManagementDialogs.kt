@@ -1,5 +1,6 @@
 package com.example.omsetku.ui.components
 
+import android.graphics.Bitmap
 import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -39,18 +40,31 @@ import com.example.omsetku.models.Product
 import com.example.omsetku.ui.theme.PrimaryVariant
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.text.TextStyle
+import com.example.omsetku.ui.components.CustomImageCropper
+
+fun saveCroppedBitmapToFile(context: android.content.Context, croppedBitmap: Bitmap): String {
+    val fileName = "product_${System.currentTimeMillis()}.png"
+    val file = java.io.File(context.filesDir, fileName)
+    val outputStream = java.io.FileOutputStream(file)
+    croppedBitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
+    outputStream.flush()
+    outputStream.close()
+    return file.absolutePath
+}
 
 @Composable
 fun ProductDialog(
     isNewProduct: Boolean,
     initialProduct: Product?,
     onDismiss: () -> Unit,
-    onConfirm: (name: String, price: String, imageUri: Uri?) -> Unit
+    onConfirm: (name: String, price: String, imagePath: String?) -> Unit
 ) {
     var productName by remember { mutableStateOf(initialProduct?.name ?: "") }
     var productPrice by remember { mutableStateOf(initialProduct?.price?.toString() ?: "") }
     var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
+    var croppedBitmap by remember { mutableStateOf<android.graphics.Bitmap?>(null) }
     var showImageCropper by remember { mutableStateOf(false) }
 
     val context = LocalContext.current
@@ -64,6 +78,21 @@ fun ProductDialog(
         }
     }
 
+    if (showImageCropper && selectedImageUri != null) {
+        CustomImageCropper(
+            imageUri = selectedImageUri!!,
+            cropSizeDp = 140.dp,
+            onCrop = { bmp ->
+                croppedBitmap = bmp
+                showImageCropper = false
+            },
+            onCancel = {
+                showImageCropper = false
+            }
+        )
+        return
+    }
+
     Dialog(
         onDismissRequest = onDismiss,
         properties = DialogProperties(usePlatformDefaultWidth = false)
@@ -73,14 +102,16 @@ fun ProductDialog(
             color = Color.White,
             modifier = Modifier
                 .padding(horizontal = 32.dp)
-                .widthIn(min = 280.dp, max = 500.dp)
+                .widthIn(min = 320.dp, max = 500.dp)
+                .heightIn(min = 560.dp)
                 .wrapContentHeight()
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = 20.dp, end = 20.dp, top = 20.dp, bottom = 20.dp)
-                    .verticalScroll(rememberScrollState())
+                    .padding(start = 20.dp, end = 20.dp, top = 28.dp, bottom = 24.dp)
+                    .verticalScroll(rememberScrollState()),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -105,94 +136,60 @@ fun ProductDialog(
                         )
                     }
                 }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
+                Spacer(modifier = Modifier.height(18.dp))
                 Box(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .height(180.dp)
-                        .border(
-                            width = 1.dp,
-                            color = Color.LightGray,
-                            shape = RoundedCornerShape(8.dp)
-                        )
-                        .clip(RoundedCornerShape(8.dp))
+                        .size(180.dp)
+                        .clip(RoundedCornerShape(16.dp))
+                        .background(Color(0xFFF5F5F5))
+                        .align(Alignment.CenterHorizontally)
                         .clickable { imagePickerLauncher.launch("image/*") },
                     contentAlignment = Alignment.Center
                 ) {
-                    if (selectedImageUri != null) {
-                        Image(
-                            painter = rememberAsyncImagePainter(
-                                ImageRequest.Builder(context)
-                                    .data(selectedImageUri)
-                                    .crossfade(true)
-                                    .build()
-                            ),
-                            contentDescription = "Selected Image",
-                            modifier = Modifier.fillMaxSize(),
-                            contentScale = ContentScale.Crop
-                        )
-
-                        Box(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .background(Color.Black.copy(alpha = 0.3f))
-                                .clickable { imagePickerLauncher.launch("image/*") },
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                text = "Klik untuk mengubah gambar",
-                                color = Color.White,
-                                fontSize = 14.sp,
-                                fontWeight = FontWeight.Medium,
-                                fontFamily = Poppins
+                    when {
+                        croppedBitmap != null -> {
+                            Image(
+                                bitmap = croppedBitmap!!.asImageBitmap(),
+                                contentDescription = "Cropped Image",
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier.fillMaxSize()
                             )
                         }
-                    } else {
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center,
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(16.dp)
-                        ) {
+                        selectedImageUri != null -> {
+                            Image(
+                                painter = rememberAsyncImagePainter(selectedImageUri),
+                                contentDescription = "Selected Image",
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier.fillMaxSize()
+                            )
+                        }
+                        initialProduct?.imageUrl?.isNotEmpty() == true -> {
+                            Image(
+                                painter = rememberAsyncImagePainter(initialProduct.imageUrl),
+                                contentDescription = "Product Image",
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier.fillMaxSize()
+                            )
+                        }
+                        else -> {
                             Icon(
-                                painter = painterResource(id = R.drawable.arrow_up),
-                                contentDescription = "Upload",
-                                tint = PrimaryVariant,
-                                modifier = Modifier.size(32.dp)
-                            )
-                            Spacer(modifier = Modifier.height(6.dp))
-                            Text(
-                                text = "Klik untuk mengupload gambar produk",
-                                fontSize = 12.sp,
-                                fontFamily = Poppins,
-                                color = Color.Black,
-                                textAlign = TextAlign.Center
-                            )
-                            Text(
-                                text = "Support: JPG, JPEG, PNG",
-                                fontSize = 10.sp,
-                                fontFamily = Poppins,
-                                color = Color.Gray,
-                                textAlign = TextAlign.Center
+                                painter = painterResource(id = R.drawable.ic_image_placeholder),
+                                contentDescription = "Placeholder",
+                                tint = Color.LightGray,
+                                modifier = Modifier.size(72.dp)
                             )
                         }
                     }
                 }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
+                Spacer(modifier = Modifier.height(24.dp))
                 Text(
                     text = "Nama Produk",
                     fontSize = 14.sp,
                     fontFamily = Poppins,
-                    color = Color.Black
+                    color = Color.Black,
+                    modifier = Modifier.align(Alignment.Start)
                 )
-
-                Spacer(modifier = Modifier.height(4.dp))
-
+                Spacer(modifier = Modifier.height(6.dp))
                 OutlinedTextField(
                     value = productName,
                     onValueChange = { productName = it },
@@ -209,18 +206,15 @@ fun ProductDialog(
                         fontFamily = Poppins
                     )
                 )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
+                Spacer(modifier = Modifier.height(18.dp))
                 Text(
                     text = "Harga",
                     fontSize = 14.sp,
                     fontFamily = Poppins,
-                    color = Color.Black
+                    color = Color.Black,
+                    modifier = Modifier.align(Alignment.Start)
                 )
-
-                Spacer(modifier = Modifier.height(4.dp))
-
+                Spacer(modifier = Modifier.height(6.dp))
                 StandardTextField(
                     value = productPrice,
                     onValueChange = { productPrice = it },
@@ -228,20 +222,18 @@ fun ProductDialog(
                     isRupiah = true,
                     placeholder = "Rp"
                 )
-
-                Spacer(modifier = Modifier.height(24.dp))
-
+                Spacer(modifier = Modifier.height(32.dp))
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 2.dp),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     Button(
                         onClick = onDismiss,
                         modifier = Modifier
                             .weight(1f)
-                            .height(48.dp),
+                            .height(52.dp),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = Color.LightGray
                         ),
@@ -249,7 +241,7 @@ fun ProductDialog(
                     ) {
                         Text(
                             text = "Batal",
-                            fontSize = 14.sp,
+                            fontSize = 15.sp,
                             fontWeight = FontWeight.Bold,
                             fontFamily = Poppins,
                             color = Color.Black,
@@ -257,12 +249,25 @@ fun ProductDialog(
                             modifier = Modifier.fillMaxWidth()
                         )
                     }
-
                     Button(
-                        onClick = { onConfirm(productName, productPrice, selectedImageUri) },
+                        onClick = {
+                            val imagePath = if (croppedBitmap != null) {
+                                saveCroppedBitmapToFile(context, croppedBitmap!!)
+                            } else if (selectedImageUri != null) {
+                                val inputStream = context.contentResolver.openInputStream(selectedImageUri!!)
+                                val fileName = "product_${System.currentTimeMillis()}.png"
+                                val file = java.io.File(context.filesDir, fileName)
+                                val outputStream = java.io.FileOutputStream(file)
+                                inputStream?.copyTo(outputStream)
+                                inputStream?.close()
+                                outputStream.close()
+                                file.absolutePath
+                            } else initialProduct?.imageUrl
+                            onConfirm(productName, productPrice, imagePath)
+                        },
                         modifier = Modifier
                             .weight(1f)
-                            .height(48.dp),
+                            .height(52.dp),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = PrimaryVariant
                         ),
@@ -271,7 +276,7 @@ fun ProductDialog(
                     ) {
                         Text(
                             text = if (isNewProduct) "Tambah Produk" else "Simpan",
-                            fontSize = 14.sp,
+                            fontSize = 15.sp,
                             fontWeight = FontWeight.Bold,
                             fontFamily = Poppins,
                             color = Color.White,

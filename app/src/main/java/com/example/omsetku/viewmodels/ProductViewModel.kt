@@ -1,5 +1,6 @@
 package com.example.omsetku.viewmodels
 
+import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -65,7 +66,7 @@ class ProductViewModel : ViewModel() {
     /**
      * Menambahkan produk baru
      */
-    fun addProduct(name: String, price: Int, imageUri: Uri? = null) {
+    fun addProduct(name: String, price: Int, imagePath: String?) {
         if (name.isBlank() || price <= 0) {
             _error.value = "Nama produk dan harga harus valid"
             return
@@ -74,16 +75,7 @@ class ProductViewModel : ViewModel() {
             _isLoading.value = true
             _error.value = null
             try {
-                var imageUrl = ""
-                if (imageUri != null) {
-                    try {
-                        imageUrl = storageRepository.uploadProductImage(imageUri)
-                    } catch (e: Exception) {
-                        _error.value = "Gagal mengupload gambar: ${e.message}"
-                        _isLoading.value = false
-                        return@launch
-                    }
-                }
+                val imageUrl = imagePath ?: ""
                 val firestoreId = repository.saveProduct(name, price.toLong(), imageUrl)
                 val newProduct = Product(
                     id = firestoreId,
@@ -107,7 +99,7 @@ class ProductViewModel : ViewModel() {
     /**
      * Mengedit produk yang ada
      */
-    fun editProduct(productId: String, name: String, price: Int, imageUri: Uri? = null) {
+    fun editProduct(productId: String, name: String, price: Int, imagePath: String?) {
         if (name.isBlank() || price <= 0) {
             _error.value = "Nama produk dan harga harus valid"
             return
@@ -117,16 +109,7 @@ class ProductViewModel : ViewModel() {
             _error.value = null
             try {
                 val currentProduct = _products.value.find { it.id == productId }
-                var imageUrl = currentProduct?.imageUrl ?: ""
-                if (imageUri != null) {
-                    try {
-                        imageUrl = storageRepository.uploadProductImage(imageUri)
-                    } catch (e: Exception) {
-                        _error.value = "Gagal mengupload gambar: ${e.message}"
-                        _isLoading.value = false
-                        return@launch
-                    }
-                }
+                val imageUrl = imagePath ?: currentProduct?.imageUrl ?: ""
                 repository.updateProduct(productId, name, price.toLong(), imageUrl)
                 _products.value = _products.value.map {
                     if (it.id == productId) it.copy(name = name, price = price.toLong(), imageUrl = imageUrl)

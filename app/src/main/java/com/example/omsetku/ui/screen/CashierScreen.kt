@@ -72,6 +72,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.ripple.rememberRipple
 import com.example.omsetku.ui.components.ProfitAlertDialog
+import com.example.omsetku.ui.components.RealtimeProfitAlert
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.AnimatedVisibility
@@ -92,7 +93,10 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Surface
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.ui.zIndex
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
 @Composable
@@ -139,12 +143,17 @@ fun CashierScreen(
     var isManageProductSelected by remember { mutableStateOf(false) }
 
     // Selalu update totalItems ketika cartItems berubah
-    val totalItems = remember(cartItems) { cartViewModel.getTotalItems() }
+    val totalItems = cartItems.sumOf { it.quantity }
     val hasSelectedItems = totalItems > 0
 
     // Tambahkan state untuk dialog profit
     var showProfitAlert by remember { mutableStateOf(false) }
     var transactionProfit by remember { mutableStateOf(0.0) }
+
+    // State untuk profit alert realtime
+    var showRealtimeProfitAlert by remember { mutableStateOf(false) }
+    var realtimeProfit by remember { mutableStateOf(0.0) }
+    var lastCartItemsCount by remember { mutableStateOf(0) }
 
     // Efek untuk memuat produk saat pertama kali
     LaunchedEffect(Unit) {
@@ -178,31 +187,117 @@ fun CashierScreen(
         }
     }
 
+    // Efek untuk menghitung profit realtime saat keranjang berubah
+    LaunchedEffect(cartItems) {
+        val marginProfitValue = marginProfit.toDoubleOrNull() ?: 0.0
+        val calculatedProfit = cartViewModel.calculateTotalProfit(products, marginProfitValue)
+        
+        // Hitung total quantity dari semua item di keranjang
+        val currentTotalQuantity = cartItems.sumOf { it.quantity }
+        
+        // Tampilkan alert jika ada profit dan ada item di keranjang
+        if (calculatedProfit > 0 && currentTotalQuantity > 0) {
+            // Cek apakah ada perubahan pada keranjang
+            if (currentTotalQuantity != lastCartItemsCount) {
+                realtimeProfit = calculatedProfit
+                showRealtimeProfitAlert = true
+                lastCartItemsCount = currentTotalQuantity
+                
+                // Auto hide setelah 3 detik
+                kotlinx.coroutines.delay(3000)
+                showRealtimeProfitAlert = false
+            }
+        } else if (currentTotalQuantity == 0) {
+            showRealtimeProfitAlert = false
+            lastCartItemsCount = 0
+        }
+    }
+
+    val context = LocalContext.current
+
     Scaffold(
         bottomBar = {
-            BottomNavBar(
-                selectedItem = selectedItem,
-                onItemSelected = { item ->
-                    selectedItem = item
-                    when (item) {
-                        "Home" -> navController.navigate(Routes.HOME)
-                        "Cashier" -> { /* Sudah di layar Cashier */ }
-                        "Transaction" -> navController.navigate(Routes.TRANSACTION)
-                        "HPP" -> navController.navigate(Routes.HPP)
-                        "Report" -> navController.navigate(Routes.REPORT)
+            Column(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                AnimatedVisibility(
+                    visible = hasSelectedItems,
+                    enter = slideInVertically(
+                        initialOffsetY = { it }, // dari bawah
+                        animationSpec = tween(350)
+                    ) + fadeIn(animationSpec = tween(350)),
+                    exit = slideOutVertically(
+                        targetOffsetY = { it },
+                        animationSpec = tween(250)
+                    ) + fadeOut(animationSpec = tween(250))
+                ) {
+                    Button(
+                        onClick = { navController.navigate(Routes.TRANSACTION_DETAIL) },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 8.dp)
+                            .height(56.dp),
+                        shape = RoundedCornerShape(8.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = PrimaryVariant),
+                        elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                "Proses Transaksi",
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold,
+                                fontFamily = Poppins,
+                                color = Color.White,
+                                modifier = Modifier.weight(1f)
+                            )
+                            Surface(
+                                modifier = Modifier.size(24.dp),
+                                shape = CircleShape,
+                                color = Color.White
+                            ) {
+                                Box(
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        text = totalItems.toString(),
+                                        fontSize = 12.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = PrimaryVariant,
+                                        modifier = Modifier.offset(y = (-1).dp)
+                                    )
+                                }
+                            }
+                        }
                     }
                 }
-            )
+                BottomNavBar(
+                    selectedItem = selectedItem,
+                    onItemSelected = { item ->
+                        selectedItem = item
+                        when (item) {
+                            "Home" -> navController.navigate(Routes.HOME)
+                            "Cashier" -> { /* Sudah di layar Cashier */ }
+                            "Transaction" -> navController.navigate(Routes.TRANSACTION)
+                            "HPP" -> navController.navigate(Routes.HPP)
+                            "Report" -> navController.navigate(Routes.REPORT)
+                        }
+                    }
+                )
+            }
         }
     ) { paddingValues ->
         Box(
-            modifier = modifier
-                .fillMaxSize()
-                .padding(paddingValues)
+            modifier = Modifier.fillMaxSize()
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
+                    .padding(paddingValues)
                     .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
@@ -406,54 +501,19 @@ fun CashierScreen(
                 )
             }
 
-            // Process Transaction Button
-            if (hasSelectedItems) {
-                Button(
-                    onClick = { navController.navigate(Routes.TRANSACTION_DETAIL) },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .align(Alignment.BottomCenter)
-                        .padding(horizontal = 16.dp)
-                        .padding(bottom = 8.dp)
-                        .height(56.dp),
-                    shape = RoundedCornerShape(30.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = PrimaryVariant),
-                    elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
-                ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            "Proses Transaksi",
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Bold,
-                            fontFamily = Poppins,
-                            color = Color.White,
-                            modifier = Modifier.weight(1f)
-                        )
-                        Surface(
-                            modifier = Modifier.size(24.dp),
-                            shape = CircleShape,
-                            color = Color.White
-                        ) {
-                            Box(
-                                modifier = Modifier.fillMaxSize(),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text(
-                                    text = totalItems.toString(),
-                                    fontSize = 12.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = PrimaryVariant,
-                                    modifier = Modifier.offset(y = (-1).dp)
-                                )
-                            }
-                        }
-                    }
-                }
-            }
+            // Realtime Profit Alert - floating at top-right
+            RealtimeProfitAlert(
+                profit = realtimeProfit,
+                isVisible = showRealtimeProfitAlert,
+                onDismiss = { 
+                    showRealtimeProfitAlert = false
+                    // Reset lastCartItemsCount agar alert bisa muncul lagi saat item ditambahkan
+                    lastCartItemsCount = cartItems.sumOf { it.quantity }
+                },
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(top = 80.dp, end = 16.dp)
+            )
         }
     }
 
@@ -466,8 +526,8 @@ fun CashierScreen(
                 showAddProductDialog = false
                 isAddProductSelected = false
             },
-            onConfirm = { name, price, _ ->
-                productViewModel.addProduct(name, price.toInt())
+            onConfirm = { name, price, imagePath ->
+                productViewModel.addProduct(name, price.toInt(), imagePath)
                 showAddProductDialog = false
                 isAddProductSelected = false
             }
@@ -484,8 +544,8 @@ fun CashierScreen(
                 isEditMode = false
                 isManageProductSelected = false
             },
-            onConfirm = { name, price, _ ->
-                productViewModel.editProduct(selectedProduct!!.id, name, price.toInt())
+            onConfirm = { name, price, imagePath ->
+                productViewModel.editProduct(selectedProduct!!.id, name, price.toInt(), imagePath)
                 showEditProductDialog = false
                 selectedProduct = null
                 isEditMode = false
@@ -554,7 +614,7 @@ fun ProductCard(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(110.dp)
+                    .height(140.dp)
                     .clip(RoundedCornerShape(8.dp)),
                 contentAlignment = Alignment.Center
             ) {
@@ -572,12 +632,12 @@ fun ProductCard(
                         modifier = Modifier.fillMaxSize()
                     )
                 } else {
-                    // Tampilkan gambar default
+                    // Tampilkan gambar placeholder
                     Image(
-                        painter = painterResource(id = product.imageRes),
-                        contentDescription = product.name,
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier.fillMaxSize()
+                        painter = painterResource(id = R.drawable.ic_image_placeholder),
+                        contentDescription = "Placeholder",
+                        contentScale = ContentScale.Fit,
+                        modifier = Modifier.size(64.dp)
                     )
                 }
             }

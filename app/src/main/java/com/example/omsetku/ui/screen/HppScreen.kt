@@ -27,6 +27,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.omsetku.navigation.Routes
@@ -373,11 +374,14 @@ fun HppScreen(
 
     // Dialog Hasil Perhitungan
     if (showResultDialog) {
-        Dialog(onDismissRequest = { showResultDialog = false }) {
+        Dialog(
+            onDismissRequest = { showResultDialog = false },
+            properties = DialogProperties(usePlatformDefaultWidth = false)
+        ) {
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp),
+                    .padding(24.dp),
                 shape = RoundedCornerShape(16.dp),
                 colors = CardDefaults.cardColors(
                     containerColor = Color.White
@@ -394,7 +398,10 @@ fun HppScreen(
                         fontWeight = FontWeight.Bold,
                         fontSize = 20.sp,
                         color = Color.Black,
-                        modifier = Modifier.padding(bottom = 16.dp)
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 16.dp)
                     )
 
                     // HPP per Porsi

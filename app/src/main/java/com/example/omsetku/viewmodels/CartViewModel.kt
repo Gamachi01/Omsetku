@@ -60,7 +60,7 @@ class CartViewModel : ViewModel() {
 
         if (quantity <= 0 || currentUserId.isEmpty()) return
 
-        val productId = product.id
+        val productId = product.firestoreId
         val existingItem = _cartItems.value.find { it.productId == productId }
 
         // Ambil HPP dari produk

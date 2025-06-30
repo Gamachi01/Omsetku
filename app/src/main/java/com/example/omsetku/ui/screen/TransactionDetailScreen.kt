@@ -4,6 +4,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -278,7 +279,7 @@ fun SuccessDialog(onDismiss: () -> Unit) {
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
+                .padding(24.dp),
             shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.cardColors(containerColor = Color.White)
         ) {
@@ -288,15 +289,23 @@ fun SuccessDialog(onDismiss: () -> Unit) {
                     .padding(24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // Icon Check
-                Icon(
-                    imageVector = Icons.Default.Check,
-                    contentDescription = "Success",
-                    modifier = Modifier.size(48.dp),
-                    tint = PrimaryVariant
-                )
+                // Icon Check in green circle
+                Box(
+                    modifier = Modifier
+                        .size(64.dp)
+                        .clip(CircleShape)
+                        .background(Color(0xFF5ED0C5)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Check,
+                        contentDescription = "Success",
+                        tint = Color.White,
+                        modifier = Modifier.size(36.dp)
+                    )
+                }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(28.dp))
 
                 // Title
                 Text(
@@ -307,14 +316,15 @@ fun SuccessDialog(onDismiss: () -> Unit) {
                     color = PrimaryVariant
                 )
 
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
                 // Description
                 Text(
                     text = "Transaksi anda telah tercatat.",
                     fontSize = 16.sp,
                     fontFamily = Poppins,
-                    color = MediumText
+                    color = MediumText,
+                    textAlign = TextAlign.Center
                 )
 
                 Spacer(modifier = Modifier.height(24.dp))
@@ -333,7 +343,7 @@ fun SuccessDialog(onDismiss: () -> Unit) {
                     Text(
                         text = "Lanjutkan",
                         fontSize = 14.sp,
-                        fontWeight = FontWeight.Medium,
+                        fontWeight = FontWeight.Bold,
                         fontFamily = Poppins,
                         color = Color.White
                     )

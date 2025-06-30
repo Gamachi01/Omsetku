@@ -17,6 +17,53 @@ import androidx.navigation.NavController
 import com.example.omsetku.navigation.Routes
 import com.example.omsetku.R
 import kotlinx.coroutines.delay
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.ContentScale
+
+@Composable
+fun ShimmerLogo(
+    modifier: Modifier = Modifier,
+    logoRes: Int,
+    shimmerWidth: Float = 60f // lebar highlight shimmer
+) {
+    val transition = rememberInfiniteTransition(label = "logoShimmer")
+    val shimmerX by transition.animateFloat(
+        initialValue = -shimmerWidth,
+        targetValue = 250f + shimmerWidth, // 250f = size logo
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 1800, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart
+        ), label = "logoShimmerX"
+    )
+
+    Box(modifier = modifier) {
+        Image(
+            painter = painterResource(id = logoRes),
+            contentDescription = "Logo",
+            modifier = Modifier.size(250.dp),
+            contentScale = ContentScale.Fit
+        )
+        // Shimmer highlight overlay
+        Box(
+            modifier = Modifier
+                .size(250.dp)
+                .graphicsLayer {
+                    alpha = 0.7f
+                }
+                .background(
+                    brush = Brush.linearGradient(
+                        colors = listOf(
+                            Color.Transparent,
+                            Color.White.copy(alpha = 0.32f),
+                            Color.Transparent
+                        ),
+                        start = androidx.compose.ui.geometry.Offset(shimmerX, 0f),
+                        end = androidx.compose.ui.geometry.Offset(shimmerX + shimmerWidth, 250f)
+                    )
+                )
+        )
+    }
+}
 
 @Composable
 fun SplashScreen(navController: NavController) {

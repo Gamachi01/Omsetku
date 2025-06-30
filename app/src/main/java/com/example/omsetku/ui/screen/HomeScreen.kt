@@ -37,6 +37,7 @@ import com.example.omsetku.ui.theme.*
 import com.example.omsetku.viewmodels.TransactionViewModel
 import java.text.NumberFormat
 import java.util.*
+import com.example.omsetku.ui.components.ShimmerHighlightBox
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -124,13 +125,10 @@ fun HomeScreen(
 
             // Bagian statis yang tidak di-scroll
             // Saldo Card
-            Card(
+            ShimmerHighlightBox(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 8.dp),
-                shape = RoundedCornerShape(16.dp),
-                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-                colors = CardDefaults.cardColors(containerColor = PrimaryLight)
+                    .padding(bottom = 8.dp)
             ) {
                 Column(
                     modifier = Modifier.padding(16.dp),

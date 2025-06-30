@@ -53,6 +53,12 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.ui.graphics.graphicsLayer
 
 enum class FilterPeriode {
     HARIAN, MINGGUAN, BULANAN, TAHUNAN
@@ -111,7 +117,7 @@ fun ReportScreen(navController: NavController, transactionViewModel: Transaction
     val total_pendapatan = pendapatanUsaha + pendapatanLainnya
     val total_beban = bebanUsaha + bebanLainnya
     val laba_kotor = total_pendapatan - total_beban
-    val pajak_umkm = (laba_kotor * 0.005).toInt()
+    val pajak_umkm = if (laba_kotor > 0) (laba_kotor * 0.005).toInt() else 0
     val laba_bersih = laba_kotor - pajak_umkm
 
     fun formatRupiah(value: Int): String {
@@ -147,6 +153,9 @@ fun ReportScreen(navController: NavController, transactionViewModel: Transaction
     var selectedMonth by remember { mutableStateOf(defaultMonthFormat.format(today.time)) }
     var selectedYear by remember { mutableStateOf(defaultYearFormat.format(today.time)) }
 
+    // State untuk bottom sheet
+    val filterSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+
     // --- END Bagian Filter, Download, Ringkasan ---
 
     Scaffold(
@@ -167,104 +176,523 @@ fun ReportScreen(navController: NavController, transactionViewModel: Transaction
         },
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color.White)
-                .padding(horizontal = 16.dp)
-                .padding(top = 16.dp, bottom = 8.dp)
-                .padding(paddingValues)
-                .verticalScroll(scrollState)
-        ) {
-            Text(
-                text = "Laporan Keuangan",
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.Black,
-                fontFamily = Poppins,
-                textAlign = TextAlign.Center,
+        Box(modifier = Modifier.fillMaxSize()) {
+            // Konten utama
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 16.dp)
-            )
-
-            // Tanggal periode
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
+                    .fillMaxSize()
+                    .background(Color.White)
+                    .padding(horizontal = 16.dp)
+                    .padding(top = 16.dp, bottom = 8.dp)
+                    .padding(paddingValues)
+                    .verticalScroll(scrollState)
             ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.transactioncalender),
-                    contentDescription = "Tanggal",
-                    modifier = Modifier
-                        .size(18.dp)
-                        .offset(y = (-2.5).dp),
-                    tint = Color.DarkGray
-                )
-                Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = periodeText,
-                    fontSize = 14.sp,
+                    text = "Laporan Keuangan",
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black,
                     fontFamily = Poppins,
-                    fontWeight = FontWeight.Medium,
-                    color = Color.DarkGray
-                )
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Filter dan Download Button
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                // Tombol Filter
-                OutlinedButton(
-                    onClick = { showFilterDialog = true },
+                    textAlign = TextAlign.Center,
                     modifier = Modifier
-                        .weight(0.3f)
-                        .height(42.dp),
-                    shape = RoundedCornerShape(8.dp),
-                    colors = ButtonDefaults.outlinedButtonColors(
-                        contentColor = PrimaryVariant
-                    ),
-                    border = BorderStroke(1.dp, Color.LightGray)
+                        .fillMaxWidth()
+                        .padding(bottom = 16.dp)
+                )
+
+                // Tanggal periode
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.transactioncalender),
+                        contentDescription = "Tanggal",
+                        modifier = Modifier
+                            .size(18.dp)
+                            .offset(y = (-2.5).dp),
+                        tint = Color.DarkGray
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        "Filter",
-                        fontSize = 13.sp,
-                        fontWeight = FontWeight.Bold,
-                        fontFamily = Poppins
+                        text = periodeText,
+                        fontSize = 14.sp,
+                        fontFamily = Poppins,
+                        fontWeight = FontWeight.Medium,
+                        color = Color.DarkGray
                     )
                 }
 
-                // Tombol Download Laporan
-                Button(
-                    onClick = {
-                        // Memicu Activity Result Launcher untuk memilih lokasi dan nama file
-                        // Karena launcher dikomentari, tombol ini tidak akan melakukan apa-apa dulu.
-                        // Anda bisa tambahkan Toast sementara di sini jika perlu.
-                        // val fileName = "Laporan_Keuangan_${periodeText.replace(" ", "_")}.csv"
-                        // createDocumentLauncher.launch(fileName)
+                Spacer(modifier = Modifier.height(16.dp))
 
-                        // TODO: Implementasi download laporan (saat build environment sudah stabil)
-
-                    },
-                    modifier = Modifier
-                        .weight(0.7f)
-                        .height(42.dp),
-                    shape = RoundedCornerShape(8.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = PrimaryVariant
-                    )
+                // Filter dan Download Button
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    Text(
-                        "Download Laporan",
-                        fontSize = 13.sp,
-                        fontWeight = FontWeight.Bold,
-                        fontFamily = Poppins
-                    )
+                    // Tombol Filter
+                    OutlinedButton(
+                        onClick = { showFilterDialog = true },
+                        modifier = Modifier
+                            .weight(0.3f)
+                            .height(42.dp),
+                        shape = RoundedCornerShape(8.dp),
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            contentColor = PrimaryVariant
+                        ),
+                        border = BorderStroke(1.dp, Color.LightGray)
+                    ) {
+                        Text(
+                            "Filter",
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Bold,
+                            fontFamily = Poppins
+                        )
+                    }
+
+                    // Tombol Download Laporan
+                    Button(
+                        onClick = {
+                            // Memicu Activity Result Launcher untuk memilih lokasi dan nama file
+                            // Karena launcher dikomentari, tombol ini tidak akan melakukan apa-apa dulu.
+                            // Anda bisa tambahkan Toast sementara di sini jika perlu.
+                            // val fileName = "Laporan_Keuangan_${periodeText.replace(" ", "_")}.csv"
+                            // createDocumentLauncher.launch(fileName)
+
+                            // TODO: Implementasi download laporan (saat build environment sudah stabil)
+
+                        },
+                        modifier = Modifier
+                            .weight(0.7f)
+                            .height(42.dp),
+                        shape = RoundedCornerShape(8.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = PrimaryVariant
+                        )
+                    ) {
+                        Text(
+                            "Download Laporan",
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Bold,
+                            fontFamily = Poppins
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(20.dp))
+
+                // Cards untuk Total Pendapatan dan Pengeluaran
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    // Card Total Pendapatan
+                    Card(
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(80.dp),
+                        shape = RoundedCornerShape(8.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = Color(0xFFE8F7F5)
+                        ),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(12.dp),
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            Text(
+                                text = "Total Pendapatan",
+                                fontSize = 14.sp,
+                                fontFamily = Poppins,
+                                color = Color.DarkGray
+                            )
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                text = formatRupiah(total_pendapatan.toInt()),
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold,
+                                fontFamily = Poppins,
+                                color = Color(0xFF08C39F)
+                            )
+                        }
+                    }
+
+                    // Card Total Pengeluaran
+                    Card(
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(80.dp),
+                        shape = RoundedCornerShape(8.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = Color(0xFFFDEDED)
+                        ),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(12.dp),
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            Text(
+                                text = "Total Pengeluaran",
+                                fontSize = 14.sp,
+                                fontFamily = Poppins,
+                                color = Color.DarkGray
+                            )
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                text = formatRupiah(total_beban.toInt()),
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold,
+                                fontFamily = Poppins,
+                                color = Color(0xFFE74C3C)
+                            )
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                // Card Laba Bersih
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 12.dp),
+                    shape = RoundedCornerShape(8.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = Color(0xFFE8F7F5)
+                    ),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 12.dp, vertical = 16.dp),
+                        horizontalAlignment = Alignment.Start
+                    ) {
+                        Text(
+                            text = "Laba Bersih",
+                            fontSize = 14.sp,
+                            fontFamily = Poppins,
+                            color = Color.DarkGray
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = formatRupiah(laba_bersih.toInt()),
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold,
+                            fontFamily = Poppins,
+                            color = Color(0xFF2F7E68)
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // --- LAPORAN KEUANGAN DIGITAL (DUA KOLOM) dibungkus Card putih, rounded, shadow, margin ---
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 4.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                ) {
+                    Column(modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 12.dp, vertical = 12.dp)) {
+                        // Section 1: Pemasukan
+                        var pendapatanUsahaExpanded by remember { mutableStateOf(false) }
+                        var pendapatanLainnyaExpanded by remember { mutableStateOf(false) }
+                        var bebanUsahaExpanded by remember { mutableStateOf(false) }
+                        var bebanLainnyaExpanded by remember { mutableStateOf(false) }
+
+                        Text(
+                            text = "Pemasukan",
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.Black,
+                            fontFamily = Poppins,
+                            modifier = Modifier.padding(vertical = 8.dp)
+                        )
+                        // Pendapatan Usaha
+                        Row(
+                            Modifier
+                                .fillMaxWidth()
+                                .clickable { pendapatanUsahaExpanded = !pendapatanUsahaExpanded },
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text("Pendapatan Usaha", fontFamily = Poppins, color = Color.Black)
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(formatRupiah(pendapatanUsaha.toInt()), fontFamily = Poppins, color = Color.Black, textAlign = TextAlign.End)
+                                Icon(
+                                    imageVector = if (pendapatanUsahaExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
+                                    contentDescription = null,
+                                    tint = Color.Gray
+                                )
+                            }
+                        }
+                        AnimatedVisibility(visible = pendapatanUsahaExpanded, enter = expandVertically(), exit = shrinkVertically()) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(start = 8.dp, end = 8.dp, bottom = 8.dp)
+                                    .background(Color(0xFFF5F5F5).copy(alpha = 0f))
+                            ) {
+                                val groupedList = transactions.filter {
+                                    it.type.equals("INCOME", true) && (it.description.contains("Penjualan", true) || it.description.contains("Kasir", true))
+                                }.groupBy { it.description }.map { (desc, items) -> desc to items.sumOf { it.amount } }
+                                groupedList.forEach { (desc, total) ->
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(vertical = 4.dp),
+                                        horizontalArrangement = Arrangement.SpaceBetween
+                                    ) {
+                                        Text(
+                                            text = desc,
+                                            fontSize = 12.sp,
+                                            fontFamily = Poppins,
+                                            color = Color.Black,
+                                            maxLines = 1
+                                        )
+                                        Text(
+                                            text = formatRupiah(total.toInt()),
+                                            fontSize = 12.sp,
+                                            fontFamily = Poppins,
+                                            color = Color(0xFF08C39F),
+                                            textAlign = TextAlign.End
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                        // Pendapatan Lainnya
+                        Row(
+                            Modifier
+                                .fillMaxWidth()
+                                .clickable { pendapatanLainnyaExpanded = !pendapatanLainnyaExpanded },
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text("Pendapatan Lainnya", fontFamily = Poppins, color = Color.Black)
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(formatRupiah(pendapatanLainnya.toInt()), fontFamily = Poppins, color = Color.Black, textAlign = TextAlign.End)
+                                Icon(
+                                    imageVector = if (pendapatanLainnyaExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
+                                    contentDescription = null,
+                                    tint = Color.Gray
+                                )
+                            }
+                        }
+                        AnimatedVisibility(visible = pendapatanLainnyaExpanded, enter = expandVertically(), exit = shrinkVertically()) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(start = 8.dp, end = 8.dp, bottom = 8.dp)
+                                    .background(Color(0xFFF5F5F5).copy(alpha = 0f))
+                            ) {
+                                val groupedList = transactions.filter {
+                                    it.type.equals("INCOME", true) && !(it.description.contains("Penjualan", true) || it.description.contains("Kasir", true))
+                                }.groupBy { it.description }.map { (desc, items) -> desc to items.sumOf { it.amount } }
+                                groupedList.forEach { (desc, total) ->
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(vertical = 4.dp),
+                                        horizontalArrangement = Arrangement.SpaceBetween
+                                    ) {
+                                        Text(
+                                            text = desc,
+                                            fontSize = 12.sp,
+                                            fontFamily = Poppins,
+                                            color = Color.Black,
+                                            maxLines = 1
+                                        )
+                                        Text(
+                                            text = formatRupiah(total.toInt()),
+                                            fontSize = 12.sp,
+                                            fontFamily = Poppins,
+                                            color = Color(0xFF08C39F),
+                                            textAlign = TextAlign.End
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                        // Total Pemasukan
+                        Row(
+                            Modifier.fillMaxWidth().padding(top = 4.dp, bottom = 8.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text("Total Pemasukan", fontWeight = FontWeight.Bold, fontFamily = Poppins, color = Color.Black)
+                            Text(formatRupiah(total_pendapatan.toInt()), fontWeight = FontWeight.Bold, fontFamily = Poppins, color = Color.Black, textAlign = TextAlign.End)
+                        }
+                        Divider(thickness = 1.dp, color = Color.LightGray)
+                        Spacer(modifier = Modifier.height(10.dp))
+
+                        // Section 2: Pengeluaran
+                        Text(
+                            text = "Pengeluaran",
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.Black,
+                            fontFamily = Poppins,
+                            modifier = Modifier.padding(vertical = 8.dp)
+                        )
+                        // Beban Usaha
+                        Row(
+                            Modifier
+                                .fillMaxWidth()
+                                .clickable { bebanUsahaExpanded = !bebanUsahaExpanded },
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text("Beban Usaha", fontFamily = Poppins, color = Color.Black)
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(formatRupiah(bebanUsaha.toInt()), fontFamily = Poppins, color = Color.Black, textAlign = TextAlign.End)
+                                Icon(
+                                    imageVector = if (bebanUsahaExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
+                                    contentDescription = null,
+                                    tint = Color.Gray
+                                )
+                            }
+                        }
+                        AnimatedVisibility(visible = bebanUsahaExpanded, enter = expandVertically(), exit = shrinkVertically()) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(start = 8.dp, end = 8.dp, bottom = 8.dp)
+                                    .background(Color(0xFFF5F5F5).copy(alpha = 0f))
+                            ) {
+                                val groupedList = transactions.filter {
+                                    it.type.equals("EXPENSE", true) && it.category.equals("Usaha", true)
+                                }.groupBy { it.description }.map { (desc, items) -> desc to items.sumOf { it.amount } }
+                                groupedList.forEach { (desc, total) ->
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(vertical = 4.dp),
+                                        horizontalArrangement = Arrangement.SpaceBetween
+                                    ) {
+                                        Text(
+                                            text = desc,
+                                            fontSize = 12.sp,
+                                            fontFamily = Poppins,
+                                            color = Color.Black,
+                                            maxLines = 1
+                                        )
+                                        Text(
+                                            text = formatRupiah(total.toInt()),
+                                            fontSize = 12.sp,
+                                            fontFamily = Poppins,
+                                            color = Color(0xFFE74C3C),
+                                            textAlign = TextAlign.End
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                        // Beban Lainnya
+                        Row(
+                            Modifier
+                                .fillMaxWidth()
+                                .clickable { bebanLainnyaExpanded = !bebanLainnyaExpanded },
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text("Beban Lainnya", fontFamily = Poppins, color = Color.Black)
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(formatRupiah(bebanLainnya.toInt()), fontFamily = Poppins, color = Color.Black, textAlign = TextAlign.End)
+                                Icon(
+                                    imageVector = if (bebanLainnyaExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
+                                    contentDescription = null,
+                                    tint = Color.Gray
+                                )
+                            }
+                        }
+                        AnimatedVisibility(visible = bebanLainnyaExpanded, enter = expandVertically(), exit = shrinkVertically()) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(start = 8.dp, end = 8.dp, bottom = 8.dp)
+                                    .background(Color(0xFFF5F5F5).copy(alpha = 0f))
+                            ) {
+                                val groupedList = transactions.filter {
+                                    it.type.equals("EXPENSE", true) && !it.category.equals("Usaha", true)
+                                }.groupBy { it.description }.map { (desc, items) -> desc to items.sumOf { it.amount } }
+                                groupedList.forEach { (desc, total) ->
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(vertical = 4.dp),
+                                        horizontalArrangement = Arrangement.SpaceBetween
+                                    ) {
+                                        Text(
+                                            text = desc,
+                                            fontSize = 12.sp,
+                                            fontFamily = Poppins,
+                                            color = Color.Black,
+                                            maxLines = 1
+                                        )
+                                        Text(
+                                            text = formatRupiah(total.toInt()),
+                                            fontSize = 12.sp,
+                                            fontFamily = Poppins,
+                                            color = Color(0xFFE74C3C),
+                                            textAlign = TextAlign.End
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                        // Total Pengeluaran
+                        Row(
+                            Modifier.fillMaxWidth().padding(top = 4.dp, bottom = 8.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text("Total Pengeluaran", fontWeight = FontWeight.Bold, fontFamily = Poppins, color = Color.Black)
+                            Text(formatRupiah(total_beban.toInt()), fontWeight = FontWeight.Bold, fontFamily = Poppins, color = Color.Black, textAlign = TextAlign.End)
+                        }
+                        Divider(thickness = 1.dp, color = Color.LightGray)
+                        Spacer(modifier = Modifier.height(12.dp))
+
+                        // Section 3: Laba (Rugi) Kotor
+                        Row(
+                            Modifier.fillMaxWidth().padding(vertical = 8.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text("Laba (Rugi) Kotor", fontWeight = FontWeight.Bold, fontFamily = Poppins, color = Color.Black)
+                            Text(formatRupiah(laba_kotor.toInt()), fontWeight = FontWeight.Bold, fontFamily = Poppins, color = Color.Black, textAlign = TextAlign.End)
+                        }
+                        Divider(thickness = 1.dp, color = Color.LightGray)
+                        Spacer(modifier = Modifier.height(12.dp))
+
+                        // Section 4: Pajak UMKM
+                        Row(
+                            Modifier.fillMaxWidth().padding(vertical = 8.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text("Pajak Penghasilan UMKM (0,5%)", fontFamily = Poppins, color = Color.Black)
+                            Text(formatRupiah(pajak_umkm.toInt()), fontFamily = Poppins, color = Color.Black, textAlign = TextAlign.End)
+                        }
+                        Divider(thickness = 1.dp, color = Color.LightGray)
+                        Spacer(modifier = Modifier.height(12.dp))
+
+                        // Section 5: Laba (Rugi) Bersih
+                        Row(
+                            Modifier.fillMaxWidth().padding(vertical = 8.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text("Laba (Rugi) Bersih", fontWeight = FontWeight.Bold, fontFamily = Poppins, color = Color.Black)
+                            Text(formatRupiah(laba_bersih.toInt()), fontWeight = FontWeight.Bold, fontFamily = Poppins, color = Color.Black, textAlign = TextAlign.End)
+                        }
+                    }
                 }
             }
 
@@ -274,44 +702,39 @@ fun ReportScreen(navController: NavController, transactionViewModel: Transaction
                     onDismiss = { showFilterDialog = false },
                     selectedPeriode = selectedPeriode,
                     onApplyFilter = { result ->
-                        // Memperbarui periode dan text berdasarkan hasil filter
                         selectedPeriode = result.periode
                         periodeText = result.displayText
                         showFilterDialog = false
-
-                        // Hitung tanggal awal dan akhir berdasarkan hasil filter
+                        // ... logic filter tanggal seperti sebelumnya ...
                         val calendar = Calendar.getInstance(TimeZone.getTimeZone("Asia/Jakarta"))
                         val dateFormat = SimpleDateFormat("dd MMMM yyyy", Locale("id", "ID")).apply { timeZone = TimeZone.getTimeZone("Asia/Jakarta") }
                         var startTimestamp: Long? = null
                         var endTimestamp: Long? = null
-
                         when (result.periode) {
                             FilterPeriode.HARIAN -> {
                                 try {
                                     val date = dateFormat.parse(result.selectedDate)
                                     val calendar = Calendar.getInstance(TimeZone.getTimeZone("Asia/Jakarta")).apply {
-                                        time = date ?: Date() // Set ke tanggal yang dipilih (awal hari)
-                                        // Set waktu ke akhir hari (23:59:59.999)
+                                        time = date ?: Date()
                                         set(Calendar.HOUR_OF_DAY, 23)
                                         set(Calendar.MINUTE, 59)
                                         set(Calendar.SECOND, 59)
                                         set(Calendar.MILLISECOND, 999)
                                     }
-                                    startTimestamp = date?.time // Tanggal awal tetap awal hari
-                                    endTimestamp = calendar.timeInMillis // Tanggal akhir menjadi akhir hari
-                                } catch (e: Exception) { /* Handle error */ }
+                                    startTimestamp = date?.time
+                                    endTimestamp = calendar.timeInMillis
+                                } catch (e: Exception) { }
                             }
                             FilterPeriode.MINGGUAN -> {
                                 try {
                                     val startDate = dateFormat.parse(result.startDate)
                                     val endDate = dateFormat.parse(result.endDate)
                                     startTimestamp = startDate?.time
-                                    endTimestamp = endDate?.time // Akhir hari terakhir
-                                } catch (e: Exception) { /* Handle error */ }
+                                    endTimestamp = endDate?.time
+                                } catch (e: Exception) { }
                             }
                             FilterPeriode.BULANAN -> {
                                 try {
-                                    // result.selectedMonth dalam format MMMM yyyy
                                     val monthYearFormat = SimpleDateFormat("MMMM yyyy", Locale("id", "ID")).apply { timeZone = TimeZone.getTimeZone("Asia/Jakarta") }
                                     val date = monthYearFormat.parse(result.selectedMonth)
                                     calendar.time = date ?: Date()
@@ -319,464 +742,25 @@ fun ReportScreen(navController: NavController, transactionViewModel: Transaction
                                     startTimestamp = calendar.timeInMillis
                                     calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH))
                                     endTimestamp = calendar.timeInMillis
-                                } catch (e: Exception) { /* Handle error */ }
+                                } catch (e: Exception) { }
                             }
                             FilterPeriode.TAHUNAN -> {
                                 try {
-                                    // result.selectedYear dalam format yyyy
                                     val yearFormat = SimpleDateFormat("yyyy", Locale("id", "ID")).apply { timeZone = TimeZone.getTimeZone("Asia/Jakarta") }
                                     val date = yearFormat.parse(result.selectedYear)
                                     calendar.time = date ?: Date()
-                                    calendar.set(Calendar.DAY_OF_YEAR, 1) // Awal tahun
+                                    calendar.set(Calendar.DAY_OF_YEAR, 1)
                                     startTimestamp = calendar.timeInMillis
-                                    calendar.set(Calendar.DAY_OF_YEAR, calendar.getActualMaximum(Calendar.DAY_OF_YEAR)) // Akhir tahun
+                                    calendar.set(Calendar.DAY_OF_YEAR, calendar.getActualMaximum(Calendar.DAY_OF_YEAR))
                                     endTimestamp = calendar.timeInMillis
-                                } catch (e: Exception) { /* Handle error */ }
+                                } catch (e: Exception) { }
                             }
                         }
-
-                        // Panggil loadTransactions dengan tanggal yang baru
                         if (startTimestamp != null && endTimestamp != null) {
                             transactionViewModel.loadTransactions(startDate = startTimestamp, endDate = endTimestamp)
                         }
                     }
                 )
-            }
-
-            Spacer(modifier = Modifier.height(20.dp))
-
-            // Cards untuk Total Pendapatan dan Pengeluaran
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                // Card Total Pendapatan
-                Card(
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(80.dp),
-                    shape = RoundedCornerShape(8.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = Color(0xFFE8F7F5)
-                    ),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(12.dp),
-                        verticalArrangement = Arrangement.Center
-                    ) {
-                        Text(
-                            text = "Total Pendapatan",
-                            fontSize = 14.sp,
-                            fontFamily = Poppins,
-                            color = Color.DarkGray
-                        )
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text(
-                            text = formatRupiah(total_pendapatan.toInt()),
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Bold,
-                            fontFamily = Poppins,
-                            color = Color(0xFF08C39F)
-                        )
-                    }
-                }
-
-                // Card Total Pengeluaran
-                Card(
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(80.dp),
-                    shape = RoundedCornerShape(8.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = Color(0xFFFDEDED)
-                    ),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(12.dp),
-                        verticalArrangement = Arrangement.Center
-                    ) {
-                        Text(
-                            text = "Total Pengeluaran",
-                            fontSize = 14.sp,
-                            fontFamily = Poppins,
-                            color = Color.DarkGray
-                        )
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text(
-                            text = formatRupiah(total_beban.toInt()),
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Bold,
-                            fontFamily = Poppins,
-                            color = Color(0xFFE74C3C)
-                        )
-                    }
-                }
-            }
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            // Card Laba Bersih
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 12.dp),
-                shape = RoundedCornerShape(8.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = Color(0xFFE8F7F5)
-                ),
-                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 12.dp, vertical = 16.dp),
-                    horizontalAlignment = Alignment.Start
-                ) {
-                    Text(
-                        text = "Laba Bersih",
-                        fontSize = 14.sp,
-                        fontFamily = Poppins,
-                        color = Color.DarkGray
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = formatRupiah(laba_bersih.toInt()),
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold,
-                        fontFamily = Poppins,
-                        color = Color(0xFF2F7E68)
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // --- LAPORAN KEUANGAN DIGITAL (DUA KOLOM) dibungkus Card putih, rounded, shadow, margin ---
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 4.dp),
-                shape = RoundedCornerShape(12.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.White),
-                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-            ) {
-                Column(modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 12.dp, vertical = 12.dp)) {
-                    // Section 1: Pemasukan
-                    var pendapatanUsahaExpanded by remember { mutableStateOf(false) }
-                    var pendapatanLainnyaExpanded by remember { mutableStateOf(false) }
-                    var bebanUsahaExpanded by remember { mutableStateOf(false) }
-                    var bebanLainnyaExpanded by remember { mutableStateOf(false) }
-
-                    Text(
-                        text = "Pemasukan",
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.Black,
-                        fontFamily = Poppins,
-                        modifier = Modifier.padding(vertical = 8.dp)
-                    )
-                    // Pendapatan Usaha
-                    Row(
-                        Modifier
-                            .fillMaxWidth()
-                            .clickable { pendapatanUsahaExpanded = !pendapatanUsahaExpanded },
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text("Pendapatan Usaha", fontFamily = Poppins, color = Color.Black)
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(formatRupiah(pendapatanUsaha.toInt()), fontFamily = Poppins, color = Color.Black, textAlign = TextAlign.End)
-                            Icon(
-                                imageVector = if (pendapatanUsahaExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
-                                contentDescription = null,
-                                tint = Color.Gray
-                            )
-                        }
-                    }
-                    AnimatedVisibility(visible = pendapatanUsahaExpanded, enter = expandVertically(), exit = shrinkVertically()) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(start = 8.dp, end = 8.dp, bottom = 8.dp)
-                                .background(Color(0xFFF8F8F8), RoundedCornerShape(8.dp))
-                                .padding(8.dp)
-                        ) {
-                            val list = transactions.filter {
-                                it.type.equals("INCOME", true) && (it.description.contains("Penjualan", true) || it.description.contains("Kasir", true))
-                            }
-                            if (list.isEmpty()) {
-                                Text("Tidak ada transaksi.", fontSize = 12.sp, color = Color.Gray, fontFamily = Poppins)
-                            } else {
-                                list.forEach { trx ->
-                                    Row(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(vertical = 4.dp),
-                                        horizontalArrangement = Arrangement.SpaceBetween
-                                    ) {
-                                        Text(
-                                            text = trx.description,
-                                            fontSize = 12.sp,
-                                            fontFamily = Poppins,
-                                            color = Color.Black,
-                                            maxLines = 1
-                                        )
-                                        Text(
-                                            text = formatRupiah(trx.amount.toInt()),
-                                            fontSize = 12.sp,
-                                            fontFamily = Poppins,
-                                            color = Color(0xFF08C39F),
-                                            textAlign = TextAlign.End
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    // Pendapatan Lainnya
-                    Row(
-                        Modifier
-                            .fillMaxWidth()
-                            .clickable { pendapatanLainnyaExpanded = !pendapatanLainnyaExpanded },
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text("Pendapatan Lainnya", fontFamily = Poppins, color = Color.Black)
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(formatRupiah(pendapatanLainnya.toInt()), fontFamily = Poppins, color = Color.Black, textAlign = TextAlign.End)
-                            Icon(
-                                imageVector = if (pendapatanLainnyaExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
-                                contentDescription = null,
-                                tint = Color.Gray
-                            )
-                        }
-                    }
-                    AnimatedVisibility(visible = pendapatanLainnyaExpanded, enter = expandVertically(), exit = shrinkVertically()) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(start = 8.dp, end = 8.dp, bottom = 8.dp)
-                                .background(Color(0xFFF8F8F8), RoundedCornerShape(8.dp))
-                                .padding(8.dp)
-                        ) {
-                            val list = transactions.filter {
-                                it.type.equals("INCOME", true) && !(it.description.contains("Penjualan", true) || it.description.contains("Kasir", true))
-                            }
-                            if (list.isEmpty()) {
-                                Text("Tidak ada transaksi.", fontSize = 12.sp, color = Color.Gray, fontFamily = Poppins)
-                            } else {
-                                list.forEach { trx ->
-                                    Row(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(vertical = 4.dp),
-                                        horizontalArrangement = Arrangement.SpaceBetween
-                                    ) {
-                                        Text(
-                                            text = trx.description,
-                                            fontSize = 12.sp,
-                                            fontFamily = Poppins,
-                                            color = Color.Black,
-                                            maxLines = 1
-                                        )
-                                        Text(
-                                            text = formatRupiah(trx.amount.toInt()),
-                                            fontSize = 12.sp,
-                                            fontFamily = Poppins,
-                                            color = Color(0xFF08C39F),
-                                            textAlign = TextAlign.End
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    // Total Pemasukan
-                    Row(
-                        Modifier.fillMaxWidth().padding(top = 4.dp, bottom = 8.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text("Total Pemasukan", fontWeight = FontWeight.Bold, fontFamily = Poppins, color = Color.Black)
-                        Text(formatRupiah(total_pendapatan.toInt()), fontWeight = FontWeight.Bold, fontFamily = Poppins, color = Color.Black, textAlign = TextAlign.End)
-                    }
-                    Divider(thickness = 1.dp, color = Color.LightGray)
-                    Spacer(modifier = Modifier.height(10.dp))
-
-                    // Section 2: Pengeluaran
-                    Text(
-                        text = "Pengeluaran",
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.Black,
-                        fontFamily = Poppins,
-                        modifier = Modifier.padding(vertical = 8.dp)
-                    )
-                    // Beban Usaha
-                    Row(
-                        Modifier
-                            .fillMaxWidth()
-                            .clickable { bebanUsahaExpanded = !bebanUsahaExpanded },
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text("Beban Usaha", fontFamily = Poppins, color = Color.Black)
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(formatRupiah(bebanUsaha.toInt()), fontFamily = Poppins, color = Color.Black, textAlign = TextAlign.End)
-                            Icon(
-                                imageVector = if (bebanUsahaExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
-                                contentDescription = null,
-                                tint = Color.Gray
-                            )
-                        }
-                    }
-                    AnimatedVisibility(visible = bebanUsahaExpanded, enter = expandVertically(), exit = shrinkVertically()) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(start = 8.dp, end = 8.dp, bottom = 8.dp)
-                                .background(Color(0xFFF8F8F8), RoundedCornerShape(8.dp))
-                                .padding(8.dp)
-                        ) {
-                            val list = transactions.filter {
-                                it.type.equals("EXPENSE", true) && it.category.equals("Usaha", true)
-                            }
-                            if (list.isEmpty()) {
-                                Text("Tidak ada transaksi.", fontSize = 12.sp, color = Color.Gray, fontFamily = Poppins)
-                            } else {
-                                list.forEach { trx ->
-                                    Row(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(vertical = 4.dp),
-                                        horizontalArrangement = Arrangement.SpaceBetween
-                                    ) {
-                                        Text(
-                                            text = trx.description,
-                                            fontSize = 12.sp,
-                                            fontFamily = Poppins,
-                                            color = Color.Black,
-                                            maxLines = 1
-                                        )
-                                        Text(
-                                            text = formatRupiah(trx.amount.toInt()),
-                                            fontSize = 12.sp,
-                                            fontFamily = Poppins,
-                                            color = Color(0xFFE74C3C),
-                                            textAlign = TextAlign.End
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    // Beban Lainnya
-                    Row(
-                        Modifier
-                            .fillMaxWidth()
-                            .clickable { bebanLainnyaExpanded = !bebanLainnyaExpanded },
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text("Beban Lainnya", fontFamily = Poppins, color = Color.Black)
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(formatRupiah(bebanLainnya.toInt()), fontFamily = Poppins, color = Color.Black, textAlign = TextAlign.End)
-                            Icon(
-                                imageVector = if (bebanLainnyaExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
-                                contentDescription = null,
-                                tint = Color.Gray
-                            )
-                        }
-                    }
-                    AnimatedVisibility(visible = bebanLainnyaExpanded, enter = expandVertically(), exit = shrinkVertically()) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(start = 8.dp, end = 8.dp, bottom = 8.dp)
-                                .background(Color(0xFFF8F8F8), RoundedCornerShape(8.dp))
-                                .padding(8.dp)
-                        ) {
-                            val list = transactions.filter {
-                                it.type.equals("EXPENSE", true) && !it.category.equals("Usaha", true)
-                            }
-                            if (list.isEmpty()) {
-                                Text("Tidak ada transaksi.", fontSize = 12.sp, color = Color.Gray, fontFamily = Poppins)
-                            } else {
-                                list.forEach { trx ->
-                                    Row(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(vertical = 4.dp),
-                                        horizontalArrangement = Arrangement.SpaceBetween
-                                    ) {
-                                        Text(
-                                            text = trx.description,
-                                            fontSize = 12.sp,
-                                            fontFamily = Poppins,
-                                            color = Color.Black,
-                                            maxLines = 1
-                                        )
-                                        Text(
-                                            text = formatRupiah(trx.amount.toInt()),
-                                            fontSize = 12.sp,
-                                            fontFamily = Poppins,
-                                            color = Color(0xFFE74C3C),
-                                            textAlign = TextAlign.End
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    // Total Pengeluaran
-                    Row(
-                        Modifier.fillMaxWidth().padding(top = 4.dp, bottom = 8.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text("Total Pengeluaran", fontWeight = FontWeight.Bold, fontFamily = Poppins, color = Color.Black)
-                        Text(formatRupiah(total_beban.toInt()), fontWeight = FontWeight.Bold, fontFamily = Poppins, color = Color.Black, textAlign = TextAlign.End)
-                    }
-                    Divider(thickness = 1.dp, color = Color.LightGray)
-                    Spacer(modifier = Modifier.height(12.dp))
-
-                    // Section 3: Laba (Rugi) Kotor
-                    Row(
-                        Modifier.fillMaxWidth().padding(vertical = 8.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text("Laba (Rugi) Kotor", fontWeight = FontWeight.Bold, fontFamily = Poppins, color = Color.Black)
-                        Text(formatRupiah(laba_kotor.toInt()), fontWeight = FontWeight.Bold, fontFamily = Poppins, color = Color.Black, textAlign = TextAlign.End)
-                    }
-                    Divider(thickness = 1.dp, color = Color.LightGray)
-                    Spacer(modifier = Modifier.height(12.dp))
-
-                    // Section 4: Pajak UMKM
-                    Row(
-                        Modifier.fillMaxWidth().padding(vertical = 8.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text("Pajak Penghasilan UMKM (0,5%)", fontFamily = Poppins, color = Color.Black)
-                        Text(formatRupiah(pajak_umkm.toInt()), fontFamily = Poppins, color = Color.Black, textAlign = TextAlign.End)
-                    }
-                    Divider(thickness = 1.dp, color = Color.LightGray)
-                    Spacer(modifier = Modifier.height(12.dp))
-
-                    // Section 5: Laba (Rugi) Bersih
-                    Row(
-                        Modifier.fillMaxWidth().padding(vertical = 8.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text("Laba (Rugi) Bersih", fontWeight = FontWeight.Bold, fontFamily = Poppins, color = Color.Black)
-                        Text(formatRupiah(laba_bersih.toInt()), fontWeight = FontWeight.Bold, fontFamily = Poppins, color = Color.Black, textAlign = TextAlign.End)
-                    }
-                }
             }
         }
     }
@@ -963,272 +947,6 @@ fun TransactionDayCard(
                             )
                         }
                     }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun FilterDialog(
-    onDismiss: () -> Unit,
-    selectedPeriode: FilterPeriode,
-    onPeriodeSelected: (FilterPeriode) -> Unit,
-    onApply: () -> Unit,
-    selectedDate: String,
-    startDate: String,
-    endDate: String,
-    selectedMonth: String,
-    selectedYear: String,
-    onSelectedDateChanged: (String) -> Unit,
-    onStartDateChanged: (String) -> Unit,
-    onEndDateChanged: (String) -> Unit,
-    onSelectedMonthChanged: (String) -> Unit,
-    onSelectedYearChanged: (String) -> Unit
-) {
-    val scrollState = rememberScrollState()
-
-    // State untuk menyimpan timestamp tanggal awal (untuk mode mingguan)
-    var startDateTimestamp by remember { mutableStateOf<Long?>(null) }
-
-    Dialog(
-        onDismissRequest = onDismiss,
-        properties = DialogProperties(usePlatformDefaultWidth = false)
-    ) {
-        Surface(
-            shape = RoundedCornerShape(16.dp),
-            color = Color.White,
-            modifier = Modifier.heightIn(max = 550.dp)
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .verticalScroll(scrollState)
-                    .padding(24.dp)
-            ) {
-                // Header dengan tombol close (X)
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Close,
-                        contentDescription = "Close",
-                        modifier = Modifier
-                            .size(24.dp)
-                            .clickable { onDismiss() },
-                        tint = Color.Black
-                    )
-
-                    Text(
-                        text = "Filter",
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.Black,
-                        fontFamily = Poppins
-                    )
-
-                    // Spacer untuk menjaga agar title tetap di tengah
-                    Spacer(modifier = Modifier.width(24.dp))
-                }
-
-                Spacer(modifier = Modifier.height(24.dp))
-
-                // Pilih Periode Transaksi
-                Text(
-                    text = "Pilih Periode Transaksi",
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Medium,
-                    color = Color.Black,
-                    fontFamily = Poppins
-                )
-
-                Spacer(modifier = Modifier.height(12.dp))
-
-                // Radio button options
-                val options = listOf(
-                    FilterPeriode.HARIAN to "Harian",
-                    FilterPeriode.MINGGUAN to "Mingguan",
-                    FilterPeriode.BULANAN to "Bulanan",
-                    FilterPeriode.TAHUNAN to "Tahunan"
-                )
-
-                var selectedOption by remember { mutableStateOf(selectedPeriode) }
-
-                // Radio button group
-                options.forEach { (periode, label) ->
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 4.dp)
-                            .clickable {
-                                selectedOption = periode
-                                onPeriodeSelected(periode)
-                            }
-                    ) {
-                        RadioButton(
-                            selected = selectedOption == periode,
-                            onClick = {
-                                selectedOption = periode
-                                onPeriodeSelected(periode)
-                            },
-                            colors = RadioButtonDefaults.colors(
-                                selectedColor = PrimaryVariant,
-                                unselectedColor = Color.Gray
-                            ),
-                            modifier = Modifier.size(20.dp)
-                        )
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Text(
-                            text = label,
-                            fontSize = 14.sp,
-                            fontFamily = Poppins,
-                            color = Color.Black
-                        )
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(20.dp))
-
-                // Input fields based on selected period
-                when (selectedOption) {
-                    FilterPeriode.HARIAN -> {
-                        Text(
-                            text = "Pilih Tanggal",
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Medium,
-                            color = Color.Black,
-                            fontFamily = Poppins
-                        )
-
-                        Spacer(modifier = Modifier.height(8.dp))
-
-                        // Menggunakan DatePickerField dengan mode DAILY
-                        DatePickerField(
-                            value = selectedDate,
-                            onDateSelected = { onSelectedDateChanged(it) },
-                            placeholder = "Pilih tanggal",
-                            mode = DatePickerMode.DAILY
-                        )
-                    }
-                    FilterPeriode.MINGGUAN -> {
-                        // Tanggal Awal
-                        Text(
-                            text = "Tanggal Awal",
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Medium,
-                            color = Color.Black,
-                            fontFamily = Poppins
-                        )
-
-                        Spacer(modifier = Modifier.height(8.dp))
-
-                        // Menggunakan DatePickerField dengan mode WEEKLY_START
-                        DatePickerField(
-                            value = startDate,
-                            onDateSelected = { date ->
-                                onStartDateChanged(date)
-                                // Menyimpan timestamp untuk digunakan pada tanggal akhir
-                                val dateFormat = SimpleDateFormat("dd MMMM yyyy", Locale("id", "ID")).apply { timeZone = TimeZone.getTimeZone("Asia/Jakarta") }
-                                val parsedDate = dateFormat.parse(date)
-                                startDateTimestamp = parsedDate?.time
-
-                                // Otomatis mengatur tanggal akhir seminggu setelah tanggal awal
-                                if (startDateTimestamp != null) {
-                                    val calendar = Calendar.getInstance(TimeZone.getTimeZone("Asia/Jakarta"))
-                                    calendar.timeInMillis = startDateTimestamp!!
-                                    calendar.add(Calendar.DAY_OF_MONTH, 7)
-                                    onEndDateChanged(dateFormat.format(calendar.time))
-                                }
-                            },
-                            placeholder = "Pilih tanggal awal",
-                            mode = DatePickerMode.WEEKLY_START
-                        )
-
-                        Spacer(modifier = Modifier.height(16.dp))
-
-                        // Tanggal Akhir
-                        Text(
-                            text = "Tanggal Akhir",
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Medium,
-                            color = Color.Black,
-                            fontFamily = Poppins
-                        )
-
-                        Spacer(modifier = Modifier.height(8.dp))
-
-                        // Menggunakan DatePickerField dengan mode WEEKLY_END
-                        // Tanggal akhir otomatis diisi seminggu setelah tanggal awal
-                        DatePickerField(
-                            value = endDate,
-                            onDateSelected = { onEndDateChanged(it) },
-                            placeholder = "Tanggal akhir (otomatis seminggu setelah tanggal awal)",
-                            mode = DatePickerMode.WEEKLY_END,
-                            startDate = startDateTimestamp
-                        )
-                    }
-                    FilterPeriode.BULANAN -> {
-                        Text(
-                            text = "Pilih Bulan",
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Medium,
-                            color = Color.Black,
-                            fontFamily = Poppins
-                        )
-
-                        Spacer(modifier = Modifier.height(8.dp))
-
-                        // Menggunakan DatePickerField dengan mode MONTHLY
-                        DatePickerField(
-                            value = selectedMonth,
-                            onDateSelected = { onSelectedMonthChanged(it) },
-                            placeholder = "Pilih bulan",
-                            mode = DatePickerMode.MONTHLY
-                        )
-                    }
-                    FilterPeriode.TAHUNAN -> {
-                        Text(
-                            text = "Pilih Tahun",
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Medium,
-                            color = Color.Black,
-                            fontFamily = Poppins
-                        )
-
-                        Spacer(modifier = Modifier.height(8.dp))
-
-                        // Menggunakan DatePickerField dengan mode YEARLY
-                        DatePickerField(
-                            value = selectedYear,
-                            onDateSelected = { onSelectedYearChanged(it) },
-                            placeholder = "Pilih tahun",
-                            mode = DatePickerMode.YEARLY
-                        )
-                    }
-                }
-
-                // Tombol Terapkan
-                Button(
-                    onClick = {
-                        onApply()
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(48.dp),
-                    shape = RoundedCornerShape(8.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = PrimaryVariant
-                    )
-                ) {
-                    Text(
-                        text = "Terapkan",
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Medium,
-                        fontFamily = Poppins
-                    )
                 }
             }
         }

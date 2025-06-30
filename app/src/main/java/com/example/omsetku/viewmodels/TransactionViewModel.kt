@@ -167,4 +167,19 @@ class TransactionViewModel : ViewModel() {
     fun clearError() {
         _error.value = null
     }
+
+    /**
+     * Mengelompokkan dan menjumlahkan pengeluaran berdasarkan description
+     * Hanya untuk transaksi dengan type EXPENSE
+     * @return List<Pair<description, totalAmount>>
+     */
+    fun getGroupedExpenses(): List<Pair<String, Long>> {
+        return _transactions.value
+            .filter { it.type.equals("EXPENSE", ignoreCase = true) }
+            .groupBy { it.description }
+            .map { (desc, list) ->
+                desc to list.sumOf { it.amount }
+            }
+            .sortedByDescending { it.second }
+    }
 }

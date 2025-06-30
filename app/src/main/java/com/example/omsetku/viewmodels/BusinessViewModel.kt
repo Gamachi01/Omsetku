@@ -1,5 +1,6 @@
 package com.example.omsetku.viewmodels
 
+import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -124,7 +125,8 @@ class BusinessViewModel : ViewModel() {
         address: String,
         email: String? = null,
         phone: String? = null,
-        logoUri: Uri? = null
+        logoUri: Uri? = null,
+        context: Context? = null
     ) {
         viewModelScope.launch {
             _isLoading.value = true
@@ -132,8 +134,8 @@ class BusinessViewModel : ViewModel() {
 
             try {
                 var logoUrl: String? = null
-                if (logoUri != null) {
-                    logoUrl = storageRepository.uploadBusinessLogo(logoUri)
+                if (logoUri != null && context != null) {
+                    logoUrl = storageRepository.uploadBusinessLogo(logoUri, context)
                 }
                 val business = Business(
                     id = java.util.UUID.randomUUID().toString(),
