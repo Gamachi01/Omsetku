@@ -1,64 +1,41 @@
 package com.example.omsetku.ui.screen
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.selection.selectable
-import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.omsetku.navigation.Routes
 import com.example.omsetku.R
+import com.example.omsetku.navigation.Routes
 import com.example.omsetku.ui.components.BottomNavBar
 import com.example.omsetku.ui.components.Poppins
+import com.example.omsetku.ui.components.ReportFilterDialog
 import com.example.omsetku.ui.theme.PrimaryVariant
-import com.example.omsetku.ui.components.DatePickerField
-import com.example.omsetku.ui.components.DatePickerMode
+import com.example.omsetku.viewmodels.TransactionViewModel
 import java.text.SimpleDateFormat
 import java.util.*
-import com.example.omsetku.ui.components.ReportFilterDialog
-import com.example.omsetku.ui.components.FilterResult
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.omsetku.viewmodels.TransactionViewModel
-import com.example.omsetku.firebase.FirestoreRepository
-import kotlinx.coroutines.launch
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
-import android.content.Intent
-import android.net.Uri
-import android.content.Context
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
-import com.example.omsetku.models.Transaction
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.shrinkVertically
-import androidx.compose.material.icons.filled.ExpandLess
-import androidx.compose.material.icons.filled.ExpandMore
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.rememberModalBottomSheetState
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
-import androidx.compose.ui.graphics.graphicsLayer
 
 enum class FilterPeriode {
     HARIAN, MINGGUAN, BULANAN, TAHUNAN
@@ -66,7 +43,10 @@ enum class FilterPeriode {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ReportScreen(navController: NavController, transactionViewModel: TransactionViewModel = viewModel()) {
+fun ReportScreen(
+    navController: NavController,
+    transactionViewModel: TransactionViewModel = viewModel()
+) {
     var selectedItem by remember { mutableStateOf("Report") }
     val scrollState = rememberScrollState()
     var showFilterDialog by remember { mutableStateOf(false) }
@@ -74,19 +54,29 @@ fun ReportScreen(navController: NavController, transactionViewModel: Transaction
     // Ambil transaksi dari ViewModel
     val transactions by transactionViewModel.transactions.collectAsState()
 
-    val context = LocalContext.current
+    LocalContext.current
 
     // State dan CoroutineScope untuk Snackbar
     val snackbarHostState = remember { SnackbarHostState() }
-    val coroutineScope = rememberCoroutineScope()
+    rememberCoroutineScope()
 
     // Effect untuk memuat data transaksi saat screen dibuka
     LaunchedEffect(key1 = Unit) {
         try {
             // Muat transaksi untuk periode default (misal: Hari ini)
             val calendar = Calendar.getInstance(TimeZone.getTimeZone("Asia/Jakarta"))
-            val todayStart = calendar.apply { set(Calendar.HOUR_OF_DAY, 0); set(Calendar.MINUTE, 0); set(Calendar.SECOND, 0); set(Calendar.MILLISECOND, 0) }.timeInMillis
-            val todayEnd = calendar.apply { set(Calendar.HOUR_OF_DAY, 23); set(Calendar.MINUTE, 59); set(Calendar.SECOND, 59); set(Calendar.MILLISECOND, 999) }.timeInMillis
+            val todayStart = calendar.apply {
+                set(Calendar.HOUR_OF_DAY, 0); set(
+                Calendar.MINUTE,
+                0
+            ); set(Calendar.SECOND, 0); set(Calendar.MILLISECOND, 0)
+            }.timeInMillis
+            val todayEnd = calendar.apply {
+                set(Calendar.HOUR_OF_DAY, 23); set(Calendar.MINUTE, 59); set(
+                Calendar.SECOND,
+                59
+            ); set(Calendar.MILLISECOND, 999)
+            }.timeInMillis
 
             transactionViewModel.loadTransactions(startDate = todayStart, endDate = todayEnd)
         } catch (e: Exception) {
@@ -96,12 +86,18 @@ fun ReportScreen(navController: NavController, transactionViewModel: Transaction
 
     // Hitung Pendapatan Usaha (Kasir)
     val pendapatanUsaha = transactions.filter {
-        it.type.equals("INCOME", true) && (it.description.contains("Penjualan", true) || it.description.contains("Kasir", true))
+        it.type.equals("INCOME", true) && (it.description.contains(
+            "Penjualan",
+            true
+        ) || it.description.contains("Kasir", true))
     }.sumOf { it.amount }
 
     // Hitung Pendapatan Lainnya (Transaksi Manual INCOME selain Penjualan)
     val pendapatanLainnya = transactions.filter {
-        it.type.equals("INCOME", true) && !(it.description.contains("Penjualan", true) || it.description.contains("Kasir", true))
+        it.type.equals("INCOME", true) && !(it.description.contains(
+            "Penjualan",
+            true
+        ) || it.description.contains("Kasir", true))
     }.sumOf { it.amount }
 
     // Beban Usaha (sekarang menggunakan kategori "Usaha" untuk tipe EXPENSE)
@@ -127,15 +123,21 @@ fun ReportScreen(navController: NavController, transactionViewModel: Transaction
     // --- Bagian Filter, Download, Ringkasan (KEMBALIKAN) ---
     // Menggunakan tanggal sekarang sebagai default
     val today = Calendar.getInstance()
-    val defaultDateFormat = SimpleDateFormat("dd MMMM yyyy", Locale("id", "ID")).apply { timeZone = TimeZone.getTimeZone("Asia/Jakarta") }
-    val defaultMonthFormat = SimpleDateFormat("MMMM yyyy", Locale("id", "ID")).apply { timeZone = TimeZone.getTimeZone("Asia/Jakarta") }
-    val defaultYearFormat = SimpleDateFormat("yyyy", Locale("id", "ID")).apply { timeZone = TimeZone.getTimeZone("Asia/Jakarta") }
+    val defaultDateFormat = SimpleDateFormat("dd MMMM yyyy", Locale("id", "ID")).apply {
+        timeZone = TimeZone.getTimeZone("Asia/Jakarta")
+    }
+    val defaultMonthFormat = SimpleDateFormat("MMMM yyyy", Locale("id", "ID")).apply {
+        timeZone = TimeZone.getTimeZone("Asia/Jakarta")
+    }
+    val defaultYearFormat = SimpleDateFormat("yyyy", Locale("id", "ID")).apply {
+        timeZone = TimeZone.getTimeZone("Asia/Jakarta")
+    }
 
     // Default text awal bulan ini sampai akhir bulan
-    val firstDayOfMonth = Calendar.getInstance().apply {
+    Calendar.getInstance().apply {
         set(Calendar.DAY_OF_MONTH, 1)
     }
-    val lastDayOfMonth = Calendar.getInstance().apply {
+    Calendar.getInstance().apply {
         set(Calendar.DAY_OF_MONTH, getActualMaximum(Calendar.DAY_OF_MONTH))
     }
 
@@ -147,14 +149,9 @@ fun ReportScreen(navController: NavController, transactionViewModel: Transaction
     var selectedPeriode by remember { mutableStateOf(FilterPeriode.HARIAN) }
 
     // State untuk nilai tanggal dari dialog
-    var selectedDate by remember { mutableStateOf(defaultDateFormat.format(today.time)) }
-    var startDate by remember { mutableStateOf("") }
-    var endDate by remember { mutableStateOf("") }
-    var selectedMonth by remember { mutableStateOf(defaultMonthFormat.format(today.time)) }
-    var selectedYear by remember { mutableStateOf(defaultYearFormat.format(today.time)) }
 
     // State untuk bottom sheet
-    val filterSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     // --- END Bagian Filter, Download, Ringkasan ---
 
@@ -169,7 +166,8 @@ fun ReportScreen(navController: NavController, transactionViewModel: Transaction
                         "Cashier" -> navController.navigate(Routes.CASHIER)
                         "Transaction" -> navController.navigate(Routes.TRANSACTION)
                         "HPP" -> navController.navigate(Routes.HPP)
-                        "Report" -> { /* Sudah di layar Report */ }
+                        "Report" -> { /* Sudah di layar Report */
+                        }
                     }
                 }
             )
@@ -180,12 +178,12 @@ fun ReportScreen(navController: NavController, transactionViewModel: Transaction
             // Konten utama
             Column(
                 modifier = Modifier
-                    .fillMaxSize()
+                    .fillMaxWidth()
                     .background(Color.White)
                     .padding(horizontal = 16.dp)
-                    .padding(top = 16.dp, bottom = 8.dp)
-                    .padding(paddingValues)
+                    .padding(top = 16.dp)
                     .verticalScroll(scrollState)
+                    .padding(paddingValues)
             ) {
                 Text(
                     text = "Laporan Keuangan",
@@ -231,22 +229,23 @@ fun ReportScreen(navController: NavController, transactionViewModel: Transaction
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     // Tombol Filter
-                    OutlinedButton(
+                    Button(
                         onClick = { showFilterDialog = true },
                         modifier = Modifier
                             .weight(0.3f)
-                            .height(42.dp),
+                            .height(48.dp),
                         shape = RoundedCornerShape(8.dp),
-                        colors = ButtonDefaults.outlinedButtonColors(
-                            contentColor = PrimaryVariant
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = if (showFilterDialog) Color.White else PrimaryVariant
                         ),
-                        border = BorderStroke(1.dp, Color.LightGray)
+                        border = if (showFilterDialog) BorderStroke(1.dp, PrimaryVariant) else null
                     ) {
                         Text(
                             "Filter",
                             fontSize = 13.sp,
                             fontWeight = FontWeight.Bold,
-                            fontFamily = Poppins
+                            fontFamily = Poppins,
+                            color = if (showFilterDialog) PrimaryVariant else Color.White
                         )
                     }
 
@@ -264,7 +263,7 @@ fun ReportScreen(navController: NavController, transactionViewModel: Transaction
                         },
                         modifier = Modifier
                             .weight(0.7f)
-                            .height(42.dp),
+                            .height(48.dp),
                         shape = RoundedCornerShape(8.dp),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = PrimaryVariant
@@ -375,7 +374,7 @@ fun ReportScreen(navController: NavController, transactionViewModel: Transaction
                         horizontalAlignment = Alignment.Start
                     ) {
                         Text(
-                            text = "Laba Bersih",
+                            text = "Laba (Rugi) Bersih",
                             fontSize = 14.sp,
                             fontFamily = Poppins,
                             color = Color.DarkGray
@@ -402,9 +401,11 @@ fun ReportScreen(navController: NavController, transactionViewModel: Transaction
                     colors = CardDefaults.cardColors(containerColor = Color.White),
                     elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                 ) {
-                    Column(modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 12.dp, vertical = 12.dp)) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 12.dp, vertical = 12.dp)
+                    ) {
                         // Section 1: Pemasukan
                         var pendapatanUsahaExpanded by remember { mutableStateOf(false) }
                         var pendapatanLainnyaExpanded by remember { mutableStateOf(false) }
@@ -429,7 +430,12 @@ fun ReportScreen(navController: NavController, transactionViewModel: Transaction
                         ) {
                             Text("Pendapatan Usaha", fontFamily = Poppins, color = Color.Black)
                             Row(verticalAlignment = Alignment.CenterVertically) {
-                                Text(formatRupiah(pendapatanUsaha.toInt()), fontFamily = Poppins, color = Color.Black, textAlign = TextAlign.End)
+                                Text(
+                                    formatRupiah(pendapatanUsaha.toInt()),
+                                    fontFamily = Poppins,
+                                    color = Color.Black,
+                                    textAlign = TextAlign.End
+                                )
                                 Icon(
                                     imageVector = if (pendapatanUsahaExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
                                     contentDescription = null,
@@ -437,7 +443,11 @@ fun ReportScreen(navController: NavController, transactionViewModel: Transaction
                                 )
                             }
                         }
-                        AnimatedVisibility(visible = pendapatanUsahaExpanded, enter = expandVertically(), exit = shrinkVertically()) {
+                        AnimatedVisibility(
+                            visible = pendapatanUsahaExpanded,
+                            enter = expandVertically(),
+                            exit = shrinkVertically()
+                        ) {
                             Column(
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -445,8 +455,15 @@ fun ReportScreen(navController: NavController, transactionViewModel: Transaction
                                     .background(Color(0xFFF5F5F5).copy(alpha = 0f))
                             ) {
                                 val groupedList = transactions.filter {
-                                    it.type.equals("INCOME", true) && (it.description.contains("Penjualan", true) || it.description.contains("Kasir", true))
-                                }.groupBy { it.description }.map { (desc, items) -> desc to items.sumOf { it.amount } }
+                                    it.type.equals(
+                                        "INCOME",
+                                        true
+                                    ) && (it.description.contains(
+                                        "Penjualan",
+                                        true
+                                    ) || it.description.contains("Kasir", true))
+                                }.groupBy { it.description }
+                                    .map { (desc, items) -> desc to items.sumOf { it.amount } }
                                 groupedList.forEach { (desc, total) ->
                                     Row(
                                         modifier = Modifier
@@ -476,13 +493,20 @@ fun ReportScreen(navController: NavController, transactionViewModel: Transaction
                         Row(
                             Modifier
                                 .fillMaxWidth()
-                                .clickable { pendapatanLainnyaExpanded = !pendapatanLainnyaExpanded },
+                                .clickable {
+                                    pendapatanLainnyaExpanded = !pendapatanLainnyaExpanded
+                                },
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text("Pendapatan Lainnya", fontFamily = Poppins, color = Color.Black)
                             Row(verticalAlignment = Alignment.CenterVertically) {
-                                Text(formatRupiah(pendapatanLainnya.toInt()), fontFamily = Poppins, color = Color.Black, textAlign = TextAlign.End)
+                                Text(
+                                    formatRupiah(pendapatanLainnya.toInt()),
+                                    fontFamily = Poppins,
+                                    color = Color.Black,
+                                    textAlign = TextAlign.End
+                                )
                                 Icon(
                                     imageVector = if (pendapatanLainnyaExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
                                     contentDescription = null,
@@ -490,7 +514,11 @@ fun ReportScreen(navController: NavController, transactionViewModel: Transaction
                                 )
                             }
                         }
-                        AnimatedVisibility(visible = pendapatanLainnyaExpanded, enter = expandVertically(), exit = shrinkVertically()) {
+                        AnimatedVisibility(
+                            visible = pendapatanLainnyaExpanded,
+                            enter = expandVertically(),
+                            exit = shrinkVertically()
+                        ) {
                             Column(
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -498,8 +526,15 @@ fun ReportScreen(navController: NavController, transactionViewModel: Transaction
                                     .background(Color(0xFFF5F5F5).copy(alpha = 0f))
                             ) {
                                 val groupedList = transactions.filter {
-                                    it.type.equals("INCOME", true) && !(it.description.contains("Penjualan", true) || it.description.contains("Kasir", true))
-                                }.groupBy { it.description }.map { (desc, items) -> desc to items.sumOf { it.amount } }
+                                    it.type.equals(
+                                        "INCOME",
+                                        true
+                                    ) && !(it.description.contains(
+                                        "Penjualan",
+                                        true
+                                    ) || it.description.contains("Kasir", true))
+                                }.groupBy { it.description }
+                                    .map { (desc, items) -> desc to items.sumOf { it.amount } }
                                 groupedList.forEach { (desc, total) ->
                                     Row(
                                         modifier = Modifier
@@ -527,11 +562,24 @@ fun ReportScreen(navController: NavController, transactionViewModel: Transaction
                         }
                         // Total Pemasukan
                         Row(
-                            Modifier.fillMaxWidth().padding(top = 4.dp, bottom = 8.dp),
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(top = 4.dp, bottom = 8.dp),
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
-                            Text("Total Pemasukan", fontWeight = FontWeight.Bold, fontFamily = Poppins, color = Color.Black)
-                            Text(formatRupiah(total_pendapatan.toInt()), fontWeight = FontWeight.Bold, fontFamily = Poppins, color = Color.Black, textAlign = TextAlign.End)
+                            Text(
+                                "Total Pemasukan",
+                                fontWeight = FontWeight.Bold,
+                                fontFamily = Poppins,
+                                color = Color.Black
+                            )
+                            Text(
+                                formatRupiah(total_pendapatan.toInt()),
+                                fontWeight = FontWeight.Bold,
+                                fontFamily = Poppins,
+                                color = Color.Black,
+                                textAlign = TextAlign.End
+                            )
                         }
                         Divider(thickness = 1.dp, color = Color.LightGray)
                         Spacer(modifier = Modifier.height(10.dp))
@@ -555,7 +603,12 @@ fun ReportScreen(navController: NavController, transactionViewModel: Transaction
                         ) {
                             Text("Beban Usaha", fontFamily = Poppins, color = Color.Black)
                             Row(verticalAlignment = Alignment.CenterVertically) {
-                                Text(formatRupiah(bebanUsaha.toInt()), fontFamily = Poppins, color = Color.Black, textAlign = TextAlign.End)
+                                Text(
+                                    formatRupiah(bebanUsaha.toInt()),
+                                    fontFamily = Poppins,
+                                    color = Color.Black,
+                                    textAlign = TextAlign.End
+                                )
                                 Icon(
                                     imageVector = if (bebanUsahaExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
                                     contentDescription = null,
@@ -563,7 +616,11 @@ fun ReportScreen(navController: NavController, transactionViewModel: Transaction
                                 )
                             }
                         }
-                        AnimatedVisibility(visible = bebanUsahaExpanded, enter = expandVertically(), exit = shrinkVertically()) {
+                        AnimatedVisibility(
+                            visible = bebanUsahaExpanded,
+                            enter = expandVertically(),
+                            exit = shrinkVertically()
+                        ) {
                             Column(
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -571,8 +628,12 @@ fun ReportScreen(navController: NavController, transactionViewModel: Transaction
                                     .background(Color(0xFFF5F5F5).copy(alpha = 0f))
                             ) {
                                 val groupedList = transactions.filter {
-                                    it.type.equals("EXPENSE", true) && it.category.equals("Usaha", true)
-                                }.groupBy { it.description }.map { (desc, items) -> desc to items.sumOf { it.amount } }
+                                    it.type.equals("EXPENSE", true) && it.category.equals(
+                                        "Usaha",
+                                        true
+                                    )
+                                }.groupBy { it.description }
+                                    .map { (desc, items) -> desc to items.sumOf { it.amount } }
                                 groupedList.forEach { (desc, total) ->
                                     Row(
                                         modifier = Modifier
@@ -608,7 +669,12 @@ fun ReportScreen(navController: NavController, transactionViewModel: Transaction
                         ) {
                             Text("Beban Lainnya", fontFamily = Poppins, color = Color.Black)
                             Row(verticalAlignment = Alignment.CenterVertically) {
-                                Text(formatRupiah(bebanLainnya.toInt()), fontFamily = Poppins, color = Color.Black, textAlign = TextAlign.End)
+                                Text(
+                                    formatRupiah(bebanLainnya.toInt()),
+                                    fontFamily = Poppins,
+                                    color = Color.Black,
+                                    textAlign = TextAlign.End
+                                )
                                 Icon(
                                     imageVector = if (bebanLainnyaExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
                                     contentDescription = null,
@@ -616,7 +682,11 @@ fun ReportScreen(navController: NavController, transactionViewModel: Transaction
                                 )
                             }
                         }
-                        AnimatedVisibility(visible = bebanLainnyaExpanded, enter = expandVertically(), exit = shrinkVertically()) {
+                        AnimatedVisibility(
+                            visible = bebanLainnyaExpanded,
+                            enter = expandVertically(),
+                            exit = shrinkVertically()
+                        ) {
                             Column(
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -624,8 +694,12 @@ fun ReportScreen(navController: NavController, transactionViewModel: Transaction
                                     .background(Color(0xFFF5F5F5).copy(alpha = 0f))
                             ) {
                                 val groupedList = transactions.filter {
-                                    it.type.equals("EXPENSE", true) && !it.category.equals("Usaha", true)
-                                }.groupBy { it.description }.map { (desc, items) -> desc to items.sumOf { it.amount } }
+                                    it.type.equals("EXPENSE", true) && !it.category.equals(
+                                        "Usaha",
+                                        true
+                                    )
+                                }.groupBy { it.description }
+                                    .map { (desc, items) -> desc to items.sumOf { it.amount } }
                                 groupedList.forEach { (desc, total) ->
                                     Row(
                                         modifier = Modifier
@@ -653,47 +727,100 @@ fun ReportScreen(navController: NavController, transactionViewModel: Transaction
                         }
                         // Total Pengeluaran
                         Row(
-                            Modifier.fillMaxWidth().padding(top = 4.dp, bottom = 8.dp),
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(top = 4.dp, bottom = 8.dp),
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
-                            Text("Total Pengeluaran", fontWeight = FontWeight.Bold, fontFamily = Poppins, color = Color.Black)
-                            Text(formatRupiah(total_beban.toInt()), fontWeight = FontWeight.Bold, fontFamily = Poppins, color = Color.Black, textAlign = TextAlign.End)
+                            Text(
+                                "Total Pengeluaran",
+                                fontWeight = FontWeight.Bold,
+                                fontFamily = Poppins,
+                                color = Color.Black
+                            )
+                            Text(
+                                formatRupiah(total_beban.toInt()),
+                                fontWeight = FontWeight.Bold,
+                                fontFamily = Poppins,
+                                color = Color.Black,
+                                textAlign = TextAlign.End
+                            )
                         }
                         Divider(thickness = 1.dp, color = Color.LightGray)
                         Spacer(modifier = Modifier.height(12.dp))
 
                         // Section 3: Laba (Rugi) Kotor
                         Row(
-                            Modifier.fillMaxWidth().padding(vertical = 8.dp),
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 8.dp),
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
-                            Text("Laba (Rugi) Kotor", fontWeight = FontWeight.Bold, fontFamily = Poppins, color = Color.Black)
-                            Text(formatRupiah(laba_kotor.toInt()), fontWeight = FontWeight.Bold, fontFamily = Poppins, color = Color.Black, textAlign = TextAlign.End)
+                            Text(
+                                "Laba (Rugi) Kotor",
+                                fontWeight = FontWeight.Bold,
+                                fontFamily = Poppins,
+                                color = Color.Black
+                            )
+                            Text(
+                                formatRupiah(laba_kotor.toInt()),
+                                fontWeight = FontWeight.Bold,
+                                fontFamily = Poppins,
+                                color = Color.Black,
+                                textAlign = TextAlign.End
+                            )
                         }
                         Divider(thickness = 1.dp, color = Color.LightGray)
                         Spacer(modifier = Modifier.height(12.dp))
 
                         // Section 4: Pajak UMKM
                         Row(
-                            Modifier.fillMaxWidth().padding(vertical = 8.dp),
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 8.dp),
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
-                            Text("Pajak Penghasilan UMKM (0,5%)", fontFamily = Poppins, color = Color.Black)
-                            Text(formatRupiah(pajak_umkm.toInt()), fontFamily = Poppins, color = Color.Black, textAlign = TextAlign.End)
+                            Text(
+                                "Pajak Penghasilan UMKM (0,5%)",
+                                fontFamily = Poppins,
+                                color = Color.Black
+                            )
+                            Text(
+                                formatRupiah(pajak_umkm.toInt()),
+                                fontFamily = Poppins,
+                                color = Color.Black,
+                                textAlign = TextAlign.End
+                            )
                         }
                         Divider(thickness = 1.dp, color = Color.LightGray)
                         Spacer(modifier = Modifier.height(12.dp))
 
                         // Section 5: Laba (Rugi) Bersih
                         Row(
-                            Modifier.fillMaxWidth().padding(vertical = 8.dp),
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 8.dp),
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
-                            Text("Laba (Rugi) Bersih", fontWeight = FontWeight.Bold, fontFamily = Poppins, color = Color.Black)
-                            Text(formatRupiah(laba_bersih.toInt()), fontWeight = FontWeight.Bold, fontFamily = Poppins, color = Color.Black, textAlign = TextAlign.End)
+                            Text(
+                                "Laba (Rugi) Bersih",
+                                fontWeight = FontWeight.Bold,
+                                fontFamily = Poppins,
+                                color = Color.Black
+                            )
+                            Text(
+                                formatRupiah(laba_bersih.toInt()),
+                                fontWeight = FontWeight.Bold,
+                                fontFamily = Poppins,
+                                color = Color.Black,
+                                textAlign = TextAlign.End
+                            )
                         }
                     }
                 }
+
+                // Tambahkan Spacer di akhir agar tidak overlap dengan navbar
+                Spacer(modifier = Modifier.height(24.dp))
             }
 
             // Filter Dialog
@@ -707,57 +834,84 @@ fun ReportScreen(navController: NavController, transactionViewModel: Transaction
                         showFilterDialog = false
                         // ... logic filter tanggal seperti sebelumnya ...
                         val calendar = Calendar.getInstance(TimeZone.getTimeZone("Asia/Jakarta"))
-                        val dateFormat = SimpleDateFormat("dd MMMM yyyy", Locale("id", "ID")).apply { timeZone = TimeZone.getTimeZone("Asia/Jakarta") }
+                        val dateFormat =
+                            SimpleDateFormat("dd MMMM yyyy", Locale("id", "ID")).apply {
+                                timeZone = TimeZone.getTimeZone("Asia/Jakarta")
+                            }
                         var startTimestamp: Long? = null
                         var endTimestamp: Long? = null
                         when (result.periode) {
                             FilterPeriode.HARIAN -> {
                                 try {
                                     val date = dateFormat.parse(result.selectedDate)
-                                    val calendar = Calendar.getInstance(TimeZone.getTimeZone("Asia/Jakarta")).apply {
-                                        time = date ?: Date()
-                                        set(Calendar.HOUR_OF_DAY, 23)
-                                        set(Calendar.MINUTE, 59)
-                                        set(Calendar.SECOND, 59)
-                                        set(Calendar.MILLISECOND, 999)
-                                    }
+                                    val calendar =
+                                        Calendar.getInstance(TimeZone.getTimeZone("Asia/Jakarta"))
+                                            .apply {
+                                                time = date ?: Date()
+                                                set(Calendar.HOUR_OF_DAY, 23)
+                                                set(Calendar.MINUTE, 59)
+                                                set(Calendar.SECOND, 59)
+                                                set(Calendar.MILLISECOND, 999)
+                                            }
                                     startTimestamp = date?.time
                                     endTimestamp = calendar.timeInMillis
-                                } catch (e: Exception) { }
+                                } catch (e: Exception) {
+                                }
                             }
+
                             FilterPeriode.MINGGUAN -> {
                                 try {
                                     val startDate = dateFormat.parse(result.startDate)
                                     val endDate = dateFormat.parse(result.endDate)
                                     startTimestamp = startDate?.time
                                     endTimestamp = endDate?.time
-                                } catch (e: Exception) { }
+                                } catch (e: Exception) {
+                                }
                             }
+
                             FilterPeriode.BULANAN -> {
                                 try {
-                                    val monthYearFormat = SimpleDateFormat("MMMM yyyy", Locale("id", "ID")).apply { timeZone = TimeZone.getTimeZone("Asia/Jakarta") }
+                                    val monthYearFormat = SimpleDateFormat(
+                                        "MMMM yyyy",
+                                        Locale("id", "ID")
+                                    ).apply { timeZone = TimeZone.getTimeZone("Asia/Jakarta") }
                                     val date = monthYearFormat.parse(result.selectedMonth)
                                     calendar.time = date ?: Date()
                                     calendar.set(Calendar.DAY_OF_MONTH, 1)
                                     startTimestamp = calendar.timeInMillis
-                                    calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH))
+                                    calendar.set(
+                                        Calendar.DAY_OF_MONTH,
+                                        calendar.getActualMaximum(Calendar.DAY_OF_MONTH)
+                                    )
                                     endTimestamp = calendar.timeInMillis
-                                } catch (e: Exception) { }
+                                } catch (e: Exception) {
+                                }
                             }
+
                             FilterPeriode.TAHUNAN -> {
                                 try {
-                                    val yearFormat = SimpleDateFormat("yyyy", Locale("id", "ID")).apply { timeZone = TimeZone.getTimeZone("Asia/Jakarta") }
+                                    val yearFormat = SimpleDateFormat(
+                                        "yyyy",
+                                        Locale("id", "ID")
+                                    ).apply { timeZone = TimeZone.getTimeZone("Asia/Jakarta") }
                                     val date = yearFormat.parse(result.selectedYear)
                                     calendar.time = date ?: Date()
                                     calendar.set(Calendar.DAY_OF_YEAR, 1)
                                     startTimestamp = calendar.timeInMillis
-                                    calendar.set(Calendar.DAY_OF_YEAR, calendar.getActualMaximum(Calendar.DAY_OF_YEAR))
+                                    calendar.set(
+                                        Calendar.DAY_OF_YEAR,
+                                        calendar.getActualMaximum(Calendar.DAY_OF_YEAR)
+                                    )
                                     endTimestamp = calendar.timeInMillis
-                                } catch (e: Exception) { }
+                                } catch (e: Exception) {
+                                }
                             }
                         }
                         if (startTimestamp != null && endTimestamp != null) {
-                            transactionViewModel.loadTransactions(startDate = startTimestamp, endDate = endTimestamp)
+                            transactionViewModel.loadTransactions(
+                                startDate = startTimestamp,
+                                endDate = endTimestamp
+                            )
                         }
                     }
                 )
