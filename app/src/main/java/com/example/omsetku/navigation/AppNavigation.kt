@@ -7,6 +7,7 @@ import androidx.navigation.compose.composable
 import com.example.omsetku.ui.screen.*
 import com.example.omsetku.viewmodels.CartViewModel
 import com.example.omsetku.viewmodels.TaxViewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 
 @Composable
 fun AppNavigation(
@@ -27,7 +28,12 @@ fun AppNavigation(
         }
 
         composable(route = Routes.CASHIER) {
-            CashierScreen(navController = navController, cartViewModel = cartViewModel)
+            CashierScreen(
+                navController = navController,
+                cartViewModel = cartViewModel,
+                hppViewModel = hiltViewModel(),
+                productViewModel = hiltViewModel()
+            )
         }
 
         composable(route = Routes.TRANSACTION) {
@@ -35,7 +41,11 @@ fun AppNavigation(
         }
 
         composable(route = Routes.HPP) {
-            HppScreen(navController = navController)
+            HppScreen(
+                navController = navController,
+                hppViewModel = hiltViewModel(),
+                productViewModel = hiltViewModel()
+            )
         }
 
         composable(route = Routes.PROFILE) {
@@ -47,7 +57,9 @@ fun AppNavigation(
             TransactionDetailScreen(
                 navController = navController,
                 cartViewModel = cartViewModel,
-                taxViewModel = taxViewModel
+                taxViewModel = taxViewModel,
+                productViewModel = hiltViewModel(),
+                hppViewModel = hiltViewModel()
             )
         }
 

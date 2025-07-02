@@ -13,6 +13,18 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material.icons.filled.Psychology
+import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material.icons.filled.Lightbulb
+import androidx.compose.material.icons.filled.TipsAndUpdates
+import androidx.compose.material.icons.filled.Description
+import androidx.compose.material.icons.filled.TrendingUp
+import androidx.compose.material.icons.filled.TrendingDown
+import androidx.compose.material.icons.filled.Receipt
+import androidx.compose.material.icons.filled.BarChart
+import androidx.compose.material.icons.filled.EmojiEvents
+import androidx.compose.material.icons.filled.MoneyOff
+import androidx.compose.material.icons.filled.AttachMoney
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -33,12 +45,32 @@ import com.example.omsetku.ui.components.BottomNavBar
 import com.example.omsetku.ui.components.Poppins
 import com.example.omsetku.ui.components.ReportFilterDialog
 import com.example.omsetku.ui.theme.PrimaryVariant
+import com.example.omsetku.ui.theme.PrimaryColor
+import com.example.omsetku.ui.theme.PrimaryLight
+import com.example.omsetku.ui.theme.ExpenseLightColor
 import com.example.omsetku.viewmodels.TransactionViewModel
 import java.text.SimpleDateFormat
 import java.util.*
+import com.example.omsetku.models.Transaction
+import androidx.compose.ui.graphics.vector.ImageVector
 
 enum class FilterPeriode {
     HARIAN, MINGGUAN, BULANAN, TAHUNAN
+}
+
+data class Transaction(
+    val id: String = "",
+    val userId: String = "",
+    val type: String = "",
+    val amount: Long = 0L,
+    val date: Long = 0L,
+    val category: String = "",
+    val description: String = "",
+    val createdAt: Long = 0L
+)
+
+fun formatRupiah(value: Int): String {
+    return "Rp " + String.format("%,d", value).replace(',', '.')
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -116,9 +148,13 @@ fun ReportScreen(
     val pajak_umkm = if (laba_kotor > 0) (laba_kotor * 0.005).toInt() else 0
     val laba_bersih = laba_kotor - pajak_umkm
 
-    fun formatRupiah(value: Int): String {
-        return "Rp " + String.format("%,d", value).replace(',', '.')
-    }
+    val insightAI by transactionViewModel.insightAI.collectAsState()
+    val isLoadingInsightAI by transactionViewModel.isLoadingInsightAI.collectAsState()
+    val errorInsightAI by transactionViewModel.errorInsightAI.collectAsState()
+    var isInsightRequested by remember { mutableStateOf(false) }
+    
+    // Trigger state untuk AI Insight
+    var aiInsightTrigger by remember { mutableStateOf(0) }
 
     // --- Bagian Filter, Download, Ringkasan (KEMBALIKAN) ---
     // Menggunakan tanggal sekarang sebagai default
@@ -208,7 +244,7 @@ fun ReportScreen(
                         contentDescription = "Tanggal",
                         modifier = Modifier
                             .size(18.dp)
-                            .offset(y = (-2.5).dp),
+                            .offset(y = (-2).dp),
                         tint = Color.DarkGray
                     )
                     Spacer(modifier = Modifier.width(8.dp))
@@ -221,7 +257,7 @@ fun ReportScreen(
                     )
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(8.dp))
 
                 // Filter dan Download Button
                 Row(
@@ -390,437 +426,155 @@ fun ReportScreen(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(8.dp))
 
                 // --- LAPORAN KEUANGAN DIGITAL (DUA KOLOM) dibungkus Card putih, rounded, shadow, margin ---
                 Card(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 4.dp),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color.White),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                        .fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color(0xFFF8FAFB)),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
                 ) {
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 12.dp, vertical = 12.dp)
+                            .padding(horizontal = 16.dp, vertical = 16.dp)
                     ) {
-                        // Section 1: Pemasukan
+                        // Section: Pemasukan
+                        SectionHeader(title = "Pemasukan", icon = Icons.Default.TrendingUp, accentColor = PrimaryColor)
+                        Spacer(modifier = Modifier.height(8.dp))
                         var pendapatanUsahaExpanded by remember { mutableStateOf(false) }
                         var pendapatanLainnyaExpanded by remember { mutableStateOf(false) }
-                        var bebanUsahaExpanded by remember { mutableStateOf(false) }
-                        var bebanLainnyaExpanded by remember { mutableStateOf(false) }
-
-                        Text(
-                            text = "Pemasukan",
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color.Black,
-                            fontFamily = Poppins,
-                            modifier = Modifier.padding(vertical = 8.dp)
+                        RowItem(
+                            icon = null,
+                            label = "Pendapatan Usaha",
+                            value = formatRupiah(pendapatanUsaha.toInt()),
+                            expanded = pendapatanUsahaExpanded,
+                            onClick = { pendapatanUsahaExpanded = !pendapatanUsahaExpanded },
+                            accentColor = PrimaryColor,
+                            showArrow = true
                         )
-                        // Pendapatan Usaha
-                        Row(
-                            Modifier
-                                .fillMaxWidth()
-                                .clickable { pendapatanUsahaExpanded = !pendapatanUsahaExpanded },
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text("Pendapatan Usaha", fontFamily = Poppins, color = Color.Black)
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Text(
-                                    formatRupiah(pendapatanUsaha.toInt()),
-                                    fontFamily = Poppins,
-                                    color = Color.Black,
-                                    textAlign = TextAlign.End
-                                )
-                                Icon(
-                                    imageVector = if (pendapatanUsahaExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
-                                    contentDescription = null,
-                                    tint = Color.Gray
-                                )
-                            }
-                        }
                         AnimatedVisibility(
                             visible = pendapatanUsahaExpanded,
                             enter = expandVertically(),
                             exit = shrinkVertically()
                         ) {
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(start = 8.dp, end = 8.dp, bottom = 8.dp)
-                                    .background(Color(0xFFF5F5F5).copy(alpha = 0f))
-                            ) {
-                                val groupedList = transactions.filter {
-                                    it.type.equals(
-                                        "INCOME",
-                                        true
-                                    ) && (it.description.contains(
-                                        "Penjualan",
-                                        true
-                                    ) || it.description.contains("Kasir", true))
-                                }.groupBy { it.description }
-                                    .map { (desc, items) -> desc to items.sumOf { it.amount } }
-                                groupedList.forEach { (desc, total) ->
-                                    Row(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(vertical = 4.dp),
-                                        horizontalArrangement = Arrangement.SpaceBetween
-                                    ) {
-                                        Text(
-                                            text = desc,
-                                            fontSize = 12.sp,
-                                            fontFamily = Poppins,
-                                            color = Color.Black,
-                                            maxLines = 1
-                                        )
-                                        Text(
-                                            text = formatRupiah(total.toInt()),
-                                            fontSize = 12.sp,
-                                            fontFamily = Poppins,
-                                            color = Color(0xFF08C39F),
-                                            textAlign = TextAlign.End
-                                        )
-                                    }
-                                }
-                            }
+                            DetailList(transactions.filter {
+                                it.type.equals("INCOME", true) && (it.description.contains("Penjualan", true) || it.description.contains("Kasir", true))
+                            })
                         }
-                        // Pendapatan Lainnya
-                        Row(
-                            Modifier
-                                .fillMaxWidth()
-                                .clickable {
-                                    pendapatanLainnyaExpanded = !pendapatanLainnyaExpanded
-                                },
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text("Pendapatan Lainnya", fontFamily = Poppins, color = Color.Black)
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Text(
-                                    formatRupiah(pendapatanLainnya.toInt()),
-                                    fontFamily = Poppins,
-                                    color = Color.Black,
-                                    textAlign = TextAlign.End
-                                )
-                                Icon(
-                                    imageVector = if (pendapatanLainnyaExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
-                                    contentDescription = null,
-                                    tint = Color.Gray
-                                )
-                            }
-                        }
+                        RowItem(
+                            icon = null,
+                            label = "Pendapatan Lainnya",
+                            value = formatRupiah(pendapatanLainnya.toInt()),
+                            expanded = pendapatanLainnyaExpanded,
+                            onClick = { pendapatanLainnyaExpanded = !pendapatanLainnyaExpanded },
+                            accentColor = PrimaryColor,
+                            showArrow = true
+                        )
                         AnimatedVisibility(
                             visible = pendapatanLainnyaExpanded,
                             enter = expandVertically(),
                             exit = shrinkVertically()
                         ) {
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(start = 8.dp, end = 8.dp, bottom = 8.dp)
-                                    .background(Color(0xFFF5F5F5).copy(alpha = 0f))
-                            ) {
-                                val groupedList = transactions.filter {
-                                    it.type.equals(
-                                        "INCOME",
-                                        true
-                                    ) && !(it.description.contains(
-                                        "Penjualan",
-                                        true
-                                    ) || it.description.contains("Kasir", true))
-                                }.groupBy { it.description }
-                                    .map { (desc, items) -> desc to items.sumOf { it.amount } }
-                                groupedList.forEach { (desc, total) ->
-                                    Row(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(vertical = 4.dp),
-                                        horizontalArrangement = Arrangement.SpaceBetween
-                                    ) {
-                                        Text(
-                                            text = desc,
-                                            fontSize = 12.sp,
-                                            fontFamily = Poppins,
-                                            color = Color.Black,
-                                            maxLines = 1
-                                        )
-                                        Text(
-                                            text = formatRupiah(total.toInt()),
-                                            fontSize = 12.sp,
-                                            fontFamily = Poppins,
-                                            color = Color(0xFF08C39F),
-                                            textAlign = TextAlign.End
-                                        )
-                                    }
-                                }
-                            }
+                            DetailList(transactions.filter {
+                                it.type.equals("INCOME", true) && !(it.description.contains("Penjualan", true) || it.description.contains("Kasir", true))
+                            })
                         }
-                        // Total Pemasukan
-                        Row(
-                            Modifier
-                                .fillMaxWidth()
-                                .padding(top = 4.dp, bottom = 8.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            Text(
-                                "Total Pemasukan",
-                                fontWeight = FontWeight.Bold,
-                                fontFamily = Poppins,
-                                color = Color.Black
-                            )
-                            Text(
-                                formatRupiah(total_pendapatan.toInt()),
-                                fontWeight = FontWeight.Bold,
-                                fontFamily = Poppins,
-                                color = Color.Black,
-                                textAlign = TextAlign.End
-                            )
-                        }
-                        Divider(thickness = 1.dp, color = Color.LightGray)
-                        Spacer(modifier = Modifier.height(10.dp))
+                        TotalRow(label = "Total Pemasukan", value = formatRupiah(total_pendapatan.toInt()), accentColor = PrimaryColor)
+                        Divider(color = Color(0xFFE0E0E0), thickness = 1.dp, modifier = Modifier.padding(vertical = 8.dp))
 
-                        // Section 2: Pengeluaran
-                        Text(
-                            text = "Pengeluaran",
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color.Black,
-                            fontFamily = Poppins,
-                            modifier = Modifier.padding(vertical = 8.dp)
+                        // Section: Pengeluaran
+                        SectionHeader(title = "Pengeluaran", icon = Icons.Default.TrendingDown, accentColor = Color(0xFFE74C3C))
+                        Spacer(modifier = Modifier.height(8.dp))
+                        var bebanUsahaExpanded by remember { mutableStateOf(false) }
+                        var bebanLainnyaExpanded by remember { mutableStateOf(false) }
+                        RowItem(
+                            icon = null,
+                            label = "Beban Usaha",
+                            value = formatRupiah(bebanUsaha.toInt()),
+                            expanded = bebanUsahaExpanded,
+                            onClick = { bebanUsahaExpanded = !bebanUsahaExpanded },
+                            accentColor = Color.Black,
+                            showArrow = true
                         )
-                        // Beban Usaha
-                        Row(
-                            Modifier
-                                .fillMaxWidth()
-                                .clickable { bebanUsahaExpanded = !bebanUsahaExpanded },
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text("Beban Usaha", fontFamily = Poppins, color = Color.Black)
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Text(
-                                    formatRupiah(bebanUsaha.toInt()),
-                                    fontFamily = Poppins,
-                                    color = Color.Black,
-                                    textAlign = TextAlign.End
-                                )
-                                Icon(
-                                    imageVector = if (bebanUsahaExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
-                                    contentDescription = null,
-                                    tint = Color.Gray
-                                )
-                            }
-                        }
                         AnimatedVisibility(
                             visible = bebanUsahaExpanded,
                             enter = expandVertically(),
                             exit = shrinkVertically()
                         ) {
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(start = 8.dp, end = 8.dp, bottom = 8.dp)
-                                    .background(Color(0xFFF5F5F5).copy(alpha = 0f))
-                            ) {
-                                val groupedList = transactions.filter {
-                                    it.type.equals("EXPENSE", true) && it.category.equals(
-                                        "Usaha",
-                                        true
-                                    )
-                                }.groupBy { it.description }
-                                    .map { (desc, items) -> desc to items.sumOf { it.amount } }
-                                groupedList.forEach { (desc, total) ->
-                                    Row(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(vertical = 4.dp),
-                                        horizontalArrangement = Arrangement.SpaceBetween
-                                    ) {
-                                        Text(
-                                            text = desc,
-                                            fontSize = 12.sp,
-                                            fontFamily = Poppins,
-                                            color = Color.Black,
-                                            maxLines = 1
-                                        )
-                                        Text(
-                                            text = formatRupiah(total.toInt()),
-                                            fontSize = 12.sp,
-                                            fontFamily = Poppins,
-                                            color = Color(0xFFE74C3C),
-                                            textAlign = TextAlign.End
-                                        )
-                                    }
-                                }
-                            }
+                            DetailList(transactions.filter {
+                                it.type.equals("EXPENSE", true) && it.category.equals("Usaha", true)
+                            })
                         }
-                        // Beban Lainnya
-                        Row(
-                            Modifier
-                                .fillMaxWidth()
-                                .clickable { bebanLainnyaExpanded = !bebanLainnyaExpanded },
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text("Beban Lainnya", fontFamily = Poppins, color = Color.Black)
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Text(
-                                    formatRupiah(bebanLainnya.toInt()),
-                                    fontFamily = Poppins,
-                                    color = Color.Black,
-                                    textAlign = TextAlign.End
-                                )
-                                Icon(
-                                    imageVector = if (bebanLainnyaExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
-                                    contentDescription = null,
-                                    tint = Color.Gray
-                                )
-                            }
-                        }
+                        RowItem(
+                            icon = null,
+                            label = "Beban Lainnya",
+                            value = formatRupiah(bebanLainnya.toInt()),
+                            expanded = bebanLainnyaExpanded,
+                            onClick = { bebanLainnyaExpanded = !bebanLainnyaExpanded },
+                            accentColor = Color.Black,
+                            showArrow = true
+                        )
                         AnimatedVisibility(
                             visible = bebanLainnyaExpanded,
                             enter = expandVertically(),
                             exit = shrinkVertically()
                         ) {
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(start = 8.dp, end = 8.dp, bottom = 8.dp)
-                                    .background(Color(0xFFF5F5F5).copy(alpha = 0f))
-                            ) {
-                                val groupedList = transactions.filter {
-                                    it.type.equals("EXPENSE", true) && !it.category.equals(
-                                        "Usaha",
-                                        true
-                                    )
-                                }.groupBy { it.description }
-                                    .map { (desc, items) -> desc to items.sumOf { it.amount } }
-                                groupedList.forEach { (desc, total) ->
-                                    Row(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(vertical = 4.dp),
-                                        horizontalArrangement = Arrangement.SpaceBetween
-                                    ) {
-                                        Text(
-                                            text = desc,
-                                            fontSize = 12.sp,
-                                            fontFamily = Poppins,
-                                            color = Color.Black,
-                                            maxLines = 1
-                                        )
-                                        Text(
-                                            text = formatRupiah(total.toInt()),
-                                            fontSize = 12.sp,
-                                            fontFamily = Poppins,
-                                            color = Color(0xFFE74C3C),
-                                            textAlign = TextAlign.End
-                                        )
-                                    }
-                                }
-                            }
+                            DetailList(transactions.filter {
+                                it.type.equals("EXPENSE", true) && !it.category.equals("Usaha", true)
+                            })
                         }
-                        // Total Pengeluaran
-                        Row(
-                            Modifier
-                                .fillMaxWidth()
-                                .padding(top = 4.dp, bottom = 8.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            Text(
-                                "Total Pengeluaran",
-                                fontWeight = FontWeight.Bold,
-                                fontFamily = Poppins,
-                                color = Color.Black
-                            )
-                            Text(
-                                formatRupiah(total_beban.toInt()),
-                                fontWeight = FontWeight.Bold,
-                                fontFamily = Poppins,
-                                color = Color.Black,
-                                textAlign = TextAlign.End
-                            )
-                        }
-                        Divider(thickness = 1.dp, color = Color.LightGray)
-                        Spacer(modifier = Modifier.height(12.dp))
+                        TotalRow(label = "Total Pengeluaran", value = formatRupiah(total_beban.toInt()), accentColor = Color.Black)
+                        Divider(color = Color(0xFFE0E0E0), thickness = 1.dp, modifier = Modifier.padding(vertical = 8.dp))
 
-                        // Section 3: Laba (Rugi) Kotor
-                        Row(
-                            Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 8.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            Text(
-                                "Laba (Rugi) Kotor",
-                                fontWeight = FontWeight.Bold,
-                                fontFamily = Poppins,
-                                color = Color.Black
-                            )
-                            Text(
-                                formatRupiah(laba_kotor.toInt()),
-                                fontWeight = FontWeight.Bold,
-                                fontFamily = Poppins,
-                                color = Color.Black,
-                                textAlign = TextAlign.End
-                            )
-                        }
-                        Divider(thickness = 1.dp, color = Color.LightGray)
-                        Spacer(modifier = Modifier.height(12.dp))
-
-                        // Section 4: Pajak UMKM
-                        Row(
-                            Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 8.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            Text(
-                                "Pajak Penghasilan UMKM (0,5%)",
-                                fontFamily = Poppins,
-                                color = Color.Black
-                            )
-                            Text(
-                                formatRupiah(pajak_umkm.toInt()),
-                                fontFamily = Poppins,
-                                color = Color.Black,
-                                textAlign = TextAlign.End
-                            )
-                        }
-                        Divider(thickness = 1.dp, color = Color.LightGray)
-                        Spacer(modifier = Modifier.height(12.dp))
-
-                        // Section 5: Laba (Rugi) Bersih
-                        Row(
-                            Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 8.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            Text(
-                                "Laba (Rugi) Bersih",
-                                fontWeight = FontWeight.Bold,
-                                fontFamily = Poppins,
-                                color = Color.Black
-                            )
-                            Text(
-                                formatRupiah(laba_bersih.toInt()),
-                                fontWeight = FontWeight.Bold,
-                                fontFamily = Poppins,
-                                color = Color.Black,
-                                textAlign = TextAlign.End
-                            )
+                        // Section: Laba (Rugi)
+                        SectionHeader(title = "Laba (Rugi)", icon = Icons.Default.BarChart, accentColor = PrimaryVariant)
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Column(modifier = Modifier.fillMaxWidth()) {
+                            TotalRow(label = "Laba (Rugi) Kotor", value = formatRupiah(laba_kotor.toInt()), accentColor = PrimaryVariant)
+                            TotalRow(label = "Pajak Penghasilan UMKM (0,5%)", value = formatRupiah(pajak_umkm.toInt()), accentColor = PrimaryVariant)
+                            TotalRow(label = "Laba (Rugi) Bersih", value = formatRupiah(laba_bersih.toInt()), accentColor = PrimaryVariant)
                         }
                     }
                 }
 
+                // AI Insight Section - moved to bottom
+                AIInsightSection(
+                    insightAI = insightAI,
+                    isLoadingInsightAI = isLoadingInsightAI,
+                    errorInsightAI = errorInsightAI,
+                    onGetAIInsight = {
+                        isInsightRequested = true
+                        aiInsightTrigger++ // Trigger LaunchedEffect
+                    }
+                )
+
+                // LaunchedEffect untuk AI Insight di level Composable
+                LaunchedEffect(aiInsightTrigger) {
+                    if (aiInsightTrigger > 0) {
+                        val rincianPendapatan = transactions.filter { it.type.equals("INCOME", true) }
+                            .groupBy { it.description }
+                            .map { (desc, items) -> desc to items.sumOf { it.amount.toInt() } }
+                        val rincianPengeluaran = transactions.filter { it.type.equals("EXPENSE", true) }
+                            .groupBy { it.description }
+                            .map { (desc, items) -> desc to items.sumOf { it.amount.toInt() } }
+                        
+                        transactionViewModel.getAIInsightReport(
+                            totalPendapatan = total_pendapatan.toInt(),
+                            totalPengeluaran = total_beban.toInt(),
+                            labaKotor = laba_kotor.toInt(),
+                            pajakUmkm = pajak_umkm.toInt(),
+                            labaBersih = laba_bersih.toInt(),
+                            rincianPendapatan = rincianPendapatan,
+                            rincianPengeluaran = rincianPengeluaran
+                        )
+                    }
+                }
+
                 // Tambahkan Spacer di akhir agar tidak overlap dengan navbar
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(8.dp))
             }
 
             // Filter Dialog
@@ -1102,6 +856,420 @@ fun TransactionDayCard(
                         }
                     }
                 }
+            }
+        }
+    }
+}
+
+@Composable
+fun AIInsightSection(
+    insightAI: com.example.omsetku.data.AIPricingService.AIInsightResult?,
+    isLoadingInsightAI: Boolean,
+    errorInsightAI: String?,
+    onGetAIInsight: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = PrimaryLight
+        ),
+        shape = RoundedCornerShape(12.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            // Header dengan icon AI
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Psychology,
+                    contentDescription = "AI Insight",
+                    tint = PrimaryColor,
+                    modifier = Modifier.size(24.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = "Insight Laporan AI",
+                    fontFamily = Poppins,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = PrimaryColor
+                )
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            if (isLoadingInsightAI) {
+                // Loading state
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    CircularProgressIndicator(
+                        color = PrimaryColor,
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Text(
+                        text = "Menganalisis laporan dengan AI...",
+                        fontFamily = Poppins,
+                        fontSize = 14.sp,
+                        color = PrimaryColor
+                    )
+                }
+            } else if (errorInsightAI != null) {
+                // Error state
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = Color(0xFFFFEBEE)
+                    ),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(12.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Warning,
+                            contentDescription = null,
+                            tint = Color.Red,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = errorInsightAI,
+                            fontFamily = Poppins,
+                            fontSize = 12.sp,
+                            color = Color.Red
+                        )
+                    }
+                }
+            } else if (insightAI != null) {
+                // AI Insight content
+                AIInsightContent(insightAI = insightAI)
+            } else {
+                // Get AI insight button
+                Button(
+                    onClick = onGetAIInsight,
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(8.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = PrimaryColor
+                    )
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Psychology,
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "Dapatkan Insight AI",
+                        fontFamily = Poppins,
+                        fontWeight = FontWeight.Medium,
+                        fontSize = 14.sp
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun AIInsightContent(
+    insightAI: com.example.omsetku.data.AIPricingService.AIInsightResult,
+    modifier: Modifier = Modifier
+) {
+    Column(modifier = modifier) {
+        Spacer(modifier = Modifier.height(12.dp))
+
+        // Expandable sections
+        var showDetails by remember { mutableStateOf(false) }
+
+        Button(
+            onClick = { showDetails = !showDetails },
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(8.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = PrimaryVariant
+            ),
+            border = BorderStroke(1.dp, PrimaryColor)
+        ) {
+            Text(
+                text = if (showDetails) "Sembunyikan Detail" else "Lihat Detail Insight",
+                fontFamily = Poppins,
+                fontSize = 12.sp,
+                color = PrimaryColor
+            )
+            Spacer(modifier = Modifier.width(4.dp))
+            Icon(
+                imageVector = if (showDetails) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
+                contentDescription = null,
+                tint = PrimaryColor,
+                modifier = Modifier.size(16.dp)
+            )
+        }
+
+        AnimatedVisibility(
+            visible = showDetails,
+            enter = expandVertically(),
+            exit = shrinkVertically()
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 12.dp)
+            ) {
+                // Highlight
+                if (insightAI.highlight.isNotBlank()) {
+                    InsightDetailSection(
+                        title = "Highlight",
+                        content = insightAI.highlight,
+                        icon = Icons.Default.Lightbulb,
+                        color = PrimaryLight
+                    )
+                }
+
+                // Saran
+                if (insightAI.saran.isNotBlank()) {
+                    InsightDetailSection(
+                        title = "Saran",
+                        content = insightAI.saran,
+                        icon = Icons.Default.TipsAndUpdates,
+                        color = PrimaryVariant
+                    )
+                }
+
+                // Narasi
+                if (insightAI.narasi.isNotBlank()) {
+                    InsightDetailSection(
+                        title = "Narasi",
+                        content = insightAI.narasi,
+                        icon = Icons.Default.Description,
+                        color = ExpenseLightColor
+                    )
+                }
+
+                // Anomali
+                if (insightAI.anomali.isNotBlank()) {
+                    InsightDetailSection(
+                        title = "Anomali Terdeteksi",
+                        content = insightAI.anomali,
+                        icon = Icons.Default.Warning,
+                        color = Color(0xFFFFEBEE),
+                        textColor = Color.Red
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun InsightDetailSection(
+    title: String,
+    content: String,
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    color: Color,
+    textColor: Color = Color.DarkGray,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = color
+        ),
+        shape = RoundedCornerShape(8.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp)
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    tint = textColor,
+                    modifier = Modifier.size(16.dp)
+                )
+                Spacer(modifier = Modifier.width(6.dp))
+                Text(
+                    text = title,
+                    fontFamily = Poppins,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = textColor
+                )
+            }
+            Spacer(modifier = Modifier.height(6.dp))
+            Text(
+                text = content,
+                fontFamily = Poppins,
+                fontSize = 11.sp,
+                color = textColor,
+                lineHeight = 16.sp
+            )
+        }
+    }
+}
+
+@Composable
+fun SectionHeader(
+    title: String,
+    icon: ImageVector,
+    accentColor: Color,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            tint = accentColor,
+            modifier = Modifier.size(24.dp)
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        Text(
+            text = title,
+            fontFamily = Poppins,
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color.Black
+        )
+    }
+}
+
+@Composable
+fun RowItem(
+    icon: androidx.compose.ui.graphics.vector.ImageVector?,
+    label: String,
+    value: String,
+    expanded: Boolean,
+    onClick: () -> Unit,
+    accentColor: Color,
+    showArrow: Boolean = true
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() },
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        if (icon != null) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = accentColor,
+                modifier = Modifier.size(16.dp)
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+        }
+        Text(
+            text = label,
+            fontFamily = Poppins,
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Medium,
+            color = Color.Black
+        )
+        Spacer(modifier = Modifier.weight(1f))
+        Text(
+            text = value,
+            fontFamily = Poppins,
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color.Black,
+            textAlign = TextAlign.End
+        )
+        if (showArrow) {
+            Icon(
+                imageVector = if (expanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
+                contentDescription = null,
+                tint = Color.Gray,
+                modifier = Modifier.size(16.dp)
+            )
+        }
+    }
+}
+
+@Composable
+fun TotalRow(
+    label: String,
+    value: String,
+    accentColor: Color,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = label,
+            fontFamily = Poppins,
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Medium,
+            color = Color.Black
+        )
+        Text(
+            text = value,
+            fontFamily = Poppins,
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Bold,
+            color = accentColor,
+            textAlign = TextAlign.End
+        )
+    }
+}
+
+@Composable
+fun DetailList(
+    transactions: List<Transaction>,
+    modifier: Modifier = Modifier
+) {
+    Column(modifier = modifier) {
+        transactions.forEach {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 4.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = it.description,
+                    fontFamily = Poppins,
+                    fontSize = 12.sp,
+                    color = Color.Black,
+                    maxLines = 1
+                )
+                Text(
+                    text = formatRupiah(it.amount.toInt()),
+                    fontFamily = Poppins,
+                    fontSize = 14.sp,
+                    color = Color.Black,
+                    textAlign = TextAlign.End
+                )
             }
         }
     }

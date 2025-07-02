@@ -94,7 +94,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.ui.zIndex
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 
@@ -105,7 +104,7 @@ fun CashierScreen(
     modifier: Modifier = Modifier,
     productViewModel: ProductViewModel = hiltViewModel(),
     cartViewModel: CartViewModel,
-    hppViewModel: HppViewModel = viewModel()
+    hppViewModel: HppViewModel = hiltViewModel()
 ) {
     var selectedItem by remember { mutableStateOf("Cashier") }
     var searchQuery by remember { mutableStateOf("") }

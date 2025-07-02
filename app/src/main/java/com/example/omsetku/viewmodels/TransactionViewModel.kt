@@ -10,6 +10,11 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
+import com.example.omsetku.data.AIPricingService.AIInsightResult
+import com.example.omsetku.data.AIPricingService
+import com.google.ai.client.generativeai.GenerativeModel
+import com.example.omsetku.BuildConfig
+import com.google.gson.GsonBuilder
 
 class TransactionViewModel : ViewModel() {
     private val repository = FirestoreRepository()
@@ -28,6 +33,20 @@ class TransactionViewModel : ViewModel() {
 
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error.asStateFlow()
+
+    private val _insightAI = MutableStateFlow<AIInsightResult?>(null)
+    val insightAI: StateFlow<AIInsightResult?> = _insightAI.asStateFlow()
+
+    private val _isLoadingInsightAI = MutableStateFlow(false)
+    val isLoadingInsightAI: StateFlow<Boolean> = _isLoadingInsightAI.asStateFlow()
+
+    private val _errorInsightAI = MutableStateFlow<String?>(null)
+    val errorInsightAI: StateFlow<String?> = _errorInsightAI.asStateFlow()
+
+    private val generativeModel = GenerativeModel(
+        modelName = "gemini-1.5-flash",
+        apiKey = BuildConfig.GEMINI_API_KEY
+    )
 
     /**
      * Fungsi lama (default): load transaksi 1 bulan terakhir
@@ -181,5 +200,75 @@ class TransactionViewModel : ViewModel() {
                 desc to list.sumOf { it.amount }
             }
             .sortedByDescending { it.second }
+    }
+
+    suspend fun getAIInsightReport(
+        totalPendapatan: Int,
+        totalPengeluaran: Int,
+        labaKotor: Int,
+        pajakUmkm: Int,
+        labaBersih: Int,
+        rincianPendapatan: List<Pair<String, Int>>,
+        rincianPengeluaran: List<Pair<String, Int>>
+    ) {
+        _isLoadingInsightAI.value = true
+        _errorInsightAI.value = null
+        try {
+            val pendapatanList = rincianPendapatan.joinToString("\n") { "- ${it.first}: Rp ${String.format("%,d", it.second).replace(',', '.')}" }
+            val pengeluaranList = rincianPengeluaran.joinToString("\n") { "- ${it.first}: Rp ${String.format("%,d", it.second).replace(',', '.')}" }
+            val prompt = """
+Berikut adalah ringkasan laporan keuangan UMKM:
+
+- Total Pendapatan: Rp ${String.format("%,d", totalPendapatan).replace(',', '.')}
+- Total Pengeluaran: Rp ${String.format("%,d", totalPengeluaran).replace(',', '.')}
+- Laba Kotor: Rp ${String.format("%,d", labaKotor).replace(',', '.')}
+- Pajak UMKM: Rp ${String.format("%,d", pajakUmkm).replace(',', '.')}
+- Laba Bersih: Rp ${String.format("%,d", labaBersih).replace(',', '.')}
+
+Rincian Pendapatan:
+$pendapatanList
+
+Rincian Pengeluaran:
+$pengeluaranList
+
+Analisis dan insight yang dibutuhkan:
+1. Highlight utama (misal: tren naik/turun, perbandingan, dsb)
+2. Saran perbaikan atau peluang
+3. Narasi ringkas laporan keuangan
+4. Deteksi anomali: Jika ada pola tidak wajar (misal: pengeluaran tiba-tiba melonjak, pendapatan turun drastis, dsb), jelaskan di field 'anomali'. Jika tidak ada anomali, kosongkan field 'anomali'.
+
+Jawab dalam format JSON:
+{
+  \"highlight\": \"...\",
+  \"saran\": \"...\",
+  \"narasi\": \"...\",
+  \"anomali\": \"...\" // Kosongkan jika tidak ada anomali
+}
+
+Catatan penting untuk bagian 'saran':
+- Tuliskan dalam bentuk daftar poin, namun setiap poin langsung berupa kalimat saran tanpa membuat judul atau kata kunci tebal di awal.
+- Hindari format seperti '**Judul:** penjelasan', cukup tulis saran langsung.
+- Contoh yang benar: '1. Gunakan sistem pencatatan keuangan yang lebih detail dan terstruktur.'
+- Contoh yang salah: '**Perbaiki sistem pencatatan keuangan:** Gunakan sistem pencatatan ...'
+
+PENTING: Semua field pada JSON, termasuk 'saran', WAJIB selalu berupa string (bukan array/list). Jika ada beberapa saran, gabungkan menjadi satu string dengan pemisah baris baru (\n). Jangan pernah mengembalikan array/list di field manapun.
+"""
+            val response = generativeModel.generateContent(prompt)
+            val responseText = response.text ?: throw Exception("No response from AI")
+            val jsonStart = responseText.indexOf('{')
+            val jsonEnd = responseText.lastIndexOf('}') + 1
+            val jsonString = if (jsonStart >= 0 && jsonEnd > jsonStart) {
+                responseText.substring(jsonStart, jsonEnd)
+            } else {
+                responseText
+            }
+            val gson = GsonBuilder().registerTypeAdapter(AIInsightResult::class.java, com.example.omsetku.data.AIPricingService.AIInsightResultAdapter()).create()
+            val insight = gson.fromJson(jsonString, AIInsightResult::class.java)
+            _insightAI.value = insight
+        } catch (e: Exception) {
+            _errorInsightAI.value = "Gagal mendapatkan insight AI: ${e.message}"
+        } finally {
+            _isLoadingInsightAI.value = false
+        }
     }
 }

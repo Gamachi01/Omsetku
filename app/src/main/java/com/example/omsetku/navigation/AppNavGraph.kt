@@ -11,6 +11,8 @@ import com.example.omsetku.viewmodels.TaxViewModel
 import com.example.omsetku.viewmodels.BusinessViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.omsetku.viewmodels.HppViewModel
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.omsetku.viewmodels.ProductViewModel
 
 @Composable
 fun AppNavGraph(
@@ -20,7 +22,6 @@ fun AppNavGraph(
 ) {
     // Inisialisasi BusinessViewModel
     val businessViewModel: BusinessViewModel = viewModel()
-    val hppViewModel: HppViewModel = viewModel()
 
     NavHost(navController = navController, startDestination = Routes.SPLASH) {
         composable(Routes.SPLASH) {
@@ -54,23 +55,32 @@ fun AppNavGraph(
             TransactionScreen(navController)
         }
         composable(Routes.CASHIER) {
+            val hppViewModel: HppViewModel = hiltViewModel()
             CashierScreen(
                 navController = navController,
                 cartViewModel = cartViewModel,
-                hppViewModel = hppViewModel
+                hppViewModel = hppViewModel,
+                productViewModel = hiltViewModel()
             )
         }
         composable(Routes.HPP) {
-            HppScreen(navController)
+            val hppViewModel: HppViewModel = hiltViewModel()
+            HppScreen(
+                navController = navController,
+                hppViewModel = hppViewModel,
+                productViewModel = hiltViewModel()
+            )
         }
         composable(Routes.REPORT) {
             ReportScreen(navController)
         }
         composable(Routes.TRANSACTION_DETAIL) {
+            val hppViewModel: HppViewModel = hiltViewModel()
             TransactionDetailScreen(
                 navController = navController,
                 cartViewModel = cartViewModel,
                 taxViewModel = taxViewModel,
+                productViewModel = hiltViewModel(),
                 hppViewModel = hppViewModel
             )
         }

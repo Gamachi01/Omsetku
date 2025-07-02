@@ -22,6 +22,9 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+        
+        // Add Gemini API key from local.properties
+        buildConfigField("String", "GEMINI_API_KEY", "\"AIzaSyA2BzpV-NSOu-bjFlWGltCLc7zxYNOH700\"")
     }
 
     buildTypes {
@@ -42,6 +45,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.10"
@@ -103,4 +107,12 @@ dependencies {
 
     // Gson
     implementation("com.google.code.gson:gson:2.10.1")
+    
+    // Google AI SDK for Gemini
+    implementation("com.google.ai.client.generativeai:generativeai:0.1.2")
+    
+    // Retrofit for API calls (if needed for external market data)
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
 } 

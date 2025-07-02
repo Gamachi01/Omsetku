@@ -13,6 +13,7 @@ import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -28,7 +29,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.omsetku.navigation.Routes
 import com.example.omsetku.R
@@ -55,6 +55,11 @@ import androidx.compose.material3.Text
 import androidx.compose.animation.animateContentSize
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.rememberModalBottomSheetState
+import com.example.omsetku.ui.components.AIPricingSection
+import java.text.NumberFormat
+import java.util.Locale
+
+fun Int.toRupiah(): String = NumberFormat.getNumberInstance(Locale("id", "ID")).format(this)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -271,7 +276,7 @@ fun HppScreen(
                             // Keterangan ongkos otomatis
                             if (bahan.hargaBeli.isNotBlank() && bahan.jumlahBeli.isNotBlank() && bahan.terpakai.isNotBlank()) {
                                 Text(
-                                    text = "Harga: Rp ${ongkos.toInt()}",
+                                    text = "Harga: Rp ${ongkos.toInt().toRupiah()}",
                                     fontFamily = Poppins,
                                     color = Color(0xFF5ED0C5),
                                     fontWeight = FontWeight.SemiBold
@@ -368,7 +373,7 @@ fun HppScreen(
                 )
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(8.dp))
         }
     }
 
@@ -385,12 +390,14 @@ fun HppScreen(
                 shape = RoundedCornerShape(16.dp),
                 colors = CardDefaults.cardColors(
                     containerColor = Color.White
-                )
+                ),
+                elevation = CardDefaults.cardElevation(defaultElevation = 32.dp)
             ) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(24.dp)
+                        .verticalScroll(rememberScrollState())
                 ) {
                     Text(
                         text = "Hasil Perhitungan HPP",
@@ -410,7 +417,7 @@ fun HppScreen(
                             .fillMaxWidth()
                             .padding(vertical = 8.dp),
                         colors = CardDefaults.cardColors(
-                            containerColor = Color(0xFFF5F5F5)
+                            containerColor = Color(0xFFE0F7FA)
                         ),
                         shape = RoundedCornerShape(8.dp)
                     ) {
@@ -426,7 +433,7 @@ fun HppScreen(
                                 color = Color.Gray
                             )
                             Text(
-                                text = "Rp ${hppPerPorsi.toInt()}",
+                                text = "Rp ${hppPerPorsi.toInt().toRupiah()}",
                                 fontFamily = Poppins,
                                 fontSize = 24.sp,
                                 fontWeight = FontWeight.Bold,
@@ -457,12 +464,53 @@ fun HppScreen(
                                 color = Color.Gray
                             )
                             Text(
-                                text = "Rp ${rekomendasiHarga.toInt()}",
+                                text = "Rp ${rekomendasiHarga.toInt().toRupiah()}",
                                 fontFamily = Poppins,
                                 fontSize = 24.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Color(0xFF5ED0C5)
                             )
+                        }
+                    }
+
+                    // AI Pricing Section
+                    AIPricingSection(
+                        aiRecommendation = hppViewModel.aiPricingRecommendation.collectAsState().value,
+                        isAnalyzing = hppViewModel.isAnalyzingAI.collectAsState().value,
+                        onGetAIRecommendation = { hppViewModel.getAIPricingRecommendation() }
+                    )
+
+                    // Error message for AI
+                    hppViewModel.aiError.collectAsState().value?.let { error ->
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 8.dp),
+                            colors = CardDefaults.cardColors(
+                                containerColor = Color(0xFFFFEBEE)
+                            ),
+                            shape = RoundedCornerShape(8.dp)
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(12.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Warning,
+                                    contentDescription = null,
+                                    tint = Color.Red,
+                                    modifier = Modifier.size(16.dp)
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    text = error,
+                                    fontFamily = Poppins,
+                                    fontSize = 12.sp,
+                                    color = Color.Red
+                                )
+                            }
                         }
                     }
 
@@ -475,6 +523,8 @@ fun HppScreen(
                                 hppViewModel.saveHpp(product.id, hppPerPorsi)
                             }
                             showResultDialog = false
+                            // Clear AI recommendation when dialog is closed
+                            hppViewModel.clearAIRecommendation()
                             // Tambahkan refresh produk setelah simpan HPP
                             productViewModel.loadProducts()
                         },

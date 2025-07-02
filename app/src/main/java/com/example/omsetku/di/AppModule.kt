@@ -19,6 +19,7 @@ import com.example.omsetku.domain.repository.ProductRepository
 import com.example.omsetku.domain.repository.CartRepository
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.example.omsetku.data.AIPricingService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -78,4 +79,10 @@ object AppModule {
     @Singleton
     fun provideCartRepository(cartItemDao: CartItemDao, firestore: FirebaseFirestore): CartRepository =
         CartRepositoryImpl(cartItemDao, firestore)
+
+    @Provides
+    @Singleton
+    fun provideAIPricingService(): AIPricingService {
+        return AIPricingService()
+    }
 } 

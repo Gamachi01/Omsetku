@@ -25,8 +25,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
 import com.example.omsetku.navigation.Routes
 import com.example.omsetku.R
 import com.example.omsetku.domain.model.CartItem
@@ -47,15 +45,18 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import androidx.compose.ui.platform.LocalContext
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.NavOptions
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TransactionDetailScreen(
     navController: NavController,
     cartViewModel: CartViewModel,
-    taxViewModel: TaxViewModel = viewModel(),
-    productViewModel: ProductViewModel = hiltViewModel(),
-    hppViewModel: HppViewModel = viewModel()
+    taxViewModel: TaxViewModel,
+    productViewModel: ProductViewModel,
+    hppViewModel: HppViewModel
 ) {
     val cartItems by cartViewModel.cartItems.collectAsState()
     val taxSettings by taxViewModel.taxSettings.collectAsState()

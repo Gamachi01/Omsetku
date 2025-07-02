@@ -4,13 +4,19 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.omsetku.firebase.FirestoreRepository
 import com.example.omsetku.models.Product
+import com.example.omsetku.data.AIPricingService
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.util.Date
+import javax.inject.Inject
+import dagger.hilt.android.lifecycle.HiltViewModel
 
-class HppViewModel : ViewModel() {
+@HiltViewModel
+class HppViewModel @Inject constructor(
+    private val aiPricingService: AIPricingService
+) : ViewModel() {
     private val repository = FirestoreRepository()
 
     // Tambahkan mapping ID
@@ -75,6 +81,16 @@ class HppViewModel : ViewModel() {
 
     private val _marginProfit = MutableStateFlow("")
     val marginProfit: StateFlow<String> = _marginProfit.asStateFlow()
+
+    // AI Pricing states
+    private val _aiPricingRecommendation = MutableStateFlow<AIPricingService.PricingRecommendation?>(null)
+    val aiPricingRecommendation: StateFlow<AIPricingService.PricingRecommendation?> = _aiPricingRecommendation.asStateFlow()
+
+    private val _isAnalyzingAI = MutableStateFlow(false)
+    val isAnalyzingAI: StateFlow<Boolean> = _isAnalyzingAI.asStateFlow()
+
+    private val _aiError = MutableStateFlow<String?>(null)
+    val aiError: StateFlow<String?> = _aiError.asStateFlow()
 
     init {
         loadProducts()
@@ -266,6 +282,69 @@ class HppViewModel : ViewModel() {
         _totalBiaya.value = totalBiayaBahanBaku + totalBiayaOperasional
 
         return hppPerPorsi
+    }
+
+    /**
+     * Mendapatkan rekomendasi harga dari AI
+     */
+    fun getAIPricingRecommendation() {
+        val selectedProduct = _selectedProduct.value ?: return
+        val hppPerPorsi = hitungHpp()
+        if (hppPerPorsi <= 0) {
+            _aiError.value = "HPP harus dihitung terlebih dahulu"
+            return
+        }
+
+        viewModelScope.launch {
+            _isAnalyzingAI.value = true
+            _aiError.value = null
+            _aiPricingRecommendation.value = null
+
+            try {
+                // Convert data untuk AI service
+                val hppData = AIPricingService.HPPData(
+                    productName = selectedProduct.name,
+                    hppPerPorsi = hppPerPorsi,
+                    marginProfit = _marginProfit.value.toDoubleOrNull() ?: 0.0,
+                    bahanBaku = _bahanBakuList.value.map { bahan ->
+                        AIPricingService.BahanBakuData(
+                            nama = bahan.nama,
+                            hargaBeli = bahan.hargaBeli.replace(".", "").replace(",", ".").toDoubleOrNull() ?: 0.0,
+                            jumlahBeli = bahan.jumlahBeli.replace(".", "").replace(",", ".").toDoubleOrNull() ?: 0.0,
+                            satuan = bahan.satuan,
+                            terpakai = bahan.terpakai.replace(".", "").replace(",", ".").toDoubleOrNull() ?: 0.0
+                        )
+                    },
+                    biayaOperasional = _biayaOperasionalList.value.map { biaya ->
+                        AIPricingService.BiayaOperasionalData(
+                            nama = biaya.nama,
+                            hargaBeli = biaya.hargaBeli.replace(".", "").replace(",", ".").toDoubleOrNull() ?: 0.0,
+                            jumlahBeli = biaya.jumlahBeli.replace(".", "").replace(",", ".").toDoubleOrNull() ?: 0.0,
+                            satuan = biaya.satuan,
+                            terpakai = biaya.terpakai.replace(".", "").replace(",", ".").toDoubleOrNull() ?: 0.0
+                        )
+                    },
+                    targetPorsi = _targetPorsi.value.toDoubleOrNull() ?: 0.0,
+                    currentPrice = selectedProduct.price.toDouble()
+                )
+
+                val recommendation = aiPricingService.getPricingRecommendation(hppData)
+                _aiPricingRecommendation.value = recommendation
+
+            } catch (e: Exception) {
+                _aiError.value = "Gagal menganalisis dengan AI: ${e.message}"
+            } finally {
+                _isAnalyzingAI.value = false
+            }
+        }
+    }
+
+    /**
+     * Clear AI recommendation
+     */
+    fun clearAIRecommendation() {
+        _aiPricingRecommendation.value = null
+        _aiError.value = null
     }
 
     /**
