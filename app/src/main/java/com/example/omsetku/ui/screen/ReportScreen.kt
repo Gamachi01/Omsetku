@@ -257,7 +257,7 @@ fun ReportScreen(
                     )
                 }
 
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(12.dp))
 
                 // Filter dan Download Button
                 Row(
@@ -314,7 +314,7 @@ fun ReportScreen(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(20.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
                 // Cards untuk Total Pendapatan dan Pengeluaran
                 Row(
@@ -540,6 +540,8 @@ fun ReportScreen(
                     }
                 }
 
+                Spacer(modifier = Modifier.height(12.dp))
+
                 // AI Insight Section - moved to bottom
                 AIInsightSection(
                     insightAI = insightAI,
@@ -574,7 +576,7 @@ fun ReportScreen(
                 }
 
                 // Tambahkan Spacer di akhir agar tidak overlap dengan navbar
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(12.dp))
             }
 
             // Filter Dialog
