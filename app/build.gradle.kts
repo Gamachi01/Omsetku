@@ -24,7 +24,7 @@ android {
         }
         
         // Add Gemini API key from local.properties
-        buildConfigField("String", "GEMINI_API_KEY", "\"AIzaSyA2BzpV-NSOu-bjFlWGltCLc7zxYNOH700\"")
+        buildConfigField("String", "GEMINI_API_KEY")
     }
 
     buildTypes {
